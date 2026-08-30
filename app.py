@@ -1,0 +1,526 @@
+"""Douyin Spark Keeper：多账号抖音续火花 Web 服务入口。
+
+Windows 本机运行：python app.py（首次运行自动生成访问令牌写入 .env）
+或直接双击 start.bat。
+"""
+
+from __future__ import annotations
+
+import json
+import logging
+import os
+import secrets
+import threading
+from contextlib import asynccontextmanager
+from datetime import datetime
+from pathlib import Path
+
+import uvicorn
+from fastapi import FastAPI, File, Header, HTTPException, UploadFile
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel
+
+from core import accounts, automation, autostart, browsers, login, notify, scheduler
+from core.config import (
+    DATA_DIR,
+    load_account_config,
+    load_global_config,
+    save_account_config,
+    save_global_config,
+)
+from core.runtime import (
+    close_account_log,
+    load_runtime,
+    read_account_log_tail,
+    recent_logs,
+    record_contacts,
+    record_run,
+    set_log_account,
+    set_running,
+    setup_account_log,
+    setup_logging,
+    update_runtime,
+)
+
+BASE_DIR = Path(__file__).resolve().parent
+STATIC_DIR = BASE_DIR / "static"
+ENV_PATH = BASE_DIR / ".env"
+APP_VERSION = "0.5.20"
+
+
+def _load_env() -> None:
+    if not ENV_PATH.exists():
+        return
+    for line in ENV_PATH.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if line and not line.startswith("#") and "=" in line:
+            key, value = line.split("=", 1)
+            os.environ.setdefault(key.strip(), value.strip())
+
+
+def _ensure_token() -> str:
+    """没有配置 AUTH_TOKEN 时自动生成一个随机令牌并写入 .env，避免裸奔。"""
+    token = os.environ.get("AUTH_TOKEN", "").strip()
+    if token:
+        return token
+    token = secrets.token_hex(16)
+    try:
+        with ENV_PATH.open("a", encoding="utf-8") as f:
+            if ENV_PATH.exists() and ENV_PATH.stat().st_size > 0:
+                f.write(f"\nAUTH_TOKEN={token}\n")
+            else:
+                f.write(f"# 网页访问令牌（自动生成，请勿外泄）\nAUTH_TOKEN={token}\nPORT=8000\n")
+    except Exception:
+        pass
+    os.environ["AUTH_TOKEN"] = token
+    return token
+
+
+_load_env()
+AUTH_TOKEN = _ensure_token()
+logger = setup_logging()
+# 令牌只打到控制台（print），不进日志/网页，避免泄露
+print(f"访问令牌: {AUTH_TOKEN}  （保存在 {ENV_PATH}）")
+
+run_lock = threading.Lock()
+contacts_fetching: dict[str, bool] = {}
+
+
+def _check_auth(token: str) -> None:
+    if AUTH_TOKEN and token != AUTH_TOKEN:
+        raise HTTPException(status_code=401, detail="访问令牌不正确")
+
+
+def _get_account(acc_id: str) -> Path:
+    try:
+        acc_dir = accounts.account_dir(acc_id)
+    except ValueError:
+        raise HTTPException(status_code=400, detail="非法账号 ID")
+    if not acc_dir.exists():
+        raise HTTPException(status_code=404, detail="账号不存在")
+    return acc_dir
+
+
+def _notify_run(acc_id: str, acc_name: str, result: dict) -> None:
+    try:
+        title, content = notify.run_summary(acc_name, result)
+        gcfg = load_global_config()
+        res = notify.send_notification(gcfg, title, content)
+        for r in res:
+            logger.info("【%s】通知结果: %s", acc_id, r)
+    except Exception as e:
+        logger.warning("发送通知异常: %s", str(e)[:100])
+
+
+def _start_run(
+    acc_id: str,
+    dry: bool,
+    only_names: list[str] | None = None,
+    extra: dict | None = None,
+) -> None:
+    if not run_lock.acquire(blocking=False):
+        raise HTTPException(status_code=409, detail="已有任务在运行（多账号串行执行）")
+
+    def worker() -> None:
+        acc_dir = None
+        try:
+            acc_dir = _get_account(acc_id)
+            setup_account_log(acc_id)
+            set_log_account(acc_id)
+            acc_cfg = load_account_config(acc_dir)
+            set_running(acc_dir, True)
+            try:
+                result = automation.run_send(acc_dir, dry_run=dry, only_names=only_names)
+                # 定时触发时把实际随机延迟秒数写入历史记录（手动/补发运行则无此字段）
+                if extra and "delay_seconds" in extra:
+                    result["delay_seconds"] = extra["delay_seconds"]
+                record_run(acc_dir, result)
+                logger.info(
+                    "【%s】本次发送完成：成功 %s 人，失败 %s 人，dry=%s",
+                    acc_id,
+                    len(result.get("ok", [])),
+                    len(result.get("failed", [])),
+                    dry,
+                )
+                _notify_run(acc_id, acc_cfg.get("name", acc_id), result)
+
+                if not dry:
+                    failed_names = [
+                        f["name"]
+                        for f in result.get("failed", [])
+                        if isinstance(f, dict)
+                        and isinstance(f.get("name"), str)
+                        and f["name"] != "_system"
+                    ]
+                    if failed_names and not result.get("logged_out"):
+                        rt = load_runtime(acc_dir)
+                        today = datetime.now().date().isoformat()
+                        if rt.get("retry_date") != today:
+                            update_runtime(acc_dir, retry_date=today)
+                            scheduler.schedule_retry(
+                                acc_id,
+                                lambda: _start_run(acc_id, False, failed_names),
+                                delay_minutes=int(acc_cfg.get("retry_minutes", 45)),
+                            )
+                    else:
+                        scheduler.cancel_retry(acc_id)
+            finally:
+                set_running(acc_dir, False)
+        except HTTPException as e:
+            logger.warning("【%s】任务启动失败: %s", acc_id, e.detail)
+        finally:
+            set_log_account(None)
+            run_lock.release()
+
+    threading.Thread(target=worker, daemon=True).start()
+
+
+def _start_fetch_contacts(acc_id: str) -> None:
+    if not run_lock.acquire(blocking=False):
+        raise HTTPException(status_code=409, detail="已有任务在运行")
+    contacts_fetching[acc_id] = True
+
+    def worker() -> None:
+        try:
+            acc_dir = _get_account(acc_id)
+            setup_account_log(acc_id)
+            set_log_account(acc_id)
+            try:
+                record_contacts(acc_dir, automation.fetch_chat_contacts(acc_dir))
+            finally:
+                contacts_fetching[acc_id] = False
+        except HTTPException as e:
+            logger.warning("获取联系人失败: %s", e.detail)
+            contacts_fetching[acc_id] = False
+        finally:
+            set_log_account(None)
+            run_lock.release()
+
+    threading.Thread(target=worker, daemon=True).start()
+
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    try:
+        accounts.ensure_accounts()
+        scheduler.configure(lambda acc_id, extra=None: _start_run(acc_id, False, extra=extra))
+    except Exception as e:  # pragma: no cover
+        logger.warning("初始化失败: %s", e)
+    yield
+    scheduler.shutdown()
+
+
+app = FastAPI(title="Douyin Spark Keeper", lifespan=lifespan)
+app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+
+
+class RunBody(BaseModel):
+    dry: bool = False
+    only_names: list[str] | None = None
+
+
+class NameBody(BaseModel):
+    name: str
+
+
+class ConfigBody(BaseModel):
+    config: dict
+
+
+class TokenBody(BaseModel):
+    token: str
+
+
+class LoginStartBody(BaseModel):
+    engine: str = "chromium"
+    mode: str = "dialog"  # dialog=网页内二维码(无头) | window=弹出真实浏览器窗口
+
+
+class AutoStartBody(BaseModel):
+    enabled: bool = False
+    minimized: bool = True  # True=最小化运行 False=正常窗口
+
+
+@app.get("/")
+def index() -> FileResponse:
+    resp = FileResponse(STATIC_DIR / "index.html")
+    # 禁止缓存，避免升级后浏览器仍显示旧页面
+    resp.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    resp.headers["Pragma"] = "no-cache"
+    resp.headers["Expires"] = "0"
+    return resp
+
+
+@app.get("/api/health")
+def health() -> dict:
+    return {"ok": True}
+
+
+# ---------- 账号管理 ----------
+
+@app.get("/api/accounts")
+def api_accounts(token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    return {"accounts": accounts.list_accounts(), "version": APP_VERSION}
+
+
+@app.post("/api/accounts")
+def api_account_create(body: NameBody, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    acc_id = accounts.create_account(body.name)
+    scheduler.apply_schedule()
+    return {"ok": True, "id": acc_id}
+
+
+@app.put("/api/accounts/{acc_id}")
+def api_account_rename(
+    acc_id: str, body: NameBody, token: str = Header(default="", alias="X-Auth-Token")
+) -> dict:
+    _check_auth(token)
+    try:
+        cfg = accounts.rename_account(acc_id, body.name)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    scheduler.apply_schedule()
+    return {"ok": True, "config": cfg}
+
+
+@app.delete("/api/accounts/{acc_id}")
+def api_account_delete(acc_id: str, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    try:
+        close_account_log(acc_id)   # 先释放日志文件句柄，否则 Windows 下目录删不掉
+        accounts.delete_account(acc_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    scheduler.apply_schedule()
+    return {"ok": True}
+
+
+@app.post("/api/accounts/{acc_id}/upload-state")
+async def api_upload_state(
+    acc_id: str,
+    file: UploadFile = File(...),
+    token: str = Header(default="", alias="X-Auth-Token"),
+) -> dict:
+    _check_auth(token)
+    acc_dir = _get_account(acc_id)
+    raw = await file.read()
+    if len(raw) > 5 * 1024 * 1024:
+        raise HTTPException(status_code=400, detail="文件过大")
+    try:
+        data = json.loads(raw.decode("utf-8"))
+    except Exception:
+        raise HTTPException(status_code=400, detail="不是合法的 JSON 文件")
+    if not isinstance(data.get("cookies"), list) or not data["cookies"]:
+        raise HTTPException(status_code=400, detail="缺少 cookies 字段，请确认是 Playwright 导出的登录态文件")
+    (acc_dir / "state.json").write_bytes(raw)
+    logger.info("【%s】已更新登录态 state.json（%s 字节）", acc_id, len(raw))
+    return {"ok": True, "size": len(raw)}
+
+
+# ---------- 账号数据 ----------
+
+@app.get("/api/accounts/{acc_id}/status")
+def api_account_status(acc_id: str, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    acc_dir = _get_account(acc_id)
+    rt = load_runtime(acc_dir)
+    cfg = load_account_config(acc_dir)
+    return {
+        "state_file_exists": (acc_dir / "state.json").exists(),
+        "session_status": rt.get("session_status", "unknown"),
+        "running": rt.get("running", False),
+        "last_run": rt.get("last_run"),
+        "history": rt.get("history", []),
+        "next_run": scheduler.next_run_time(acc_id),
+        "contacts": rt.get("contacts", []),
+        "contacts_at": rt.get("contacts_at"),
+        "contacts_error": rt.get("contacts_error"),
+        "fetching": bool(contacts_fetching.get(acc_id, False)),
+        "config": cfg,
+    }
+
+
+@app.get("/api/accounts/{acc_id}/config")
+def api_account_config(acc_id: str, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    acc_dir = _get_account(acc_id)
+    return load_account_config(acc_dir)
+
+
+@app.put("/api/accounts/{acc_id}/config")
+def api_account_config_save(
+    acc_id: str, body: ConfigBody, token: str = Header(default="", alias="X-Auth-Token")
+) -> dict:
+    _check_auth(token)
+    acc_dir = _get_account(acc_id)
+    try:
+        cfg = save_account_config(acc_dir, body.config)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    scheduler.apply_schedule()
+    return {"ok": True, "config": cfg}
+
+
+@app.post("/api/accounts/{acc_id}/contacts/fetch")
+def api_contacts_fetch(acc_id: str, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    try:
+        _start_fetch_contacts(acc_id)
+    except HTTPException:
+        raise
+    return {"ok": True, "started": True}
+
+
+@app.post("/api/accounts/{acc_id}/run")
+def api_run(acc_id: str, body: RunBody, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    try:
+        _start_run(acc_id, bool(body.dry), only_names=body.only_names)
+    except HTTPException:
+        raise
+    return {"ok": True, "started": True}
+
+
+@app.get("/api/accounts/{acc_id}/logs")
+def api_account_logs(
+    acc_id: str, n: int = 300, token: str = Header(default="", alias="X-Auth-Token")
+) -> dict:
+    _check_auth(token)
+    acc_dir = _get_account(acc_id)
+    return {"logs": read_account_log_tail(acc_dir, max(10, min(n, 600)))}
+
+
+# ---------- 浏览器检测与网页内扫码登录 ----------
+
+@app.get("/api/browsers")
+def api_browsers(token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    return {
+        "browsers": browsers.detect_windows_browsers(),
+        "engines": browsers.detect_playwright_engines(),
+    }
+
+
+@app.post("/api/accounts/{acc_id}/login/start")
+async def api_login_start(
+    acc_id: str,
+    body: LoginStartBody,
+    token: str = Header(default="", alias="X-Auth-Token"),
+) -> dict:
+    _check_auth(token)
+    _get_account(acc_id)
+    ok, message = await login.start_login(acc_id, engine=body.engine, mode=body.mode)
+    if not ok:
+        raise HTTPException(status_code=400, detail=message)
+    return {"ok": True}
+
+
+@app.get("/api/accounts/{acc_id}/login/qr")
+async def api_login_qr(acc_id: str, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    _get_account(acc_id)
+    qr, note = await login.qr_image(acc_id)
+    if not qr:
+        raise HTTPException(status_code=404, detail=f"二维码暂不可用（{note}），请刷新或重新开始")
+    return {"qr": qr, "note": note}
+
+
+@app.post("/api/accounts/{acc_id}/login/status")
+async def api_login_status(acc_id: str, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    acc_dir = _get_account(acc_id)
+    result = await login.poll_login(acc_id, acc_dir)
+    if result.get("logged_in"):
+        threading.Thread(
+            target=login.maybe_rename_after_login, args=(acc_id, acc_dir), daemon=True
+        ).start()
+    return result
+
+
+@app.post("/api/accounts/{acc_id}/login/cancel")
+async def api_login_cancel(acc_id: str, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    _get_account(acc_id)
+    await login.cancel_login(acc_id)
+    return {"ok": True}
+
+
+# ---------- 全局 ----------
+
+@app.get("/api/logs")
+def api_logs(n: int = 300, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    return {"logs": "\n".join(recent_logs(max(10, min(n, 600))))}
+
+
+@app.get("/api/global/config")
+def api_global_config(token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    return load_global_config()
+
+
+@app.put("/api/global/config")
+def api_global_config_save(body: ConfigBody, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    return {"ok": True, "config": save_global_config(body.config)}
+
+
+@app.post("/api/notify/test")
+def api_notify_test(token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    gcfg = load_global_config()
+    results = notify.send_notification(gcfg, "抖音续火花：测试通知", "这是一条测试消息，收到即代表通知渠道配置正确。")
+    return {"ok": True, "results": results, "warnings": notify.check_notification_health()}
+
+
+# ---------- 开机自启动 ----------
+
+@app.get("/api/autostart")
+def api_autostart(token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    return {
+        "enabled": autostart.is_enabled(),
+        "minimized": autostart.get_mode(),
+    }
+
+
+@app.put("/api/autostart")
+def api_autostart_save(body: AutoStartBody, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    if not autostart.set_enabled(bool(body.enabled), minimized=bool(body.minimized)):
+        raise HTTPException(status_code=400, detail="开机自启动设置失败（可能权限不足），请手动检查「启动」文件夹")
+    return {"ok": True, "enabled": autostart.is_enabled(), "minimized": autostart.get_mode()}
+
+
+@app.put("/api/token")
+def api_token_change(body: TokenBody, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    _check_auth(token)
+    global AUTH_TOKEN
+    new_token = body.token.strip()
+    if len(new_token) < 8:
+        raise HTTPException(status_code=400, detail="令牌至少 8 位")
+    AUTH_TOKEN = new_token
+    os.environ["AUTH_TOKEN"] = new_token
+    lines = []
+    if ENV_PATH.exists():
+        lines = ENV_PATH.read_text(encoding="utf-8").splitlines()
+    replaced = False
+    for i, line in enumerate(lines):
+        if line.strip().startswith("AUTH_TOKEN="):
+            lines[i] = f"AUTH_TOKEN={new_token}"
+            replaced = True
+    if not replaced:
+        lines.append(f"AUTH_TOKEN={new_token}")
+    ENV_PATH.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    logger.info("访问令牌已更新")
+    return {"ok": True, "token": new_token}
+
+
+if __name__ == "__main__":
+    host = os.environ.get("HOST", "127.0.0.1")
+    port = int(os.environ.get("PORT", "8000"))
+    print(f"服务启动：http://{host}:{port}")
+    uvicorn.run(app, host=host, port=port, log_level="info")
