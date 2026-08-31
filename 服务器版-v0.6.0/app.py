@@ -48,9 +48,20 @@ from core.runtime import (
     update_runtime,
 )
 
-BASE_DIR = Path(__file__).resolve().parent
-STATIC_DIR = BASE_DIR / "static"
+# 打包（PyInstaller）后 __file__ 指向内置目录，数据必须以 exe 所在目录为基准（开发运行时不受影响）
+if getattr(sys, "frozen", False):
+    _BASE = Path(sys.executable).resolve().parent
+else:
+    _BASE = Path(__file__).resolve().parent
+BASE_DIR = _BASE
+# 网页资源打包进 _MEIPASS（onedir=_internal，onefile=临时解压目录），数据目录保持 exe 旁
+STATIC_DIR = Path(getattr(sys, "_MEIPASS", _BASE)) / "static"
 ENV_PATH = BASE_DIR / ".env"
+# 打包后：浏览器下载/读取固定在 exe 旁 browsers 目录，绝不进系统缓存
+if getattr(sys, "frozen", False):
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(BASE_DIR / "browsers")
+elif (BASE_DIR / "browsers").exists():
+    os.environ["PLAYWRIGHT_BROWSERS_PATH"] = str(BASE_DIR / "browsers")
 APP_VERSION = "0.6.0"
 
 
