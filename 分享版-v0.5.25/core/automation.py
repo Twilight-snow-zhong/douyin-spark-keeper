@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import logging
 import random
-import re
 import sys
 import time
 from datetime import datetime
@@ -19,14 +18,11 @@ from pathlib import Path
 
 from playwright.sync_api import sync_playwright
 
-from .config import load_account_config, save_account_config
+from .config import load_account_config
 
 logger = logging.getLogger("douyin-spark")
 
 CHAT_URL = "https://www.douyin.com/chat"
-
-# 抓取聊天列表的实时阶段（key=账号id），供网页端显示进度
-fetch_progress: dict[str, str] = {}
 
 # Linux 容器里跑无头 Chromium 需要 --no-sandbox；Windows/macOS 不需要
 _CHROMIUM_ARGS = ["--disable-dev-shm-usage", "--disable-gpu"]
@@ -271,156 +267,6 @@ def _enabled_friend_names(cfg: dict) -> list[str]:
     return [f["name"] for f in cfg.get("friends", []) if f.get("enabled", True)]
 
 
-_STREAK_EXTRACT_JS = """
-    () => {
-        const out = [];
-        const seen = new Set();
-        const findRoot = (wrap) => {
-            let root = wrap;
-            for (let k = 0; k < 3 && root.parentElement; k++) {
-                const cls = String(root.parentElement.className || '');
-                if (/ConversationItem/i.test(cls)) { root = root.parentElement; } else break;
-            }
-            return root;
-        };
-        const inTitle = (el, root) => {
-            let p = el;
-            while (p && p !== root) {
-                if (/title/i.test(String(p.className || ''))) return true;
-                p = p.parentElement;
-            }
-            return false;
-        };
-        const pickAvatar = (wrap) => {
-            const root = findRoot(wrap);
-            const candidates = [];
-            const push = (u) => {
-                if (u && /^https?:/.test(u) && !/data:|\\\\.svg|flame_icon|icon/i.test(u) && !candidates.includes(u)) candidates.push(u);
-            };
-            for (const im of root.querySelectorAll('img')) {
-                if (inTitle(im, root)) continue;
-                push(im.currentSrc); push(im.src); push(im.getAttribute('data-src'));
-                (im.getAttribute('srcset') || '').split(',').forEach(p => push(p.trim().split(' ')[0]));
-            }
-            for (const el of root.querySelectorAll('*')) {
-                if (inTitle(el, root)) continue;
-                const st = el.getAttribute && el.getAttribute('style');
-                if (st) { const m = st.match(/url\\(["']?(.*?)["']?\\)/i); if (m) push(m[1]); }
-                try {
-                    const bg = getComputedStyle(el).backgroundImage;
-                    const m = bg && bg.match(/url\\(["']?(.*?)["']?\\)/);
-                    if (m) push(m[1]);
-                } catch (e) {}
-            }
-            if (!candidates.length) return '';
-            const score = (u) => (/avatar|tos-cn-av|aweme|douyinpic|byteimg/i.test(u) ? 4 : 0) + (u.length / 500);
-            candidates.sort((a, b) => score(b) - score(a));
-            return candidates[0];
-        };
-        document.querySelectorAll('.conversationConversationItemtitle').forEach(t => {
-            const name = (t.textContent || '').trim();
-            if (!name || seen.has(name)) return;
-            seen.add(name);
-            const wrap = t.parentElement;
-            const s = wrap ? wrap.querySelector('.commonStreaknormalText') : null;
-            const timeEl = wrap ? wrap.querySelector('[class*="timeStr"]') : null;
-            out.push({
-                name: name,
-                streak: s ? (s.textContent || '').trim() : '',
-                avatar: pickAvatar(wrap),
-                time: timeEl ? (timeEl.textContent || '').trim() : '',
-            });
-        });
-        return out;
-    }
-"""
-
-_STREAK_DEBUG_JS = None  # 诊断已完成，已移除
-
-
-def _streak_num(s) -> int:
-    """从 '30' / '30+' 等字符串里取出数字；取不到返回 0。"""
-    m = re.search(r"\d+", str(s or ""))
-    return int(m.group()) if m else 0
-
-
-def _merge_streaks(cfg: dict, contacts: list[dict]) -> dict:
-    """把抓到的联系人火花天数合并进好友名单，检测是否重燃。返回变更摘要。"""
-    names_map = {c.get("name"): (c.get("streak") or "") for c in contacts}
-    changed = False
-    updated = 0
-    rekindled_list: list[str] = []
-    for f in cfg.get("friends", []):
-        name = (f.get("name") or "").strip()
-        if not name or name not in names_map:
-            continue
-        new_streak = str(names_map.get(name) or "").strip()
-        old_streak = str(f.get("streak") or "").strip()
-        # 重燃 = 火花熄过又重新烧起来：新天数比上次记录的天数少
-        rekindled = bool(
-            old_streak
-            and _streak_num(new_streak)
-            and _streak_num(new_streak) < _streak_num(old_streak)
-        )
-        if f.get("streak") != new_streak or bool(f.get("rekindled")) != rekindled:
-            changed = True
-            updated += 1
-        f["streak"] = new_streak
-        f["rekindled"] = rekindled
-        if rekindled:
-            rekindled_list.append(name)
-    return {"changed": changed, "updated": updated, "rekindled": rekindled_list}
-
-
-def _refresh_streaks_from_page(acc_dir: Path, cfg: dict, page) -> int:
-    """利用已打开的私信页轻量刷新好友火花天数（只滚动几次，不重复启动浏览器）。"""
-    collected: list[dict] = []
-    try:
-        page.wait_for_selector(".conversationConversationItemtitle", timeout=15000)
-    except Exception:
-        return 0
-    for _ in range(3):
-        try:
-            data = page.evaluate(_STREAK_EXTRACT_JS) or []
-            for x in data:
-                if x not in collected:
-                    collected.append(x)
-            page.mouse.wheel(0, 600)
-            page.wait_for_timeout(600)
-        except Exception:
-            break
-    if not collected:
-        return 0
-    summary = _merge_streaks(cfg, collected)
-    if summary["changed"]:
-        save_account_config(acc_dir, cfg)
-    if summary["rekindled"]:
-        logger.info("已刷新 %s 位好友火花天数，重燃：%s", summary["updated"], "、".join(summary["rekindled"]))
-    elif summary["updated"]:
-        logger.info("已刷新 %s 位好友火花天数", summary["updated"])
-    return summary["updated"]
-
-
-def sync_friend_streaks(acc_dir: Path) -> dict:
-    """完整抓取聊天列表，把好友名单的火花天数/是否重燃更新到最新。"""
-    result = {"error": None, "updated": 0, "rekindled": [], "at": None}
-    cfg = load_account_config(acc_dir)
-    if not cfg.get("friends"):
-        result["error"] = "好友名单为空，无需同步"
-        return result
-    data = fetch_chat_contacts(acc_dir)
-    result["at"] = data.get("at")
-    if data.get("error"):
-        result["error"] = data["error"]
-        return result
-    summary = _merge_streaks(cfg, data.get("names", []))
-    if summary["changed"]:
-        save_account_config(acc_dir, cfg)
-    result["updated"] = summary["updated"]
-    result["rekindled"] = summary["rekindled"]
-    return result
-
-
 def fetch_chat_contacts(acc_dir: Path) -> dict:
     """从抖音私信页左侧聊天列表读取联系人（含火花天数），供网页端勾选。"""
     result = {"at": _now(), "names": [], "error": None}
@@ -428,10 +274,6 @@ def fetch_chat_contacts(acc_dir: Path) -> dict:
     if not state_path.exists():
         result["error"] = "该账号尚未上传登录态 state.json"
         return result
-
-    # 实时阶段上报（key=账号id），网页端轮询显示进度
-    acc_id = acc_dir.name
-    fetch_progress[acc_id] = "launch"
 
     cfg = load_account_config(acc_dir)
     engine = cfg.get("browser", "chromium")
@@ -441,7 +283,6 @@ def fetch_chat_contacts(acc_dir: Path) -> dict:
     try:
         p = sync_playwright().start()
         try:
-            fetch_progress[acc_id] = "open"
             browser = _launch_browser(p, engine, headless)
             context = browser.new_context(
                 storage_state=str(state_path),
@@ -462,15 +303,28 @@ def fetch_chat_contacts(acc_dir: Path) -> dict:
                 result["error"] = "无法打开抖音私信页面"
                 return result
 
-            fetch_progress[acc_id] = "wait"
             page.wait_for_timeout(10000)
-            fetch_progress[acc_id] = "login"
             logged, why = check_login(page)
             if not logged:
                 result["error"] = why
                 return result
 
-            fetch_progress[acc_id] = "scrape"
+            extract_js = """
+                () => {
+                    const out = [];
+                    const seen = new Set();
+                    document.querySelectorAll('.conversationConversationItemtitle').forEach(t => {
+                        const name = (t.textContent || '').trim();
+                        if (!name || seen.has(name)) return;
+                        seen.add(name);
+                        const wrap = t.parentElement;
+                        const s = wrap ? wrap.querySelector('.commonStreaknormalText') : null;
+                        out.push({ name: name, streak: s ? (s.textContent || '').trim() : '' });
+                    });
+                    return out;
+                }
+            """
+
             collected: list[dict] = []
             for attempt in range(3):
                 try:
@@ -480,7 +334,7 @@ def fetch_chat_contacts(acc_dir: Path) -> dict:
 
                 stable = 0
                 for _ in range(20):
-                    data = page.evaluate(_STREAK_EXTRACT_JS) or []
+                    data = page.evaluate(extract_js) or []
                     new_items = [x for x in data if x not in collected]
                     if new_items:
                         collected.extend(new_items)
@@ -506,26 +360,6 @@ def fetch_chat_contacts(acc_dir: Path) -> dict:
 
             result["names"] = collected
             logger.info("已读取聊天列表联系人 %s 个", len(result["names"]))
-            # 头像抓取结果统计：全成功一行日志；未抓全则折叠报错（日志页点击展开详情）
-            total = len(collected)
-            with_avatar = sum(1 for c in collected if c.get("avatar"))
-            missing = [c.get("name", "") for c in collected if not c.get("avatar")]
-            if total == 0:
-                logger.info("头像抓取：聊天列表为空，无需获取头像")
-            elif with_avatar == total:
-                logger.info("头像抓取成功：%s/%s 个联系人均已获取头像", with_avatar, total)
-            elif with_avatar > 0:
-                logger.warning(
-                    "【头像抓取部分成功】%s/%s 个联系人已获取头像，%s 个未获取到",
-                    with_avatar, total, total - with_avatar,
-                )
-                logger.info("【头像抓取详情】未获取到头像：%s", "、".join(missing[:10]) + (" 等" if len(missing) > 10 else ""))
-            else:
-                logger.warning(
-                    "【头像抓取失败】%s 个联系人未获取到任何头像（0/%s）",
-                    total, total,
-                )
-                logger.info("【头像抓取详情】未获取到头像：%s", "、".join(missing[:10]) + (" 等" if len(missing) > 10 else ""))
         finally:
             if browser:
                 try:
@@ -536,8 +370,6 @@ def fetch_chat_contacts(acc_dir: Path) -> dict:
     except Exception as e:
         logger.error("获取联系人异常: %s", e)
         result["error"] = f"获取联系人异常: {e}"
-    finally:
-        fetch_progress.pop(acc_id, None)
     return result
 
 
@@ -612,11 +444,6 @@ def run_send(acc_dir: Path, dry_run: bool = False, only_names: list[str] | None 
                 return result
 
             logger.info("待发送好友 %s 人，dry_run=%s，浏览器=%s", len(targets), dry_run, engine)
-            # 顺手刷新好友名单的火花天数（页面已在私信列表，轻量抓取，不额外开浏览器）
-            try:
-                _refresh_streaks_from_page(acc_dir, cfg, page)
-            except Exception as e:
-                logger.info("刷新火花天数失败: %s", str(e)[:80])
             for name in targets:
                 msg = random.choice(messages)
                 ok, why = send_to_contact(page, name, msg, dry_run)

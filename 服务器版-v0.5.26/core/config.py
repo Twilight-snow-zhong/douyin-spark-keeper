@@ -132,12 +132,11 @@ def _normalize_friends(raw) -> list[dict]:
                 "enabled": _truthy(x.get("enabled", True)),
                 "streak": str(x.get("streak", "") or "").strip(),
                 "note": str(x.get("note", "") or "").strip(),
-                "rekindled": _truthy(x.get("rekindled", False)),
             })
         else:
             name = str(x).strip()
             if name:
-                out.append({"name": name, "enabled": True, "streak": "", "note": "", "rekindled": False})
+                out.append({"name": name, "enabled": True, "streak": "", "note": ""})
     return out
 
 

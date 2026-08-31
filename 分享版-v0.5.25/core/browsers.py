@@ -64,27 +64,12 @@ def detect_playwright_engines() -> dict[str, bool]:
 
     注意：这是 Playwright 专用构建（与系统安装的 Firefox 等无关），
     未安装时需运行 `python -m playwright install firefox webkit`。
-    同时检查：程序自带 browsers\\ 目录（PLAYWRIGHT_BROWSERS_PATH）和系统默认 ms-playwright。
     """
-    def _bases() -> list[Path]:
-        out: list[Path] = []
-        env = os.environ.get("PLAYWRIGHT_BROWSERS_PATH", "").strip()
-        if env:
-            out.append(Path(env))
-        out.append(Path(os.environ.get("LOCALAPPDATA", "")) / "ms-playwright")
-        return out
-
-    bases = _bases()
+    base = Path(os.environ.get("LOCALAPPDATA", "")) / "ms-playwright"
     out: dict[str, bool] = {}
     for eng, prefix in (("chromium", "chromium-"), ("firefox", "firefox-"), ("webkit", "webkit-")):
         found = False
-        for base in bases:
-            if base.exists():
-                try:
-                    if any(p.is_dir() and p.name.startswith(prefix) for p in base.iterdir()):
-                        found = True
-                        break
-                except Exception:
-                    continue
+        if base.exists():
+            found = any(p.is_dir() and p.name.startswith(prefix) for p in base.iterdir())
         out[eng] = found
     return out

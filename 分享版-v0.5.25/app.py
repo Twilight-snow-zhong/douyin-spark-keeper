@@ -12,16 +12,14 @@ import logging
 import os
 import secrets
 import threading
-import urllib.request
 import zipfile
 from contextlib import asynccontextmanager
 from datetime import datetime
 from pathlib import Path
-from urllib.parse import urlparse
 
 import uvicorn
-from fastapi import FastAPI, File, Header, HTTPException, Query, UploadFile
-from fastapi.responses import FileResponse, Response, StreamingResponse
+from fastapi import FastAPI, File, Header, HTTPException, UploadFile
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
@@ -50,7 +48,7 @@ from core.runtime import (
 BASE_DIR = Path(__file__).resolve().parent
 STATIC_DIR = BASE_DIR / "static"
 ENV_PATH = BASE_DIR / ".env"
-APP_VERSION = "0.6.0"
+APP_VERSION = "0.5.25"
 
 
 def _load_env() -> None:
@@ -89,7 +87,6 @@ print(f"访问令牌: {AUTH_TOKEN}  （保存在 {ENV_PATH}）")
 
 run_lock = threading.Lock()
 contacts_fetching: dict[str, bool] = {}
-streak_syncing: dict[str, bool] = {}
 
 
 def _check_auth(token: str) -> None:
@@ -205,47 +202,6 @@ def _start_fetch_contacts(acc_id: str) -> None:
     threading.Thread(target=worker, daemon=True).start()
 
 
-def _start_sync_streaks(acc_id: str) -> None:
-    """后台完整抓取聊天列表，更新好友名单的火花天数/是否重燃。"""
-    if not run_lock.acquire(blocking=False):
-        if any(streak_syncing.values()):
-            raise HTTPException(status_code=409, detail="已有账号正在同步火花中，请稍候")
-        raise HTTPException(status_code=409, detail="已有其他任务在运行，请稍候")
-    streak_syncing[acc_id] = datetime.now().isoformat(timespec="seconds")
-
-    def worker() -> None:
-        try:
-            acc_dir = _get_account(acc_id)
-            setup_account_log(acc_id)
-            set_log_account(acc_id)
-            try:
-                res = automation.sync_friend_streaks(acc_dir)
-                if res.get("error"):
-                    logger.warning("【%s】同步火花失败: %s", acc_id, res["error"])
-                else:
-                    logger.info(
-                        "【%s】同步火花完成：更新 %s 位，重燃 %s",
-                        acc_id,
-                        res.get("updated", 0),
-                        "、".join(res.get("rekindled") or []) or "无",
-                    )
-                update_runtime(
-                    acc_dir,
-                    streaks_synced_at=res.get("at"),
-                    streaks_sync_error=res.get("error"),
-                )
-            finally:
-                streak_syncing[acc_id] = False
-        except HTTPException as e:
-            logger.warning("同步火花失败: %s", e.detail)
-            streak_syncing[acc_id] = False
-        finally:
-            set_log_account(None)
-            run_lock.release()
-
-    threading.Thread(target=worker, daemon=True).start()
-
-
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     try:
@@ -305,46 +261,6 @@ def index() -> FileResponse:
 @app.get("/api/health")
 def health() -> dict:
     return {"ok": True}
-
-
-# 抖音图片有防盗链：浏览器直接 <img> 会被 403，这里由后端带 Referer 代拉
-_AVATAR_ALLOWED_HOSTS = (
-    "douyinpic.com", "douyin.com", "douyinimg.com",
-    "snssdk.com", "byteimg.com", "ixigua.com",
-)
-_AVATAR_UA = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/120.0 Safari/537.36"
-)
-
-
-@app.get("/api/avatar")
-def api_avatar(
-    url: str = Query(...),
-    token: str = Query(default=""),
-) -> Response:
-    _check_auth(token)
-    try:
-        u = urlparse(url)
-        if u.scheme not in ("https", "http") or not u.hostname:
-            raise HTTPException(status_code=400, detail="无效的图片地址")
-        if not any(u.hostname.endswith(h) for h in _AVATAR_ALLOWED_HOSTS):
-            raise HTTPException(status_code=400, detail="不允许的图片域名")
-        req = urllib.request.Request(url, headers={
-            "User-Agent": _AVATAR_UA,
-            "Referer": "https://www.douyin.com/",
-        })
-        opener = urllib.request.build_opener(urllib.request.ProxyHandler({}))
-        with opener.open(req, timeout=10) as resp:
-            data = resp.read(2 * 1024 * 1024)  # 上限 2MB
-            ctype = resp.headers.get("Content-Type", "image/jpeg")
-        resp2 = Response(content=data, media_type=ctype)
-        resp2.headers["Cache-Control"] = "public, max-age=3600"
-        return resp2
-    except HTTPException:
-        raise
-    except Exception as e:
-        raise HTTPException(status_code=502, detail=f"获取头像失败: {str(e)[:80]}")
 
 
 # ---------- 账号管理 ----------
@@ -439,13 +355,6 @@ def api_account_status(acc_id: str, token: str = Header(default="", alias="X-Aut
         "contacts_at": rt.get("contacts_at"),
         "contacts_error": rt.get("contacts_error"),
         "fetching": bool(contacts_fetching.get(acc_id, False)),
-        "fetch_phase": automation.fetch_progress.get(acc_id, ""),
-        "syncing_streaks": bool(streak_syncing.get(acc_id, False)),
-        "streak_syncing_any": any(streak_syncing.values()),
-        "streak_syncing_acc": next((k for k, v in streak_syncing.items() if v), None),
-        "streak_syncing_since": next((v for v in streak_syncing.values() if v), None),
-        "streaks_synced_at": rt.get("streaks_synced_at"),
-        "streaks_sync_error": rt.get("streaks_sync_error"),
         "config": cfg,
     }
 
@@ -476,16 +385,6 @@ def api_contacts_fetch(acc_id: str, token: str = Header(default="", alias="X-Aut
     _check_auth(token)
     try:
         _start_fetch_contacts(acc_id)
-    except HTTPException:
-        raise
-    return {"ok": True, "started": True}
-
-
-@app.post("/api/accounts/{acc_id}/streaks/sync")
-def api_streaks_sync(acc_id: str, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
-    _check_auth(token)
-    try:
-        _start_sync_streaks(acc_id)
     except HTTPException:
         raise
     return {"ok": True, "started": True}
@@ -623,11 +522,9 @@ def api_account_logs(
 @app.get("/api/browsers")
 def api_browsers(token: str = Header(default="", alias="X-Auth-Token")) -> dict:
     _check_auth(token)
-    import sys as _sys
     return {
         "browsers": browsers.detect_windows_browsers(),
         "engines": browsers.detect_playwright_engines(),
-        "platform": _sys.platform,
     }
 
 
@@ -646,21 +543,13 @@ async def api_login_start(
 
 
 @app.get("/api/accounts/{acc_id}/login/qr")
-async def api_login_qr(
-    acc_id: str,
-    full: int = 0,
-    token: str = Header(default="", alias="X-Auth-Token"),
-) -> dict:
+async def api_login_qr(acc_id: str, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
     _check_auth(token)
     _get_account(acc_id)
-    if full:
-        qr, note = await login.full_screenshot(acc_id)
-    else:
-        qr, note = await login.qr_image(acc_id)
+    qr, note = await login.qr_image(acc_id)
     if not qr:
-        raise HTTPException(status_code=404, detail=f"画面暂不可用（{note}），请刷新或重新开始")
-    text = await login.visible_text(acc_id)
-    return {"qr": qr, "note": note, "text": text}
+        raise HTTPException(status_code=404, detail=f"二维码暂不可用（{note}），请刷新或重新开始")
+    return {"qr": qr, "note": note}
 
 
 @app.post("/api/accounts/{acc_id}/login/status")
@@ -681,110 +570,6 @@ async def api_login_cancel(acc_id: str, token: str = Header(default="", alias="X
     _get_account(acc_id)
     await login.cancel_login(acc_id)
     return {"ok": True}
-
-
-class VerifyBody(BaseModel):
-    code: str
-
-
-class ManualClickBody(BaseModel):
-    x: float
-    y: float
-
-
-class ManualTypeBody(BaseModel):
-    text: str
-
-
-class ManualDragBody(BaseModel):
-    x1: float
-    y1: float
-    x2: float
-    y2: float
-
-
-class ManualScrollBody(BaseModel):
-    dy: float
-
-
-@app.post("/api/accounts/{acc_id}/login/verify")
-async def api_login_verify(
-    acc_id: str, body: VerifyBody, token: str = Header(default="", alias="X-Auth-Token")
-) -> dict:
-    _check_auth(token)
-    _get_account(acc_id)
-    ok, msg = await login.submit_verify_code(acc_id, body.code)
-    if not ok:
-        raise HTTPException(status_code=400, detail=msg)
-    return {"ok": True, "message": msg}
-
-
-@app.post("/api/accounts/{acc_id}/login/resend-code")
-async def api_login_resend(acc_id: str, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
-    _check_auth(token)
-    _get_account(acc_id)
-    ok, msg = await login.resend_verify_code(acc_id)
-    if not ok:
-        raise HTTPException(status_code=400, detail=msg)
-    return {"ok": True, "message": msg}
-
-
-@app.post("/api/accounts/{acc_id}/login/manual-click")
-async def api_login_manual_click(
-    acc_id: str, body: ManualClickBody, token: str = Header(default="", alias="X-Auth-Token")
-) -> dict:
-    _check_auth(token)
-    _get_account(acc_id)
-    ok, msg = await login.manual_click(acc_id, body.x, body.y)
-    if not ok:
-        raise HTTPException(status_code=400, detail=msg)
-    return {"ok": True, "message": msg}
-
-
-@app.post("/api/accounts/{acc_id}/login/manual-type")
-async def api_login_manual_type(
-    acc_id: str, body: ManualTypeBody, token: str = Header(default="", alias="X-Auth-Token")
-) -> dict:
-    _check_auth(token)
-    _get_account(acc_id)
-    ok, msg = await login.manual_type(acc_id, body.text)
-    if not ok:
-        raise HTTPException(status_code=400, detail=msg)
-    return {"ok": True, "message": msg}
-
-
-@app.post("/api/accounts/{acc_id}/login/manual-enter")
-async def api_login_manual_enter(acc_id: str, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
-    _check_auth(token)
-    _get_account(acc_id)
-    ok, msg = await login.manual_enter(acc_id)
-    if not ok:
-        raise HTTPException(status_code=400, detail=msg)
-    return {"ok": True, "message": msg}
-
-
-@app.post("/api/accounts/{acc_id}/login/manual-drag")
-async def api_login_manual_drag(
-    acc_id: str, body: ManualDragBody, token: str = Header(default="", alias="X-Auth-Token")
-) -> dict:
-    _check_auth(token)
-    _get_account(acc_id)
-    ok, msg = await login.manual_drag(acc_id, body.x1, body.y1, body.x2, body.y2)
-    if not ok:
-        raise HTTPException(status_code=400, detail=msg)
-    return {"ok": True, "message": msg}
-
-
-@app.post("/api/accounts/{acc_id}/login/manual-scroll")
-async def api_login_manual_scroll(
-    acc_id: str, body: ManualScrollBody, token: str = Header(default="", alias="X-Auth-Token")
-) -> dict:
-    _check_auth(token)
-    _get_account(acc_id)
-    ok, msg = await login.manual_scroll(acc_id, body.dy)
-    if not ok:
-        raise HTTPException(status_code=400, detail=msg)
-    return {"ok": True, "message": msg}
 
 
 # ---------- 全局 ----------
