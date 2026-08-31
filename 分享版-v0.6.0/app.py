@@ -873,4 +873,18 @@ if __name__ == "__main__":
     host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", "8000"))
     print(f"服务启动：http://{host}:{port}")
+    if getattr(sys, "frozen", False) and host in ("127.0.0.1", "localhost"):
+        # 打包版（本机运行）自动打开浏览器；服务器（HOST=0.0.0.0）不自动开
+        import threading
+        import time
+        import webbrowser
+
+        def _open_browser() -> None:
+            time.sleep(2.5)  # 等服务起来
+            try:
+                webbrowser.open(f"http://{host}:{port}")
+            except Exception:
+                pass
+
+        threading.Thread(target=_open_browser, daemon=True).start()
     uvicorn.run(app, host=host, port=port, log_level="info")
