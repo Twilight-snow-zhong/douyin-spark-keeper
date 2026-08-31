@@ -1,4 +1,4 @@
-"""Douyin Spark Keeper：多账号抖音续火花 Web 服务入口。
+﻿"""Douyin Spark Keeper：多账号抖音续火花 Web 服务入口。
 
 Windows 本机运行：python app.py（首次运行自动生成访问令牌写入 .env）
 或直接双击 start.bat。
@@ -11,6 +11,7 @@ import json
 import logging
 import os
 import secrets
+import sys
 import threading
 import urllib.request
 import zipfile
