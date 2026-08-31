@@ -9,6 +9,7 @@ Linux（服务器）上无此机制：所有接口返回"不支持"，
 
 from __future__ import annotations
 
+import locale
 import os
 import re
 import sys
@@ -21,6 +22,8 @@ STYLE_MINIMIZED = "7"
 STYLE_NORMAL = "1"
 
 _IS_WIN = sys.platform == "win32"
+# VBS 用系统 ANSI 编码写（中文 Windows 为 GBK）：路径含中文时 ascii 编码会失败
+_VBS_ENC = locale.getpreferredencoding(False) or "gb18030"
 
 
 def supported() -> bool:
@@ -65,7 +68,7 @@ def get_mode() -> bool | None:
     if not p.exists():
         return None
     try:
-        content = p.read_text(encoding="ascii", errors="ignore")
+        content = p.read_text(encoding=_VBS_ENC, errors="ignore")
         m = re.search(r'WshShell\.Run """[^"]+""",\s*(\d+),', content)
         if m:
             return m.group(1) != STYLE_NORMAL  # 不是正常窗口则视为最小化
@@ -91,7 +94,7 @@ def set_enabled(flag: bool, minimized: bool = True) -> bool:
         return False
     try:
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(_build_content(start_bat, minimized), encoding="ascii")
+        p.write_text(_build_content(start_bat, minimized), encoding=_VBS_ENC)
         return True
     except Exception:
         return False

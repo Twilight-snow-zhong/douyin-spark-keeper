@@ -23,6 +23,7 @@
       --bg-grad: linear-gradient(165deg, #f5f7ff 0%, #eef1f9 55%, #f7f5ff 100%);
       --surface: #ffffff;
       --surface-2: #f6f7fc;
+      --note-bg: #eef1f8;
       --border: #e9ecf5;
       --text: #2b3350;
       --text-2: #8a90a3;
@@ -49,6 +50,7 @@
       --bg-grad: linear-gradient(165deg, #161a28 0%, #10131d 100%);
       --surface: #1b2133;
       --surface-2: #222a42;
+      --note-bg: #2a3247;
       --border: #2a3247;
       --text: #e6e9f5;
       --text-2: #8b93ab;
@@ -243,9 +245,9 @@
     ::-webkit-scrollbar-track { background: transparent; }
     /* ===== 内容区 ===== */
     .main { flex: 1; min-width: 0; padding: 22px 26px 40px; max-width: 1360px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-    .content-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+    .content-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 22px; }
     .ch-title { display: flex; align-items: center; gap: 10px; }
-    .ch-title h2 { margin: 0; font-size: 21px; color: var(--text); }
+    .ch-title h2 { margin: 0; font-size: 24px; line-height: 1.35; font-weight: 700; letter-spacing: .5px; color: var(--text); }
     .panes .pane { animation: paneIn .22s ease; }
     @keyframes paneIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
     /* ===== 概览卡片墙 ===== */
@@ -288,15 +290,69 @@
     .card-value { font-size: 20px; font-weight: 700; color: var(--text); }
     .card-value small { font-size: 12px; font-weight: 400; color: var(--text-2); }
     /* ===== 日志 ===== */
-    .log-pre { background: #1b2133; color: #cbd2e8; padding: 14px; border-radius: 14px; height: 430px; overflow: auto; font-size: 12.5px; line-height: 1.7; white-space: pre-wrap; box-shadow: inset 0 1px 4px rgba(0,0,0,.3); }
+    .log-pre { background: var(--surface-2); color: var(--text); padding: 14px; border-radius: 14px; height: 430px; overflow: auto; font-size: 12.5px; line-height: 1.7; white-space: pre-wrap; border: 1px solid var(--border); box-shadow: inset 0 1px 4px rgba(0,0,0,.12); }
+    .log-pre details.log-detail { margin: 2px 0; }
+    .log-pre details.log-detail summary { cursor: pointer; font-weight: 600; user-select: none; list-style: none; }
+    .log-pre details.log-detail summary::before { content: '▸ '; opacity: .6; }
+    .log-pre details.log-detail[open] summary::before { content: '▾ '; }
+    .log-pre details.log-detail.fail summary { color: #f56c6c; }
+    .log-pre details.log-detail.partial summary { color: #e6a23c; }
+    .log-pre .log-detail-body { padding-left: 16px; color: var(--text-2); margin: 2px 0 4px; }
     .result-box { margin-top: 12px; }
     .spacer { flex: 1; }
+    /* ===== 通用工具条 ===== */
+    .sec-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
     /* ===== 好友行 ===== */
-    .friend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 8px 12px; transition: border-color .15s ease; }
-    .friend-row:hover { border-color: var(--primary); }
+    .friend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 6px 12px; transition: border-color .15s ease, background .15s ease, box-shadow .15s ease; }
+    .friend-row:hover { border-color: var(--primary); background: var(--surface); box-shadow: 0 3px 10px rgba(31,45,90,.08); }
     .friend-row .el-input { flex: 1; min-width: 140px; }
-    .contacts-box { max-height: 240px; overflow: auto; border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 14px; background: var(--surface-2); }
+    .friend-row .el-input__wrapper { box-shadow: none !important; background: transparent; padding: 0 6px; }
+    .friend-row .el-input__inner { font-weight: 600; }
+    .friend-name-input { flex: 1.4; }
+    .friend-name-text { flex: 1.4; min-width: 140px; padding: 0 6px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 32px; }
+    .friend-note-input { flex: 1; max-width: 200px; min-width: 120px; }
+    .friend-note-input .el-input__wrapper { box-shadow: 0 0 0 1px var(--border) inset !important; background: var(--note-bg); padding: 0 8px; border-radius: 6px; }
+    .friend-note-input .el-input__wrapper:hover { box-shadow: 0 0 0 1px var(--text-2) inset !important; }
+    .friend-note-input .el-input__wrapper.is-focus { box-shadow: 0 0 0 1px var(--primary) inset !important; }
+    .friend-note-input .el-input__inner { font-weight: 400; color: var(--text-2); font-size: 12.5px; }
+    .friend-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+    .friend-actions .el-button { opacity: .55; }
+    .friend-actions .el-button:hover:not(:disabled) { opacity: 1; }
+    .friend-actions .el-button.is-disabled { opacity: .3; }
+    /* ===== 聊天列表勾选 ===== */
+    .contacts-box { border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); overflow: hidden; }
+    .contacts-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--border); }
+    .sel-count { color: var(--primary); font-weight: 700; }
+    .contacts-quick { display: flex; gap: 2px; }
+    .contacts-list { max-height: 280px; overflow: auto; padding: 6px; }
+    .contact-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 10px; cursor: pointer; transition: background .15s ease; }
+    .contact-row:hover { background: var(--surface); }
+    .contact-row.checked { background: var(--primary-weak); }
+    .contact-check { width: 18px; height: 18px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; flex-shrink: 0; transition: all .15s ease; }
+    .contact-row.checked .contact-check { background: var(--primary); border-color: var(--primary); }
+    .contact-avatar { width: 36px; height: 36px; border-radius: 10px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--surface); border: 1px solid var(--border); }
+    .contact-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .avatar-fallback { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: var(--text-2); font-size: 16px; }
+    .contact-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-size: 13.5px; }
+    .streak-tag { margin-left: auto; flex-shrink: 0; }
+    .contacts-footer { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-top: 1px solid var(--border); }
     .muted { color: var(--text-2); font-size: 12px; }
+    /* ===== 预览框 ===== */
+    .preview-box { margin-top: 16px; padding: 10px 14px; border-radius: 10px; background: var(--primary-weak); border: 1px dashed var(--primary); color: var(--text); font-size: 13px; line-height: 1.6; }
+    .preview-box b { color: var(--primary); }
+    /* ===== 抓取进度提示 ===== */
+    .fetch-progress { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 8px 14px; border-radius: 10px; background: var(--primary-weak); border: 1px solid var(--border); color: var(--text); font-size: 12.5px; }
+    /* ===== 全局同步横幅 ===== */
+    .sync-banner { position: fixed; right: 18px; top: 18px; z-index: 3000; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--primary); color: var(--text); font-size: 13px; padding: 9px 16px; border-radius: 999px; box-shadow: var(--shadow); }
+    .sync-banner b { color: var(--primary); }
+    .sync-spin { display: inline-block; animation: syncspin 1.2s linear infinite; }
+    @keyframes syncspin { to { transform: rotate(360deg); } }
+    /* ===== 引擎安装状态 ===== */
+    .engine-status { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .engine-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text); }
+    .eng-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .eng-dot.ok { background: #34c77b; box-shadow: 0 0 5px rgba(52,199,123,.6); }
+    .eng-dot.no { background: #f56c6c; box-shadow: 0 0 5px rgba(245,108,108,.6); }
     /* 状态圆点 */
     .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 0 3px rgba(0,0,0,.05); }
     .dot.ok { background: #34c77b; } .dot.expired { background: #f56c6c; } .dot.failed { background: #f56c6c; }
@@ -382,7 +438,7 @@
 
         <div class="side-title">导航</div>
         <div class="side-nav">
-          <div v-for="n in navs" :key="n.key" class="nav-item" :class="{ active: tab === n.key }" @click="tab = n.key">
+          <div v-for="n in navs" :key="n.key" class="nav-item" :class="{ active: tab === n.key }" @click="switchTab(n.key)">
             <span class="nav-ico">{{ n.ico }}</span>
             <span>{{ n.label }}</span>
           </div>
@@ -399,6 +455,12 @@
       </aside>
 
       <main class="main">
+        <transition name="el-fade-in">
+          <div v-if="status.streak_syncing_any" class="sync-banner">
+            <span class="sync-spin">🔄</span>
+            <span>正在同步火花：<b>{{ syncAccName }}</b>{{ shortPhaseText ? ' · ' + shortPhaseText : '' }}… 已进行 {{ syncElapsedText() }}</span>
+          </div>
+        </transition>
         <div class="content-header">
           <div class="ch-title">
             <h2>{{ currentAccount ? currentAccount.name : '抖音续火花助手' }}</h2>
@@ -547,48 +609,87 @@
               <span>📋 从聊天列表勾选</span>
               <el-tag v-if="dirty" size="small" type="warning" class="dirty-badge">有未保存的更改</el-tag>
             </div>
-            <div style="margin-bottom:12px; display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+            <div class="sec-toolbar">
               <el-button type="primary" :loading="status.fetching" @click="fetchContacts">获取聊天列表</el-button>
               <span class="muted">
-                <template v-if="status.contacts && status.contacts.length">共 {{ status.contacts.length }} 个聊天对象，最后更新 {{ fmt(status.contacts_at) }}（勾选后点「加入好友名单」会自动保存）</template>
+                <template v-if="status.contacts && status.contacts.length">共 {{ status.contacts.length }} 个聊天对象，最后更新 {{ fmt(status.contacts_at) }}</template>
                 <template v-else-if="status.contacts_error">获取失败：{{ status.contacts_error }}</template>
-                <template v-else>点击按钮从抖音聊天列表读取好友（自动带火花天数），勾选即用</template>
+                <template v-else>点击按钮读取抖音聊天列表（自动带火花天数与头像）</template>
               </span>
             </div>
-            <div v-if="status.contacts && status.contacts.length" style="margin-bottom:10px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-              <el-input v-model="contactSearch" placeholder="搜索好友名字…" clearable style="width:220px;"></el-input>
+            <div v-if="status.fetching" class="fetch-progress">
+              <span class="sync-spin">🔄</span>
+              <span>{{ fetchPhaseText }}</span>
+            </div>
+            <div v-if="status.contacts && status.contacts.length" class="sec-toolbar">
+              <el-input v-model="contactSearch" placeholder="搜索好友名字…" clearable style="width:200px;"></el-input>
               <span class="muted">显示 {{ filteredContacts.length }} / {{ status.contacts.length }} 个</span>
             </div>
             <div v-if="status.contacts && status.contacts.length" class="contacts-box">
-              <el-checkbox-group v-model="selectedContacts">
-                <el-checkbox v-for="c in filteredContacts" :key="c.name" :label="c.name" style="margin:4px 20px 4px 0;">
-                  {{ c.name }}<el-tag v-if="c.streak" size="small" type="warning" style="margin-left:6px;">🔥 {{ c.streak }}</el-tag>
-                </el-checkbox>
-              </el-checkbox-group>
-              <div style="margin-top:8px;">
-                <el-button size="small" type="primary" :disabled="!selectedContacts.length" @click="addSelectedToFriends">把勾选加入好友名单（自动保存）</el-button>
+              <div class="contacts-head">
+                <span class="muted">共 {{ status.contacts.length }} 个聊天对象 · 已选 <b class="sel-count">{{ selectedContacts.length }}</b> 位</span>
+                <span class="contacts-quick">
+                  <el-button size="small" @click="selectAllContacts">全选</el-button>
+                  <el-button size="small" @click="clearAllContacts">取消全选</el-button>
+                </span>
+              </div>
+              <div class="contacts-list">
+                <div v-for="c in filteredContacts" :key="c.name" class="contact-row" :class="{ checked: isContactChecked(c.name) }" @click="toggleContact(c.name)">
+                  <span class="contact-check"><i v-if="isContactChecked(c.name)">✓</i></span>
+                  <span class="contact-avatar">
+                    <img v-if="c.avatar && !brokenAvatars[c.name]" :src="avatarSrc(c.avatar)" loading="lazy" referrerpolicy="no-referrer" @error="brokenAvatars[c.name] = true" alt="">
+                    <span v-else class="avatar-fallback">👤</span>
+                  </span>
+                  <span class="contact-name">{{ c.name }}</span>
+                  <el-tag v-if="c.streak" size="small" type="warning" class="streak-tag">🔥 {{ c.streak }}</el-tag>
+                </div>
+                <div v-if="!filteredContacts.length" class="muted" style="padding:14px; text-align:center;">没有匹配的联系人</div>
+              </div>
+              <div class="contacts-footer">
+                <el-button size="small" type="primary" :disabled="!selectedContacts.length" @click="addSelectedToFriends">把勾选加入好友名单</el-button>
+                <span class="muted">已选 {{ selectedContacts.length }} 位</span>
               </div>
             </div>
+          </el-card>
 
-            <el-divider content-position="left">👥 好友名单（只给「启用」的好友发送）</el-divider>
-            <div v-if="friendsList.length" class="muted" style="margin-bottom:8px;">已启用 <b style="color:var(--el-color-success);">{{ friendEnabledCount }}</b> / 共 {{ friendsList.length }} 位</div>
+          <el-card shadow="never" style="margin-top:14px;">
+            <div class="section-title">
+              <span>👥 好友名单</span>
+              <el-tag v-if="friendsList.length" size="small" type="success">{{ friendEnabledCount }}/{{ friendsList.length }} 启用</el-tag>
+            </div>
             <div v-if="!friendsList.length" class="muted" style="margin-bottom:8px;">名单为空，从上方勾选加入，或用下方按钮手动添加</div>
             <div v-for="(f, i) in friendsList" :key="i" class="friend-row">
-              <el-switch v-model="f.enabled" @change="markDirty"></el-switch>
-              <el-input v-model="f.name" placeholder="好友备注 / 昵称 / 抖音号" @input="markDirty"></el-input>
+              <el-switch v-model="f.enabled" @change="markDirty" size="small"></el-switch>
+              <el-input v-if="!f.name" v-model="f.name" placeholder="昵称 / 抖音号（填一次后锁定）" class="friend-name-input" @input="markDirty"></el-input>
+              <span v-else class="friend-name-text" title="好友名字来自抖音，不可修改">{{ f.name }}</span>
               <el-tag v-if="f.streak" size="small" type="warning">🔥 {{ f.streak }}</el-tag>
-              <el-input v-model="f.note" placeholder="备注（可选）" style="max-width:170px;" @input="markDirty"></el-input>
-              <el-button size="small" type="danger" text @click="removeFriend(i)">删除</el-button>
+              <el-input v-model="f.note" placeholder="备注（可选）" class="friend-note-input" @input="markDirty"></el-input>
+              <div class="friend-actions">
+                <el-button size="small" text :disabled="i === 0" @click="moveFriend(i, -1)" title="上移">↑</el-button>
+                <el-button size="small" text :disabled="i === friendsList.length - 1" @click="moveFriend(i, 1)" title="下移">↓</el-button>
+                <el-button size="small" type="danger" text @click="removeFriend(i)" title="删除">🗑</el-button>
+              </div>
             </div>
-            <el-button size="small" style="margin-top:4px;" @click="friendsList.push({ name:'', enabled:true, streak:'', note:'' }); markDirty()">+ 添加好友</el-button>
-            <el-button size="small" style="margin-top:4px;" @click="selectAllFriends">✓ 全部启用</el-button>
-            <el-button size="small" style="margin-top:4px;" @click="deselectAllFriends">✗ 全部停用</el-button>
+            <div class="sec-toolbar" style="margin-top:10px;">
+              <el-button size="small" type="primary" plain :loading="status.syncing_streaks" :disabled="!status.state_file_exists || (status.streak_syncing_any && !status.syncing_streaks)" @click="syncStreaks" :title="(status.streak_syncing_any && !status.syncing_streaks) ? '其他账号正在同步中，请稍候' : '重新抓取抖音聊天列表，更新火花天数与是否重燃'">🔄 同步火花</el-button>
+              <el-button size="small" @click="addFriendRow">+ 添加好友</el-button>
+              <el-button size="small" @click="selectAllFriends">✓ 全部启用</el-button>
+              <el-button size="small" @click="deselectAllFriends">✗ 全部停用</el-button>
+            </div>
+          </el-card>
 
-            <el-divider content-position="left">💬 消息模板（每行一条，每次随机选一条）</el-divider>
+          <el-card shadow="never" style="margin-top:14px;">
+            <div class="section-title">
+              <span>💬 消息模板</span>
+              <el-tag v-if="templateCount" size="small" type="info">{{ templateCount }} 条</el-tag>
+            </div>
             <el-input v-model="messagesText" type="textarea" :rows="4" placeholder="每行一条消息模板" @input="markDirty"></el-input>
-            <div style="margin-top:12px; display:flex; align-items:center; gap:10px;">
-              <el-button type="primary" size="large" @click="saveFriends">💾 保存好友与消息</el-button>
+            <div class="preview-box">
+              🎲 将随机发送：<b>{{ randomPreview }}</b>
+            </div>
+            <div class="sec-toolbar" style="margin-top:12px; justify-content:flex-end;">
               <span class="muted">保存后立即生效，定时发送会自动使用新名单</span>
+              <el-button type="primary" @click="saveFriends">💾 保存好友与消息</el-button>
             </div>
           </el-card>
         </section>
@@ -597,29 +698,37 @@
         <section v-show="tab === 'settings'" class="pane">
           <el-card shadow="never">
             <div class="section-title"><span>⏰ 定时发送设置</span></div>
-            <el-form label-width="160px">
-              <el-form-item label="每天发送时间">
+            <el-form label-width="150px">
+              <el-form-item label="⏰ 设定每天发送时间">
                 <el-input v-model="settingsForm.schedule_time" type="time" style="width:160px;"></el-input>
               </el-form-item>
-              <el-form-item label="时间抖动窗口（分钟）">
+              <el-form-item label="🎲 抖动窗口（分钟）">
                 <el-input-number v-model="settingsForm.jitter_minutes" :min="0" :max="240"></el-input-number>
-                <span class="muted" style="margin-left:8px;">在设定时间后 0～N 分钟内随机开始（测试时建议设为 0，否则会随机延迟最多 N 分钟）</span>
+                <span class="muted" style="margin-left:8px;">在设定时间后 0～N 分钟内随机开始（测试建议设 0）</span>
               </el-form-item>
-              <el-form-item label="好友间隔（秒）">
+              <el-form-item label="🕐 好友间隔（秒钟）">
                 <el-input-number v-model="settingsForm.send_gap_min" :min="1" :max="300"></el-input-number>
                 <span style="margin:0 6px;">至</span>
                 <el-input-number v-model="settingsForm.send_gap_max" :min="1" :max="300"></el-input-number>
               </el-form-item>
-              <el-form-item label="每次最多发送人数">
+              <el-form-item label="👥 每轮发送人数上限">
                 <el-input-number v-model="settingsForm.max_friends_per_run" :min="0" :max="200"></el-input-number>
                 <span class="muted" style="margin-left:8px;">0 表示不限制</span>
               </el-form-item>
-              <el-form-item label="失败补发等待（分钟）">
+              <el-form-item label="🔁 补发等待（分钟）">
                 <el-input-number v-model="settingsForm.retry_minutes" :min="5" :max="300"></el-input-number>
                 <span class="muted" style="margin-left:8px;">本轮有失败时自动补发一次</span>
               </el-form-item>
-              <el-divider content-position="left">🌐 浏览器（不同账号可用不同引擎，互不干扰）</el-divider>
-              <el-form-item label="浏览器引擎">
+            </el-form>
+            <div class="preview-box">
+              📅 每天 <b>{{ settingsForm.schedule_time || '未设置' }}</b> 发送，实际在之后 <b>0～{{ settingsForm.jitter_minutes }}</b> 分钟内随机开始；每轮最多发送 <b>{{ settingsForm.max_friends_per_run === 0 ? '不限' : settingsForm.max_friends_per_run + ' 位好友' }}</b>
+            </div>
+          </el-card>
+
+          <el-card shadow="never" style="margin-top:14px;">
+            <div class="section-title"><span>🌐 浏览器设置</span></div>
+            <el-form label-width="150px">
+              <el-form-item label="💻 使用的浏览器引擎">
                 <el-select v-model="settingsForm.browser" style="width:220px;">
                   <el-option label="Chromium（最稳定，推荐）" value="chromium"></el-option>
                   <el-option label="Firefox（换指纹用）" value="firefox"></el-option>
@@ -627,26 +736,28 @@
                 </el-select>
                 <span class="muted" style="margin-left:8px;">不同账号选不同引擎可降低账号间关联</span>
               </el-form-item>
-              <el-form-item label="引擎安装状态">
-                <span class="muted">
-                  Chromium：{{ engines && engines.chromium ? '✅ 已安装' : '❌ 未安装' }} ｜
-                  Firefox：{{ engines && engines.firefox ? '✅ 已安装' : '❌ 未安装' }} ｜
-                  WebKit：{{ engines && engines.webkit ? '✅ 已安装' : '❌ 未安装' }}
-                  <template v-if="engines && (!engines.firefox || !engines.webkit)"><br />未安装的引擎请在任意命令行窗口运行：python -m playwright install firefox webkit（首次需下载，约几分钟）</template>
-                </span>
+              <el-form-item label="📦 各引擎的安装状态">
+                <div class="engine-status">
+                  <span class="engine-item"><i :class="['eng-dot', engines && engines.chromium ? 'ok' : 'no']"></i>Chromium {{ engines && engines.chromium ? '已安装' : '未安装' }}</span>
+                  <span class="engine-item"><i :class="['eng-dot', engines && engines.firefox ? 'ok' : 'no']"></i>Firefox {{ engines && engines.firefox ? '已安装' : '未安装' }}</span>
+                  <span class="engine-item"><i :class="['eng-dot', engines && engines.webkit ? 'ok' : 'no']"></i>WebKit {{ engines && engines.webkit ? '已安装' : '未安装' }}</span>
+                </div>
+                <span v-if="engines && (!engines.firefox || !engines.webkit)" class="muted" style="display:block; margin-top:4px;">未安装的引擎请运行：python -m playwright install firefox webkit（首次需下载，约几分钟）</span>
               </el-form-item>
-              <el-form-item label="无头模式">
+              <el-form-item label="🌙 使用无头模式运行">
                 <el-switch v-model="settingsForm.headless"></el-switch>
                 <span class="muted" style="margin-left:8px;">关闭后弹出浏览器窗口便于观察；服务器请保持开启</span>
               </el-form-item>
-              <el-form-item label="账号启用">
+              <el-form-item label="✅ 账号参与定时发送">
                 <el-switch v-model="settingsForm.enabled" active-text="参与每日定时发送"></el-switch>
-              </el-form-item>
-              <el-form-item>
-                <el-button type="primary" @click="saveSettings">保存设置</el-button>
               </el-form-item>
             </el-form>
           </el-card>
+
+          <div class="sec-toolbar" style="margin-top:14px; justify-content:flex-end;">
+            <span class="muted">保存后定时任务立即按新配置生效</span>
+            <el-button type="primary" @click="saveSettings">💾 保存设置</el-button>
+          </div>
         </section>
 
         <!-- ============ 历史记录 ============ -->
@@ -726,7 +837,7 @@
               <el-button size="small" @click="copyLogs">📋 复制日志</el-button>
               <el-checkbox v-model="autoRefresh">自动刷新</el-checkbox>
             </div>
-            <pre class="log-pre">{{ logs || '暂无日志' }}</pre>
+            <pre class="log-pre" v-html="logs ? renderedLog : '暂无日志'"></pre>
           </el-card>
         </section>
 
@@ -806,7 +917,7 @@
             </div>
             <div class="step-card">
               <span class="step-n">3</span><b>加好友 + 设定时</b>
-              <p class="muted">「好友与消息」：获取聊天列表 → 勾选好友加入名单 → 填好消息模板 → 保存。「定时与浏览器」：设好每天发送时间，开启「参与每日定时发送」。</p>
+              <p class="muted">「好友与消息」：获取聊天列表 → 勾选好友加入名单 → 填好消息模板 → 保存。「定时与浏览器」：设好每天发送时间，开启「参与每日定时发送」。火花天数会自动更新，也可点「🔄 同步火花」手动刷新。</p>
             </div>
           </div>
 
@@ -825,9 +936,11 @@
             <div class="help-card">
               <h4>👥 好友与消息</h4>
               <ul>
-                <li>「获取聊天列表」读取抖音聊天对象（带火花天数🔥）</li>
-                <li>勾选后加入好友名单，每个好友可单独启用 / 停用</li>
-                <li>消息模板：每行一条，每次发送随机选一条</li>
+                <li>「获取聊天列表」读取抖音聊天对象（带头像 + 火花天数🔥），有实时进度提示</li>
+                <li>🔄 同步火花：随时重新抓取，更新好友名单里的天数与头像</li>
+                <li>勾选后加入好友名单（支持全选 / 取消全选），每个好友可单独启用 / 停用</li>
+                <li>好友名字锁定不可改（后端靠名字匹配发送），备注可自由填写</li>
+                <li>消息模板：每行一条，每次发送随机选一条，带实时预览</li>
                 <li>只给「启用」的好友发送，改完记得点保存</li>
               </ul>
             </div>
@@ -851,7 +964,8 @@
             <div class="help-card">
               <h4>📄 日志</h4>
               <ul>
-                <li>账号日志 / 全局日志切换，支持自动刷新</li>
+                <li>账号日志 / 全局日志切换，支持自动刷新，打开自动滚到最新</li>
+                <li>头像抓取失败等报错会折叠成一行，点开看详情</li>
                 <li>📋 一键复制日志，排查问题时方便反馈</li>
               </ul>
             </div>
@@ -909,6 +1023,12 @@
             <el-collapse-item title="定时发送没动静？">
               <p class="muted" style="line-height:1.8;">依次检查：账号是否「启用」、好友名单里是否有「启用」状态的好友、登录态是否有效（概览会话状态）、时间是否设对。还不行就看「日志」页排查。</p>
             </el-collapse-item>
+            <el-collapse-item title="头像不显示 / 显示占位图标？">
+              <p class="muted" style="line-height:1.8;">抖音头像链接带时效，过期后显示 👤 占位。重新点「获取聊天列表」或「🔄 同步火花」即可刷新头像与火花天数。</p>
+            </el-collapse-item>
+            <el-collapse-item title="「同步火花」和「获取聊天列表」有什么区别？">
+              <p class="muted" style="line-height:1.8;">「获取聊天列表」用于重新抓取列表、勾选加好友；「🔄 同步火花」用于更新已有好友名单的火花天数与头像。其实每次手动 / 定时发送后，程序也会自动顺手刷新一次天数。</p>
+            </el-collapse-item>
             <el-collapse-item title="想换电脑 / 重装系统？">
               <p class="muted" style="line-height:1.8;">旧机器「账号管理」点「⬇️ 备份全部数据」下载 zip；新机器装好后点「♻️ 恢复备份」选择该 zip，即可一键还原所有账号的登录态、好友名单、配置与历史。</p>
             </el-collapse-item>
@@ -926,7 +1046,7 @@
     </div>
 
     <!-- 网页内扫码登录对话框 -->
-    <el-dialog v-model="qrDialog" title="手机扫码登录（关联抖音账号）" width="420px" :close-on-click-modal="false" @close="cancelQrLogin">
+    <el-dialog v-model="qrDialog" title="手机扫码登录（关联抖音账号）" width="480px" :close-on-click-modal="false" @close="cancelQrLogin">
       <div style="margin-bottom:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
         <span class="muted">登录方式：</span>
         <el-radio-group v-model="qrMode" size="small" @change="restartQrLogin">
@@ -950,12 +1070,32 @@
         <div class="muted" style="margin-top:4px;">夸克/360/QQ 等未自动检测到的浏览器，可在此手动填路径</div>
       </div>
       <div style="text-align:center;">
-        <img v-if="qrImg" :src="qrImg" style="width:230px;height:230px;border:1px solid var(--el-border-color);border-radius:8px;" />
+        <img v-if="qrImg" :src="qrImg" :style="qrSessionActive ? 'width:100%;max-width:460px;height:auto;border:1px solid var(--el-border-color);border-radius:8px;cursor:crosshair;' : 'width:230px;height:230px;border:1px solid var(--el-border-color);border-radius:8px;'" @click="onQrClick" title="手动操作模式下点击画面可控制页面" />
         <el-empty v-else :description="qrSessionActive ? '二维码加载中…' : '选择浏览器后点「开始扫码登录」'" :image-size="60"></el-empty>
         <p class="muted" style="margin-top:10px;">{{ qrMsg }}</p>
         <p v-if="qrNote" class="muted" style="font-size:11px;">{{ qrNote }}</p>
         <p v-if="qrSessionActive && qrMode === 'window'" class="muted">已弹出真实浏览器窗口：请直接在该窗口里用手机抖音 App 扫码（如果窗口里没自动出现二维码，手动点页面右上角「登录」）。下方为实时画面预览，登录完成前不要关闭那个窗口。</p>
         <p v-else-if="qrSessionActive" class="muted">用手机抖音 App 右上角「扫一扫」扫码，确认登录后自动关联到当前账号</p>
+        <p v-if="qrNeedVerify && qrVerifyType === 'sms'" class="muted" style="margin-top:8px;">📲 短信验证步骤：① 点画面里的「获取/发送验证码」→ ② 在下方输入框输码，点「输入」（或直接按回车）→ ③ 点画面里的「确定」</p>
+        <p v-if="qrNeedVerify && qrVerifyType === 'slider'" class="muted" style="margin-top:8px;">🖐 滑块验证步骤：点下方「🖐 模拟拖动」→ 先点画面里的滑块手柄 → 再点缺口位置</p>
+        <div v-if="qrNeedVerify" style="margin-top:12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:center; background:var(--primary-weak); border:1px solid var(--border); border-radius:12px; padding:10px 12px;">
+          <span style="font-size:13px;">🔐 验证中：在下方输入框填内容，或直接点画面操作</span>
+          <el-button size="small" @click="resendVerifyCode">重新发送验证码</el-button>
+          <el-button v-if="platform === 'win32'" size="small" @click="switchToWindowVerify">🪟 改弹窗模式</el-button>
+        </div>
+        <div v-if="qrSessionActive" style="margin-top:10px; display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;">
+          <el-button size="small" :type="manualMode ? 'primary' : 'default'" @click="toggleManualMode">{{ manualMode ? '✅ 手动操作中（全屏画面）' : '🖱 手动操作（点画面里的按钮）' }}</el-button>
+          <template v-if="manualMode">
+            <span class="muted">点画面里的按钮 / 输入框；在下框输字点「输入」（或回车），提交点画面里的「确定」</span>
+            <el-input v-model="manualText" placeholder="输入文字（如验证码）" style="width:170px;" @keyup.enter="manualDoType"></el-input>
+            <el-button type="primary" size="small" @click="manualDoType">输入</el-button>
+            <el-button size="small" @click="manualScroll(-300)">⬆️ 上滚</el-button>
+            <el-button size="small" @click="manualScroll(300)">⬇️ 下滚</el-button>
+          </template>
+          <el-button size="small" :type="dragState !== 'off' ? 'warning' : 'default'" @click="toggleDragMode">{{ dragState === 'pick-handle' ? '点滑块手柄…' : dragState === 'pick-gap' ? '点缺口位置…' : '🖐 模拟拖动（滑块）' }}</el-button>
+          <el-button size="small" @click="copyQrDiagnosis">📋 复制诊断信息</el-button>
+          <el-button size="small" @click="saveQrShot">💾 保存截图</el-button>
+        </div>
       </div>
       <template #footer>
         <el-button v-if="qrSessionActive" @click="refreshQr">刷新画面</el-button>
@@ -1074,6 +1214,63 @@
           if (!kw) return list;
           return list.filter((c) => (c.name || '').includes(kw));
         });
+        function avatarSrc(u) {
+          return '/api/avatar?url=' + encodeURIComponent(u) + '&token=' + encodeURIComponent(token.value);
+        }
+        function isContactChecked(name) { return selectedContacts.value.includes(name); }
+        function toggleContact(name) {
+          const i = selectedContacts.value.indexOf(name);
+          if (i >= 0) selectedContacts.value.splice(i, 1);
+          else selectedContacts.value.push(name);
+        }
+        function selectAllContacts() {
+          const cur = new Set(selectedContacts.value);
+          (status.contacts || []).forEach((c) => cur.add(c.name));
+          selectedContacts.value = [...cur];
+        }
+        function clearAllContacts() {
+          selectedContacts.value = [];
+        }
+        const templateLines = computed(() => messagesText.value.split('\n').map((s) => s.trim()).filter(Boolean));
+        const templateCount = computed(() => templateLines.value.length);
+        const randomPreview = computed(() => {
+          const lines = templateLines.value;
+          if (!lines.length) return '（先在上方输入一条模板）';
+          return lines[Math.floor(Math.random() * lines.length)];
+        });
+        const fetchStartAt = ref(0);
+        const FETCH_PHASE_MAP = {
+          launch: '正在启动浏览器…',
+          open: '正在打开抖音私信页…',
+          wait: '正在等待页面加载…',
+          login: '正在检查登录状态…',
+          scrape: '正在读取聊天列表，抓取名字和头像…',
+        };
+        const shortPhaseText = computed(() => FETCH_PHASE_MAP[status.fetch_phase] || '');
+        const fetchPhaseText = computed(() => {
+          tick.value; // 每秒刷新计时
+          const base = shortPhaseText.value || '正在抓取聊天列表…';
+          if (fetchStartAt.value && status.fetching) {
+            const s = Math.max(0, Math.floor((Date.now() - fetchStartAt.value) / 1000));
+            return base + '（已 ' + s + ' 秒）';
+          }
+          return base;
+        });
+        const syncAccName = computed(() => {
+          const id = status.streak_syncing_acc;
+          if (!id) return '';
+          const acc = accounts.value.find((a) => a.id === id);
+          return acc ? acc.name : id;
+        });
+        function syncElapsedText() {
+          tick.value; // 依赖每秒 tick，保证秒表实时走
+          if (!status.streak_syncing_since) return '';
+          const since = new Date(status.streak_syncing_since).getTime();
+          if (isNaN(since)) return '';
+          const s = Math.max(0, Math.floor((Date.now() - since) / 1000));
+          const m = Math.floor(s / 60), sec = s % 60;
+          return (m > 0 ? m + ' 分 ' : '') + sec + ' 秒';
+        }
         const filteredHistory = computed(() => {
           const h = status.history || [];
           if (historyFilter.value === 'all') return h;
@@ -1082,13 +1279,17 @@
           return h.filter((r) => r.logged_out || r.rate_limited || (r.failed || []).length > 0);
         });
 
-        const status = reactive({ state_file_exists: false, session_status: 'unknown', running: false, last_run: null, next_run: null, history: [], contacts: [], contacts_at: '', contacts_error: '', fetching: false, config: {} });
+        const status = reactive({ state_file_exists: false, session_status: 'unknown', running: false, last_run: null, next_run: null, history: [], contacts: [], contacts_at: '', contacts_error: '', fetching: false, fetch_phase: '', syncing_streaks: false, streak_syncing_any: false, streak_syncing_acc: null, streak_syncing_since: null, config: {} });
         const config = reactive({ enabled: true });
         const settingsForm = reactive({ schedule_time: '21:00', jitter_minutes: 30, send_gap_min: 6, send_gap_max: 12, max_friends_per_run: 20, retry_minutes: 45, browser: 'chromium', headless: true, enabled: true });
         const friendsList = ref([]);
         const messagesText = ref('');
         const dirty = ref(false);
         const selectedContacts = ref([]);
+        const brokenAvatars = reactive({});
+        watch(() => status.contacts, () => {
+          Object.keys(brokenAvatars).forEach((k) => delete brokenAvatars[k]);
+        });
         const logs = ref('');
         const logScope = ref('account');
         const autoRefresh = ref(false);
@@ -1115,6 +1316,14 @@
         const qrEngine = ref('chromium');
         const qrMode = ref('window');
         const qrSessionActive = ref(false);
+        const qrNeedVerify = ref(false);
+        const qrVerifyType = ref('');
+        const manualMode = ref(false);
+        const manualText = ref('');
+        const qrText = ref('');
+        const dragState = ref('off');
+        let dragA = null;
+        const platform = ref('win32');
         const detectedBrowsers = ref([]);
         const engines = ref({});
         const customPath = ref('');
@@ -1185,6 +1394,14 @@
         }
         function markDirty() { dirty.value = true; }
         function removeFriend(i) { friendsList.value.splice(i, 1); markDirty(); }
+        function addFriendRow() { friendsList.value.push({ name: '', enabled: true, streak: '', note: '' }); markDirty(); }
+        function moveFriend(i, dir) {
+          const j = i + dir;
+          if (j < 0 || j >= friendsList.value.length) return;
+          const arr = friendsList.value;
+          const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+          markDirty();
+        }
         function applyTheme(t) {
           theme.value = t;
           document.body.classList.toggle('dark', t === 'dark');
@@ -1195,8 +1412,6 @@
         watch(currentAccount, (acc) => {
           document.title = (acc ? acc.name + ' · ' : '') + '抖音续火花助手';
         }, { immediate: true });
-        // 记住上次停留的面板
-        watch(tab, (t) => localStorage.setItem('ds_tab', t));
         // 复制日志
         async function copyLogs() {
           const text = logs.value || '';
@@ -1238,9 +1453,18 @@
             const r = await api.get('/accounts/' + currentId.value + '/status');
             Object.assign(status, r.data);
             if (applyCfg && r.data.config) applyConfig(r.data.config);
+            // 轮询时只同步火花天数/重燃标记，不覆盖正在编辑的表单
+            if (!applyCfg && r.data.config && Array.isArray(r.data.config.friends) && r.data.config.friends.length) {
+              const byName = new Map(r.data.config.friends.map((f) => [f.name, f]));
+              friendsList.value.forEach((f) => {
+                const s = byName.get(f.name);
+                if (s) { f.streak = s.streak; f.rekindled = !!s.rekindled; }
+              });
+            }
             const acc = accounts.value.find((a) => a.id === currentId.value);
             if (acc && r.data.session_status) acc.session_status = r.data.session_status;
             if (acc) acc.running = !!r.data.running;
+            if (acc) acc.next_run = r.data.next_run;   // 概览卡片倒计时保持新鲜
           } catch (e) { /* handled */ }
         }
         async function loadLogs() {
@@ -1251,10 +1475,39 @@
             const r = await api.get(url);
             logs.value = r.data.logs;
             await nextTick();
-            const el = document.querySelector('.log-pre');
-            if (el) el.scrollTop = el.scrollHeight;
+            requestAnimationFrame(() => {
+              const el = document.querySelector('.log-pre');
+              if (el) el.scrollTop = el.scrollHeight;   // 始终滚到最底部的最新日志
+            });
           } catch (e) { /* handled */ }
         }
+        function escapeHtml(s) {
+          return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        // 日志渲染：头像抓取的失败/部分成功报错折叠成 details（默认一行，点开看详情），其余原样
+        const renderedLog = computed(() => {
+          const text = logs.value || '';
+          const lines = text.split('\n');
+          const out = [];
+          let i = 0;
+          while (i < lines.length) {
+            const line = lines[i];
+            if (line.includes('【头像抓取失败】') || line.includes('【头像抓取部分成功】')) {
+              const isFail = line.includes('【头像抓取失败】');
+              const details = [];
+              i++;
+              while (i < lines.length && lines[i].includes('【头像抓取详情】')) {
+                details.push(escapeHtml(lines[i].replace('【头像抓取详情】', '').trim()));
+                i++;
+              }
+              out.push('<details class="log-detail ' + (isFail ? 'fail' : 'partial') + '"><summary>' + escapeHtml(line) + '</summary><div class="log-detail-body">' + (details.join('<br>') || '（无详情）') + '</div></details>');
+            } else {
+              out.push(escapeHtml(line));
+              i++;
+            }
+          }
+          return out.join('\n');
+        });
         function updateSidebar() {
           // 用户手动点过折叠按钮后以手动为准；没点过则窄窗自动收起
           if (userCollapsed.value !== null) { sidebarCollapsed.value = userCollapsed.value; wallScrollListener(); return; }
@@ -1339,6 +1592,7 @@
             const r = await api.get('/browsers');
             detectedBrowsers.value = r.data.browsers || [];
             engines.value = r.data.engines || {};
+            if (r.data.platform) platform.value = r.data.platform;
           } catch (e) { /* 旧版后端无此接口时忽略 */ }
         }
         async function loadAutoStart() {
@@ -1378,6 +1632,18 @@
           loadLogs();
         }
         function switchTo(id) { currentId.value = id; localStorage.setItem('ds_acc', id); onSwitchAccount(); }
+        // 每次点击左侧导航都拉取最新数据（账号列表 + 当前账号状态），避免倒计时等长期不刷新
+        async function refreshPageData() {
+          if (!currentId.value) return;
+          try { await loadAccounts(); } catch (e) { /* handled */ }
+          try { await loadStatus(false); } catch (e) { /* handled */ }
+        }
+        async function switchTab(key) {
+          tab.value = key;
+          await refreshPageData();
+          // 打开日志页时重新拉取并滚到底（面板刚显示，隐藏时设置滚动位置无效）
+          if (key === 'logs') await loadLogs();
+        }
 
         // ---------- 运行 ----------
         async function waitForRunFinish(maxSeconds) {
@@ -1424,6 +1690,7 @@
         // ---------- 好友 ----------
         async function fetchContacts() {
           if (!currentId.value) return;
+          fetchStartAt.value = Date.now();
           try {
             await api.post('/accounts/' + currentId.value + '/contacts/fetch');
             status.fetching = true;
@@ -1435,6 +1702,27 @@
             }
           } catch (e) {
             ElementPlus.ElMessage.error(e.response?.data?.detail || '获取失败');
+          }
+        }
+        async function syncStreaks() {
+          if (!currentId.value) return;
+          const accId = currentId.value;
+          try {
+            await api.post('/accounts/' + accId + '/streaks/sync');
+            status.syncing_streaks = true;   // 立即反馈；服务器状态随后由轮询接管
+            ElementPlus.ElMessage.info('正在同步火花天数，稍等…');
+            for (let i = 0; i < 120; i++) {
+              await new Promise((r) => setTimeout(r, 3000));
+              let st = null;
+              try { st = (await api.get('/accounts/' + accId + '/status')).data; } catch (e) { continue; }
+              if (st && !st.syncing_streaks) {
+                if (st.streaks_sync_error) ElementPlus.ElMessage.error('同步失败：' + st.streaks_sync_error);
+                else ElementPlus.ElMessage.success('火花天数已同步到最新');
+                break;
+              }
+            }
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '同步失败');
           }
         }
         function buildPayload() {
@@ -1648,6 +1936,7 @@
             return;
           }
           qrSessionActive.value = true;
+          qrNeedVerify.value = false;
           qrImg.value = '';
           qrMsg.value = '正在启动扫码会话…（' + (eng.indexOf('\\') >= 0 || eng.indexOf('/') >= 0 ? '本机浏览器' : eng) + '）';
           try {
@@ -1657,20 +1946,30 @@
             qrTimer = setInterval(async () => {
               try {
                 const r = await api.post('/accounts/' + currentId.value + '/login/status');
+                qrNeedVerify.value = !!r.data.need_verify;
+                qrVerifyType.value = r.data.verify_type || '';
+                if (qrNeedVerify.value) manualMode.value = true;
                 if (r.data.logged_in) {
                   stopQrPoll();
                   qrSessionActive.value = false;
+                  qrNeedVerify.value = false;
                   ElementPlus.ElMessage.success('登录成功，已关联该账号');
                   qrDialog.value = false;
                   await loadAll();
                 } else if (r.data.message && r.data.message.indexOf('超时') >= 0) {
                   stopQrPoll();
                   qrSessionActive.value = false;
+                  qrNeedVerify.value = false;
                   qrMsg.value = r.data.message;
                   ElementPlus.ElMessage.warning(r.data.message);
                 } else {
                   qrMsg.value = r.data.message;
                 }
+              } catch (e) { /* 瞬时错误忽略 */ }
+              // 定期刷新画面（手动模式用全屏，坐标与显示一致）
+              try {
+                const q = await api.get('/accounts/' + currentId.value + '/login/qr' + (manualMode.value ? '?full=1' : ''));
+                if (q.data.qr) { qrImg.value = q.data.qr; qrNote.value = q.data.note || ''; qrText.value = q.data.text || ''; }
               } catch (e) { /* 瞬时错误忽略 */ }
             }, 3000);
           } catch (e) {
@@ -1684,6 +1983,7 @@
           // 只打开设置弹窗，不自动启动；选择好浏览器后手动点「开始扫码登录」
           await loadBrowsers();
           qrSessionActive.value = false;
+          qrNeedVerify.value = false;
           stopQrPoll();
           qrImg.value = '';
           qrMsg.value = '请选择浏览器，然后点「开始扫码登录」';
@@ -1702,9 +2002,11 @@
         }
         async function refreshQr() {
           try {
-            const r = await api.get('/accounts/' + currentId.value + '/login/qr');
+            // 手动操作模式用全视口截图（看得全、坐标准），扫码模式用智能放大截图
+            const r = await api.get('/accounts/' + currentId.value + '/login/qr' + (manualMode.value ? '?full=1' : ''));
             qrImg.value = r.data.qr;
             qrNote.value = r.data.note || '';
+            qrText.value = r.data.text || '';
             qrMsg.value = '请用手机抖音 App 扫码';
           } catch (e) {
             qrMsg.value = e.response?.data?.detail || '画面加载失败';
@@ -1713,9 +2015,114 @@
         async function cancelQrLogin() {
           stopQrPoll();
           qrSessionActive.value = false;
+          qrNeedVerify.value = false;
           if (currentId.value) {
             try { await api.post('/accounts/' + currentId.value + '/login/cancel'); } catch (e) { /* 忽略 */ }
           }
+        }
+        async function resendVerifyCode() {
+          try {
+            const r = await api.post('/accounts/' + currentId.value + '/login/resend-code');
+            ElementPlus.ElMessage.success(r.data.message || '已请求');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '操作失败');
+          }
+        }
+        async function switchToWindowVerify() {
+          try { await api.post('/accounts/' + currentId.value + '/login/cancel'); } catch (e) { /* 忽略 */ }
+          stopQrPoll();
+          qrSessionActive.value = false;
+          qrNeedVerify.value = false;
+          manualMode.value = false;
+          qrMode.value = 'window';
+          ElementPlus.ElMessage.info('已切换到弹出窗口模式：请在真实浏览器窗口里扫码并完成验证');
+          await startQrSession();
+        }
+        function onQrClick(e) {
+          if (!qrSessionActive.value) return;
+          const img = e.target;
+          const rect = img.getBoundingClientRect();
+          // 无头页面视口固定 1000x800（截图尺寸），按显示比例换算坐标
+          const x = Math.round((e.clientX - rect.left) / rect.width * 1000);
+          const y = Math.round((e.clientY - rect.top) / rect.height * 800);
+          // 拖动模式：第一次点记录手柄，第二次点记录缺口并执行模拟拖动
+          if (dragState.value === 'pick-handle') {
+            dragA = { x, y };
+            dragState.value = 'pick-gap';
+            ElementPlus.ElMessage.info('已记录滑块手柄，再点缺口位置');
+            return;
+          }
+          if (dragState.value === 'pick-gap') {
+            const a = dragA;
+            dragState.value = 'off';
+            doDrag(a.x, a.y, x, y);
+            return;
+          }
+          if (!manualMode.value) return;
+          api.post('/accounts/' + currentId.value + '/login/manual-click', { x, y })
+            .then(() => refreshQr())
+            .catch((err) => ElementPlus.ElMessage.error(err.response?.data?.detail || '点击失败'));
+        }
+        function toggleManualMode() {
+          manualMode.value = !manualMode.value;
+          refreshQr();   // 切到全屏画面（坐标 1:1 对应页面）
+        }
+        function toggleDragMode() {
+          if (dragState.value !== 'off') { dragState.value = 'off'; ElementPlus.ElMessage.info('已取消拖动'); return; }
+          dragState.value = 'pick-handle';
+          ElementPlus.ElMessage.info('先点击画面里的滑块手柄，再点击缺口位置');
+        }
+        async function doDrag(x1, y1, x2, y2) {
+          try {
+            const r = await api.post('/accounts/' + currentId.value + '/login/manual-drag', { x1, y1, x2, y2 });
+            ElementPlus.ElMessage.success(r.data.message || '已模拟拖动');
+            await refreshQr();
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '拖动失败');
+          }
+        }
+        async function manualDoType() {
+          if (!manualText.value) { ElementPlus.ElMessage.warning('先输入文字'); return; }
+          try {
+            const r = await api.post('/accounts/' + currentId.value + '/login/manual-type', { text: manualText.value });
+            ElementPlus.ElMessage.success(r.data.message || '已输入');
+            manualText.value = '';
+            await refreshQr();
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '输入失败');
+          }
+        }
+        async function manualScroll(dy) {
+          try {
+            await api.post('/accounts/' + currentId.value + '/login/manual-scroll', { dy });
+            await refreshQr();
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '滚动失败');
+          }
+        }
+        function copyQrDiagnosis() {
+          const text = [
+            'qrMsg: ' + qrMsg.value,
+            'qrNote: ' + (qrNote.value || ''),
+            '页面文字:\n' + (qrText.value || '（无）'),
+          ].join('\n');
+          const done = () => ElementPlus.ElMessage.success('诊断信息已复制，直接粘贴发给开发者即可');
+          try {
+            navigator.clipboard.writeText(text).then(done).catch(() => { legacyCopy(text); done(); });
+          } catch (e) { legacyCopy(text); done(); }
+        }
+        function legacyCopy(text) {
+          const ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); document.body.removeChild(ta);
+        }
+        function saveQrShot() {
+          if (!qrImg.value) { ElementPlus.ElMessage.warning('还没有画面可保存'); return; }
+          const a = document.createElement('a');
+          a.href = qrImg.value; a.download = 'login-screenshot.png';
+          document.body.appendChild(a); a.click();
+          setTimeout(() => { document.body.removeChild(a); }, 1000);
+          ElementPlus.ElMessage.success('截图已保存，可以发给我');
         }
 
         onMounted(async () => {
@@ -1723,9 +2130,13 @@
           updateSidebar();
           window.addEventListener('resize', updateSidebar);
           tickTimer = setInterval(() => tick.value++, 1000);
-          const savedTab = localStorage.getItem('ds_tab');
-          if (savedTab && navs.some((n) => n.key === savedTab)) tab.value = savedTab;
           await loadAll();
+          // 每次打开固定显示：账号管理里第一个账号的概览（会话中切换不受影响）
+          if (accounts.value.length) {
+            currentId.value = accounts.value[0].id;
+            localStorage.setItem('ds_acc', currentId.value);
+            await loadStatus(true);
+          }
           wallScrollListener();
           if (wallRef.value) wallRef.value.addEventListener('scroll', wallScrollListener);
           timer = setInterval(() => {
@@ -1743,15 +2154,15 @@
 
         return {
           tab, theme, toggleTheme, navs, wallAccounts, accounts, version, currentId, currentAccount, status, config, settingsForm, friendsList, messagesText, dirty,
-          sidebarCollapsed, toggleSidebar, wallRef, wallAtStart, wallAtEnd, wallScroll, historyFilter, friendEnabledCount, filteredHistory, countdown, runAllAccounts, downloadBackup, onRestoreChange, contactSearch, filteredContacts, selectAllFriends, deselectAllFriends,
-          selectedContacts, logs, logScope, autoRefresh, autoStart, autoStartMinimized, uploadFile, tokenDialog, tokenInput,
+          sidebarCollapsed, toggleSidebar, wallRef, wallAtStart, wallAtEnd, wallScroll, historyFilter, friendEnabledCount, filteredHistory, countdown, runAllAccounts, downloadBackup, onRestoreChange, contactSearch, filteredContacts, selectAllFriends, deselectAllFriends, templateCount, randomPreview, addFriendRow, moveFriend, syncAccName, syncElapsedText, renderedLog, fetchPhaseText, shortPhaseText,
+          selectedContacts, brokenAvatars, isContactChecked, toggleContact, avatarSrc, selectAllContacts, clearAllContacts, logs, logScope, autoRefresh, autoStart, autoStartMinimized, uploadFile, token, tokenDialog, tokenInput,
           notifyDialog, notifyForm, addAccountDialog, newAccountName, renameDialog, renameId, renameName,
           sendOneDialog, sendOneNames, sendOneDry, enabledFriends, qrDialog, qrImg, qrMsg, qrNote, qrEngine, qrMode,
-          qrSessionActive, browserOptions, detectedBrowsers, engines, customPath,
+          qrSessionActive, qrNeedVerify, qrVerifyType, resendVerifyCode, switchToWindowVerify, manualMode, manualText, qrText, dragState, toggleManualMode, toggleDragMode, onQrClick, manualDoType, manualScroll, doDrag, copyQrDiagnosis, saveQrShot, platform, browserOptions, detectedBrowsers, engines, customPath,
           enabledFriendCount, totalFriendCount, jitterMinutes,
           fmt, statusClass, sessionText, sessionTagType, markDirty, removeFriend, copyLogs, browserName,
-          loadAll, loadStatus, loadLogs, onSwitchAccount, switchTo,
-          triggerRun, doSendOne, fetchContacts, addSelectedToFriends, saveFriends, saveSettings,
+          loadAll, loadStatus, loadLogs, onSwitchAccount, switchTo, switchTab,
+          triggerRun, doSendOne, fetchContacts, syncStreaks, addSelectedToFriends, saveFriends, saveSettings,
           onFileChange, onFileRemove, onNativeFileChange, uploadState, showTokenDialog, saveToken,
           openNotifyDialog, saveNotify, testNotify, notifyTestMsg, notifyTestType, addAccount, openRenameDialog, doRename, deleteAccount, moveAccount,
           loadAutoStart, toggleAutoStart, saveAutoStartMode,

@@ -6,6 +6,7 @@ VBS 启动项目根目录的 start.bat，Windows 登录时自动运行。
 
 from __future__ import annotations
 
+import locale
 import os
 import re
 from pathlib import Path
@@ -15,6 +16,9 @@ VBS_NAME = "DouyinSparkKeeper.vbs"
 # WshShell.Run 窗口样式：7=最小化 1=正常
 STYLE_MINIMIZED = "7"
 STYLE_NORMAL = "1"
+
+# VBS 用系统 ANSI 编码写（中文 Windows 为 GBK）：路径含中文时 ascii 编码会失败
+_VBS_ENC = locale.getpreferredencoding(False) or "gb18030"
 
 
 def _startup_dir() -> Path:
@@ -50,7 +54,7 @@ def get_mode() -> bool | None:
     if not p.exists():
         return None
     try:
-        content = p.read_text(encoding="ascii", errors="ignore")
+        content = p.read_text(encoding=_VBS_ENC, errors="ignore")
         m = re.search(r'WshShell\.Run """[^"]+""",\s*(\d+),', content)
         if m:
             return m.group(1) != STYLE_NORMAL  # 不是正常窗口则视为最小化
@@ -74,7 +78,7 @@ def set_enabled(flag: bool, minimized: bool = True) -> bool:
         return False
     try:
         p.parent.mkdir(parents=True, exist_ok=True)
-        p.write_text(_build_content(start_bat, minimized), encoding="ascii")
+        p.write_text(_build_content(start_bat, minimized), encoding=_VBS_ENC)
         return True
     except Exception:
         return False
