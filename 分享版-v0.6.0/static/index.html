@@ -248,6 +248,13 @@
     .content-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 22px; }
     .ch-title { display: flex; align-items: center; gap: 10px; }
     .ch-title h2 { margin: 0; font-size: 24px; line-height: 1.35; font-weight: 700; letter-spacing: .5px; color: var(--text); }
+    /* 令牌登录门 */
+    .token-gate { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: var(--bg-grad); }
+    .token-gate-card { width: 360px; padding: 34px 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); text-align: center; }
+    .token-gate-logo { font-size: 42px; margin-bottom: 6px; }
+    .token-gate-card h2 { margin: 6px 0 2px; color: var(--text); }
+    .token-gate-card .muted { margin: 6px 0 16px; }
+    .token-gate-card code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
     .panes .pane { animation: paneIn .22s ease; }
     @keyframes paneIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
     /* ===== 概览卡片墙 ===== */
@@ -413,6 +420,18 @@
     })();
   </script>
   <div id="app">
+    <!-- 令牌登录门：首次进入（浏览器无令牌）时显示，输入 .env 里的访问令牌 -->
+    <div v-if="needsToken" class="token-gate">
+      <div class="token-gate-card">
+        <div class="token-gate-logo">🔥</div>
+        <h2>抖音续火花助手</h2>
+        <p class="muted">输入访问令牌后进入管理页面</p>
+        <el-input v-model="tokenInput" placeholder="访问令牌" show-password size="large" @keyup.enter="enterToken"></el-input>
+        <el-button type="primary" size="large" style="width:100%; margin-top:12px;" :loading="tokenChecking" @click="enterToken">进入</el-button>
+        <p v-if="tokenError" style="color:var(--el-color-danger); font-size:12px; margin-top:8px;">{{ tokenError }}</p>
+        <p class="muted" style="margin-top:14px; font-size:12px; line-height:1.7;">本机首次使用可直接设置新令牌；服务器 / 局域网部署请输入 <code>.env</code> 文件里的现有令牌（<code>AUTH_TOKEN=...</code>）</p>
+      </div>
+    </div>
     <div class="shell">
       <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
         <div class="brand">
@@ -1190,6 +1209,33 @@
           { key: 'help', ico: '📖', label: '使用说明' },
         ];
         const token = ref(localStorage.getItem('ds_token') || '');
+        const tokenChecking = ref(false);
+        const tokenError = ref('');
+        const needsToken = computed(() => !token.value);
+        async function enterToken() {
+          const t = tokenInput.value.trim();
+          if (t.length < 8) { tokenError.value = '令牌至少 8 位'; return; }
+          tokenChecking.value = true;
+          tokenError.value = '';
+          try {
+            let ok = false;
+            try { await api.get('/accounts', { headers: { 'X-Auth-Token': t } }); ok = true; } catch (e) { /* 校验失败 → 尝试设为新令牌 */ }
+            if (!ok) {
+              try { await api.put('/token', { token: t }); ok = true; } catch (e2) { /* 非本机来源需现有令牌 */ }
+            }
+            if (!ok) {
+              tokenError.value = '无法使用该令牌：服务器/局域网部署需输入 .env 里的现有令牌';
+              return;
+            }
+            token.value = t;
+            localStorage.setItem('ds_token', t);
+            tokenDialog.value = false;
+            await loadAll();
+            ElementPlus.ElMessage.success('欢迎回来');
+          } finally {
+            tokenChecking.value = false;
+          }
+        }
         const tokenInput = ref('');
         const tokenDialog = ref(false);
 
@@ -1356,7 +1402,12 @@
         api.interceptors.response.use(
           (r) => r,
           (err) => {
-            if (err.response && err.response.status === 401) { tokenDialog.value = true; }
+            // 令牌失效（如换副本/换令牌后旧值残留）：清掉本地令牌，回到登录门重新设置
+            if (err.response && err.response.status === 401) {
+              token.value = '';
+              tokenInput.value = '';
+              localStorage.removeItem('ds_token');
+            }
             return Promise.reject(err);
           }
         );
@@ -2155,7 +2206,7 @@
         return {
           tab, theme, toggleTheme, navs, wallAccounts, accounts, version, currentId, currentAccount, status, config, settingsForm, friendsList, messagesText, dirty,
           sidebarCollapsed, toggleSidebar, wallRef, wallAtStart, wallAtEnd, wallScroll, historyFilter, friendEnabledCount, filteredHistory, countdown, runAllAccounts, downloadBackup, onRestoreChange, contactSearch, filteredContacts, selectAllFriends, deselectAllFriends, templateCount, randomPreview, addFriendRow, moveFriend, syncAccName, syncElapsedText, renderedLog, fetchPhaseText, shortPhaseText,
-          selectedContacts, brokenAvatars, isContactChecked, toggleContact, avatarSrc, selectAllContacts, clearAllContacts, logs, logScope, autoRefresh, autoStart, autoStartMinimized, uploadFile, token, tokenDialog, tokenInput,
+          selectedContacts, brokenAvatars, isContactChecked, toggleContact, avatarSrc, selectAllContacts, clearAllContacts, logs, logScope, autoRefresh, autoStart, autoStartMinimized, uploadFile, token, needsToken, enterToken, tokenChecking, tokenError, tokenDialog, tokenInput,
           notifyDialog, notifyForm, addAccountDialog, newAccountName, renameDialog, renameId, renameName,
           sendOneDialog, sendOneNames, sendOneDry, enabledFriends, qrDialog, qrImg, qrMsg, qrNote, qrEngine, qrMode,
           qrSessionActive, qrNeedVerify, qrVerifyType, resendVerifyCode, switchToWindowVerify, manualMode, manualText, qrText, dragState, toggleManualMode, toggleDragMode, onQrClick, manualDoType, manualScroll, doDrag, copyQrDiagnosis, saveQrShot, platform, browserOptions, detectedBrowsers, engines, customPath,

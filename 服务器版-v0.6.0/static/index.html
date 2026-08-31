@@ -248,6 +248,128 @@
     .content-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 22px; }
     .ch-title { display: flex; align-items: center; gap: 10px; }
     .ch-title h2 { margin: 0; font-size: 24px; line-height: 1.35; font-weight: 700; letter-spacing: .5px; color: var(--text); }
+    /* 令牌登录门 */
+    .token-gate { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: var(--bg-grad); }
+    .token-gate-card { width: 360px; padding: 34px 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); text-align: center; }
+    .token-gate-logo { font-size: 42px; margin-bottom: 6px; }
+    .token-gate-card h2 { margin: 6px 0 2px; color: var(--text); }
+    .token-gate-card .muted { margin: 6px 0 16px; }
+    .token-gate-card code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+    .panes .pane { animation: paneIn .22s ease; }
+    @keyframes paneIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    /* ===== 概览卡片墙 ===== */
+    /* 卡片墙工具栏与横向滑动 */
+    .wall-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .wall-arrows { display: flex; gap: 6px; }
+    .wall-arrow {
+      width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-2); cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all .15s ease; padding: 0;
+    }
+    .wall-arrow svg { display: block; }
+    .wall-arrow:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+    .wall-arrow:disabled { opacity: .35; cursor: default; }
+    .overview-wall {
+      display: flex; gap: 14px; overflow-x: auto;
+      scroll-snap-type: x mandatory; scroll-behavior: smooth;
+      margin-bottom: 22px; padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .overview-wall::-webkit-scrollbar { display: none; }
+    .overview-wall > .muted { flex: 0 0 100%; }
+    .acc-card { flex: 0 0 calc(50% - 7px); scroll-snap-align: start; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: all .18s ease; box-shadow: var(--shadow-sm); box-sizing: border-box; }
+    .acc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: all .18s ease; box-shadow: var(--shadow-sm); }
+    .acc-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .acc-card.active { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-weak), var(--shadow); }
+    .acc-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .acc-card-name { font-weight: 600; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .acc-card-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+    .acc-card-row { display: flex; align-items: center; font-size: 12.5px; min-width: 0; }
+    .acc-card-row .k { color: var(--text-2); flex-shrink: 0; white-space: nowrap; }
+    .acc-card-row .leader { flex: 1; border-bottom: 1px dotted var(--border); margin: 0 6px; min-width: 6px; }
+    .acc-card-row .v { color: var(--text); flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* ===== 统计卡片 ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .cards .el-card { --el-card-padding: 16px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .18s ease, box-shadow .18s ease; }
+    .cards .el-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .card-label { color: var(--text-2); font-size: 12px; margin-bottom: 8px; letter-spacing: .3px; }
+    .card-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .card-value small { font-size: 12px; font-weight: 400; color: var(--text-2); }
+    /* ===== 日志 ===== */
+    .log-pre { background: var(--surface-2); color: var(--text); padding: 14px; border-radius: 14px; height: 430px; overflow: auto; font-size: 12.5px; line-height: 1.7; white-space: pre-wrap; border: 1px solid var(--border); box-shadow: inset 0 1px 4px rgba(0,0,0,.12); }
+    .log-pre details.log-detail { margin: 2px 0; }
+    .log-pre details.log-detail summary { cursor: pointer; font-weight: 600; user-select: none; list-style: none; }
+    .log-pre details.log-detail summary::before { content: '▸ '; opacity: .6; }
+    .log-pre details.log-detail[open] summary::before { content: '▾ '; }
+    .log-pre details.log-detail.fail summary { color: #f56c6c; }
+    .log-pre details.log-detail.partial summary { color: #e6a23c; }
+    .log-pre .log-detail-body { padding-left: 16px; color: var(--text-2); margin: 2px 0 4px; }
+    .result-box { margin-top: 12px; }
+    .spacer { flex: 1; }
+    /* ===== 通用工具条 ===== */
+    .sec-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+    /* ===== 好友行 ===== */
+    .friend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 6px 12px; transition: border-color .15s ease, background .15s ease, box-shadow .15s ease; }
+    .friend-row:hover { border-color: var(--primary); background: var(--surface); box-shadow: 0 3px 10px rgba(31,45,90,.08); }
+    .friend-row .el-input { flex: 1; min-width: 140px; }
+    .friend-row .el-input__wrapper { box-shadow: none !important; background: transparent; padding: 0 6px; }
+    .friend-row .el-input__inner { font-weight: 600; }
+    .friend-name-input { flex: 1.4; }
+    .friend-name-text { flex: 1.4; min-width: 140px; padding: 0 6px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 32px; }
+    .friend-note-input { flex: 1; max-width: 200px; min-width: 120px; }
+    .friend-note-input .el-input__wrapper { box-shadow: 0 0 0 1px var(--border) inset !important; background: var(--note-bg); padding: 0 8px; border-radius: 6px; }
+    .friend-note-input .el-input__wrapper:hover { box-shadow: 0 0 0 1px var(--text-2) inset !important; }
+    .friend-note-input .el-input__wrapper.is-focus { box-shadow: 0 0 0 1px var(--primary) inset !important; }
+    .friend-note-input .el-input__inner { font-weight: 400; color: var(--text-2); font-size: 12.5px; }
+    .friend-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+    .friend-actions .el-button { opacity: .55; }
+    .friend-actions .el-button:hover:not(:disabled) { opacity: 1; }
+    .friend-actions .el-button.is-disabled { opacity: .3; }
+    /* ===== 聊天列表勾选 ===== */
+    .contacts-box { border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); overflow: hidden; }
+    .contacts-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--border); }
+    .sel-count { color: var(--primary); font-weight: 700; }
+    .contacts-quick { display: flex; gap: 2px; }
+    .contacts-list { max-height: 280px; overflow: auto; padding: 6px; }
+    .contact-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 10px; cursor: pointer; transition: background .15s ease; }
+    .contact-row:hover { background: var(--surface); }
+    .contact-row.checked { background: var(--primary-weak); }
+    .contact-check { width: 18px; height: 18px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; flex-shrink: 0; transition: all .15s ease; }
+    .contact-row.checked .contact-check { background: var(--primary); border-color: var(--primary); }
+    .contact-avatar { width: 36px; height: 36px; border-radius: 10px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--surface); border: 1px solid var(--border); }
+    .contact-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .avatar-fallback { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: var(--text-2); font-size: 16px; }
+    .contact-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-size: 13.5px; }
+    .streak-tag { margin-left: auto; flex-shrink: 0; }
+    .contacts-footer { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-top: 1px solid var(--border); }
+    .muted { color: var(--text-2); font-size: 12px; }
+    /* ===== 预览框 ===== */
+    .preview-box { margin-top: 16px; padding: 10px 14px; border-radius: 10px; background: var(--primary-weak); border: 1px dashed var(--primary); color: var(--text); font-size: 13px; line-height: 1.6; }
+    .preview-box b { color: var(--primary); }
+    /* ===== 抓取进度提示 ===== */
+    .fetch-progress { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 8px 14px; border-radius: 10px; background: var(--primary-weak); border: 1px solid var(--border); color: var(--text); font-size: 12.5px; }
+    /* ===== 全局同步横幅 ===== */
+    .sync-banner { position: fixed; right: 18px; top: 18px; z-index: 3000; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--primary); color: var(--text); font-size: 13px; padding: 9px 16px; border-radius: 999px; box-shadow: var(--shadow); }
+    .sync-banner b { color: var(--primary); }
+    .sync-spin { display: inline-block; animation: syncspin 1.2s linear infinite; }
+    @keyframes syncspin { to { transform: rotate(360deg); } }
+    /* ===== 引擎安装状态 ===== */
+    .engine-status { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .engine-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text); }
+    .eng-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .eng-dot.ok { background: #34c77b; box-shadow: 0 0 5px rgba(52,199,123,.6); }
+    .eng-dot.no { background: #f56c6c; box-shadow: 0 0 5px rgba(245,108,108,.6); }
+    /* 状态圆点 */
+    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 0 3px rgba(0,0,0,.05); }
+    .dot.ok { background: #34c77b; } .dot.expired { background: #f56c6c; } .dot.failed { background: #f56c6c; }
+    .dot.partial { background: #f5a623; } .dot.unknown { background: #a0a7bd; }
+    .dirty-badge { margin-left: 8px; }
+    .section-title { font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    /* 按钮 */
+    .el-button { border-radius: 8px; font-weight: 500; }
+    .el-button--primary { box-shadow: 0 4px 10px rgba(79,110,247,.25); }
+
     .panes .pane { animation: paneIn .22s ease; }
     @keyframes paneIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
     /* ===== 概览卡片墙 ===== */
@@ -413,7 +535,19 @@
     })();
   </script>
   <div id="app">
-    <div class="shell">
+    <!-- 令牌登录门：首次进入（浏览器无令牌）时显示，输入 .env 里的访问令牌 -->
+    <div v-if="needsToken" class="token-gate">
+      <div class="token-gate-card">
+        <div class="token-gate-logo">🔥</div>
+        <h2>抖音续火花助手</h2>
+        <p class="muted">输入访问令牌后进入管理页面</p>
+        <el-input v-model="tokenInput" placeholder="访问令牌" show-password size="large" @keyup.enter="enterToken"></el-input>
+        <el-button type="primary" size="large" style="width:100%; margin-top:12px;" :loading="tokenChecking" @click="enterToken">进入</el-button>
+        <p v-if="tokenError" style="color:var(--el-color-danger); font-size:12px; margin-top:8px;">{{ tokenError }}</p>
+        <p class="muted" style="margin-top:14px; font-size:12px; line-height:1.7;">本机首次使用可直接设置新令牌；服务器 / 局域网部署请输入 <code>.env</code> 文件里的现有令牌（<code>AUTH_TOKEN=...</code>）</p>
+      </div>
+    </div>
+    
       <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
         <div class="brand">
           <span class="brand-icon">🔥</span>
@@ -1359,6 +1493,34 @@ systemctl stop douyin-spark       # 停止</div>
           { key: 'help', ico: '📖', label: '使用说明' },
         ];
         const token = ref(localStorage.getItem('ds_token') || '');
+        const tokenChecking = ref(false);
+        const tokenError = ref('');
+        const needsToken = computed(() => !token.value);
+        async function enterToken() {
+          const t = tokenInput.value.trim();
+          if (t.length < 8) { tokenError.value = '令牌至少 8 位'; return; }
+          tokenChecking.value = true;
+          tokenError.value = '';
+          try {
+            let ok = false;
+            try { await api.get('/accounts', { headers: { 'X-Auth-Token': t } }); ok = true; } catch (e) { /* 校验失败 → 尝试设为新令牌 */ }
+            if (!ok) {
+              try { await api.put('/token', { token: t }); ok = true; } catch (e2) { /* 非本机来源需现有令牌 */ }
+            }
+            if (!ok) {
+              tokenError.value = '无法使用该令牌：服务器/局域网部署需输入 .env 里的现有令牌';
+              return;
+            }
+            token.value = t;
+            localStorage.setItem('ds_token', t);
+            tokenDialog.value = false;
+            await loadAll();
+            ElementPlus.ElMessage.success('欢迎回来');
+          } finally {
+            tokenChecking.value = false;
+          }
+        }
+        
         const tokenInput = ref('');
         const tokenDialog = ref(false);
 
@@ -1528,7 +1690,12 @@ systemctl stop douyin-spark       # 停止</div>
         api.interceptors.response.use(
           (r) => r,
           (err) => {
-            if (err.response && err.response.status === 401) { tokenDialog.value = true; }
+            // 令牌失效（如换副本/换令牌后旧值残留）：清掉本地令牌，回到登录门重新设置
+            if (err.response && err.response.status === 401) {
+              token.value = '';
+              tokenInput.value = '';
+              localStorage.removeItem('ds_token');
+            }
             return Promise.reject(err);
           }
         );
@@ -2333,7 +2500,7 @@ systemctl stop douyin-spark       # 停止</div>
         return {
           tab, theme, toggleTheme, navs, wallAccounts, accounts, version, currentId, currentAccount, status, config, settingsForm, friendsList, messagesText, dirty,
           sidebarCollapsed, toggleSidebar, wallRef, wallAtStart, wallAtEnd, wallScroll, historyFilter, friendEnabledCount, filteredHistory, countdown, runAllAccounts, downloadBackup, onRestoreChange, contactSearch, filteredContacts, selectAllFriends, deselectAllFriends, templateCount, randomPreview, addFriendRow, moveFriend, syncAccName, syncElapsedText, renderedLog, fetchPhaseText, shortPhaseText,
-          selectedContacts, brokenAvatars, isContactChecked, toggleContact, avatarSrc, selectAllContacts, clearAllContacts, logs, logScope, autoRefresh, autoStart, autoStartMinimized, uploadFile, token, tokenDialog, tokenInput,
+          selectedContacts, brokenAvatars, isContactChecked, toggleContact, avatarSrc, selectAllContacts, clearAllContacts, logs, logScope, autoRefresh, autoStart, autoStartMinimized, uploadFile, token, needsToken, enterToken, tokenChecking, tokenError, tokenDialog, tokenInput,
           notifyDialog, notifyForm, deployTutorialDialog, notifyGuideDialog, autostartSupported, addAccountDialog, newAccountName, renameDialog, renameId, renameName,
           sendOneDialog, sendOneNames, sendOneDry, enabledFriends, qrDialog, qrImg, qrMsg, qrNote, qrEngine, qrMode,
           qrSessionActive, qrNeedVerify, qrVerifyType, resendVerifyCode, switchToWindowVerify, manualMode, manualText, qrText, dragState, toggleManualMode, toggleDragMode, onQrClick, manualDoType, manualScroll, doDrag, copyQrDiagnosis, saveQrShot, platform, browserOptions, detectedBrowsers, engines, customPath,

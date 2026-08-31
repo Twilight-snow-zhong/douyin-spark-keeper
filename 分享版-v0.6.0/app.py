@@ -20,7 +20,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 import uvicorn
-from fastapi import FastAPI, File, Header, HTTPException, Query, UploadFile
+from fastapi import FastAPI, File, Header, HTTPException, Query, Request, UploadFile
 from fastapi.responses import FileResponse, Response, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -835,9 +835,20 @@ def api_autostart_save(body: AutoStartBody, token: str = Header(default="", alia
 
 
 @app.put("/api/token")
-def api_token_change(body: TokenBody, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
-    _check_auth(token)
+def api_token_change(
+    body: TokenBody,
+    request: Request,
+    token: str = Header(default="", alias="X-Auth-Token"),
+) -> dict:
     global AUTH_TOKEN
+    client_host = (request.client.host if request.client else "") or ""
+    is_local = client_host in ("127.0.0.1", "::1", "localhost")
+    # 本机回环允许无鉴权设置令牌（首次引导，方便直接自定义）；
+    # 服务器 / 局域网来源必须带旧令牌，防止他人篡改
+    if token:
+        _check_auth(token)
+    elif not is_local:
+        raise HTTPException(status_code=401, detail="访问令牌不正确")
     new_token = body.token.strip()
     if len(new_token) < 8:
         raise HTTPException(status_code=400, detail="令牌至少 8 位")
