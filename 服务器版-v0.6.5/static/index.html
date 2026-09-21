@@ -1,0 +1,2977 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>抖音续火花助手</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔥</text></svg>" />
+  <link rel="stylesheet" href="/static/vendor/element-plus.css" />
+  <style>
+    :root {
+      /* Element Plus 主题（浅色） */
+      --el-color-primary: #4f6ef7;
+      --el-color-primary-light-3: #7b93f9;
+      --el-color-primary-light-5: #a5b7fb;
+      --el-color-primary-light-7: #cdd7fd;
+      --el-color-primary-light-8: #dfe6fe;
+      --el-color-primary-light-9: #eef2ff;
+      --el-color-primary-dark-2: #3f59d4;
+      --el-border-radius-base: 8px;
+      --el-border-radius-small: 6px;
+      /* 自定义主题变量（浅色默认） */
+      --bg: #f4f6fb;
+      --bg-grad: linear-gradient(165deg, #f5f7ff 0%, #eef1f9 55%, #f7f5ff 100%);
+      --surface: #ffffff;
+      --surface-2: #f6f7fc;
+      --note-bg: #eef1f8;
+      --border: #e9ecf5;
+      --text: #2b3350;
+      --text-2: #8a90a3;
+      --primary: #4f6ef7;
+      --primary-weak: #eef2ff;
+      --shadow-sm: 0 1px 3px rgba(31,45,90,.06);
+      --shadow: 0 6px 20px rgba(31,45,90,.10);
+      /* Element Plus 组件跟随主题 */
+      --el-bg-color: #ffffff;
+      --el-bg-color-overlay: #ffffff;
+      --el-fill-color-blank: #ffffff;
+      --el-fill-color-light: #f6f7fc;
+      --el-fill-color-lighter: #f2f4fa;
+      --el-text-color-primary: #2b3350;
+      --el-text-color-regular: #4a5268;
+      --el-text-color-secondary: #8a90a3;
+      --el-text-color-placeholder: #a7adbf;
+      --el-border-color: #dfe3ee;
+      --el-border-color-light: #e9ecf5;
+      --el-border-color-lighter: #eef1f8;
+    }
+    body.dark {
+      --bg: #12151f;
+      --bg-grad: linear-gradient(165deg, #161a28 0%, #10131d 100%);
+      --surface: #1b2133;
+      --surface-2: #222a42;
+      --note-bg: #2a3247;
+      --border: #2a3247;
+      --text: #e6e9f5;
+      --text-2: #8b93ab;
+      --primary: #7b93f9;
+      --primary-weak: #232c49;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.3);
+      --shadow: 0 6px 20px rgba(0,0,0,.45);
+      --el-color-primary: #7b93f9;
+      --el-color-primary-light-3: #6a83f0;
+      --el-color-primary-light-5: #556ecf;
+      --el-color-primary-light-7: #3d4f9e;
+      --el-color-primary-light-8: #31406f;
+      --el-color-primary-light-9: #262f56;
+      --el-color-primary-dark-2: #93a7fa;
+      --el-bg-color: #1b2133;
+      --el-bg-color-overlay: #222a42;
+      --el-fill-color-blank: #1b2133;
+      --el-fill-color-light: #222a42;
+      --el-fill-color-lighter: #2a3247;
+      --el-text-color-primary: #e6e9f5;
+      --el-text-color-regular: #c3c9dc;
+      --el-text-color-secondary: #8b93ab;
+      --el-text-color-placeholder: #6b7389;
+      --el-border-color: #333c54;
+      --el-border-color-light: #2a3247;
+      --el-border-color-lighter: #242c40;
+      /* 深色下补齐 success/warning/danger/info 全套色阶（标签/浅色按钮/提示条底色都依赖它们） */
+      --el-color-success: #7ecb5f;
+      --el-color-success-light-3: #5fae44;
+      --el-color-success-light-5: #478a34;
+      --el-color-success-light-7: #356a27;
+      --el-color-success-light-8: #29541f;
+      --el-color-success-light-9: #1e3f17;
+      --el-color-success-dark-2: #9ad97d;
+      --el-color-warning: #ebb563;
+      --el-color-warning-light-3: #d99a3f;
+      --el-color-warning-light-5: #b87c2e;
+      --el-color-warning-light-7: #8f6023;
+      --el-color-warning-light-8: #714c1c;
+      --el-color-warning-light-9: #543814;
+      --el-color-warning-dark-2: #f0c88a;
+      --el-color-danger: #f78989;
+      --el-color-danger-light-3: #e0696c;
+      --el-color-danger-light-5: #c04a4f;
+      --el-color-danger-light-7: #93383d;
+      --el-color-danger-light-8: #742c30;
+      --el-color-danger-light-9: #562024;
+      --el-color-danger-dark-2: #fba9a9;
+      --el-color-info: #a3a6ad;
+      --el-color-info-light-3: #8a8e97;
+      --el-color-info-light-5: #6f737d;
+      --el-color-info-light-7: #565a63;
+      --el-color-info-light-8: #43474f;
+      --el-color-info-light-9: #31353c;
+      --el-color-info-dark-2: #b9bcc3;
+    }
+    html, body { height: 100%; }
+    body {
+      margin: 0;
+      background: var(--bg-grad);
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+      transition: background .3s ease, color .3s ease;
+    }
+    /* ===== 侧边栏布局 ===== */
+    .shell { display: flex; min-height: 100vh; }
+    .sidebar {
+      width: 248px; flex-shrink: 0;
+      background: var(--surface);
+      border-right: 1px solid var(--border);
+      display: flex; flex-direction: column;
+      padding: 16px 12px 14px;
+      position: sticky; top: 0; height: 100vh; box-sizing: border-box;
+      transition: background .3s ease;
+    }
+    .brand { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 15px; padding: 4px 8px 16px; color: var(--text); white-space: nowrap; }
+    .brand-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .brand-icon { font-size: 22px; }
+    .brand .ver { font-size: 11px; color: var(--text-2); font-weight: 400; margin-left: auto; }
+    .side-title { font-size: 11px; color: var(--text-2); letter-spacing: 1px; padding: 6px 10px; margin-top: 2px; }
+    .acc-list { margin-bottom: 12px; max-height: 28vh; overflow: auto; }
+    .acc-item { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border-radius: 10px; cursor: pointer; color: var(--text); transition: background .15s ease; }
+    .acc-item:hover { background: var(--surface-2); }
+    .acc-item.active { background: var(--primary-weak); color: var(--primary); font-weight: 600; }
+    .acc-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .acc-running { font-size: 12px; }
+    .acc-off { font-size: 10px; color: var(--text-2); }
+    .side-nav { flex: 1; }
+    .nav-item { display: flex; align-items: center; gap: 10px; padding: 10px 10px; border-radius: 10px; cursor: pointer; color: var(--text); margin-bottom: 2px; transition: all .15s ease; }
+    .nav-item:hover { background: var(--surface-2); }
+    .nav-item.active { background: var(--primary-weak); color: var(--primary); font-weight: 600; }
+    .nav-ico { width: 22px; text-align: center; }
+    .sidebar-footer { border-top: 1px solid var(--border); padding-top: 12px; }
+    .theme-btn { width: 100%; padding: 9px; border-radius: 10px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); cursor: pointer; margin-bottom: 10px; transition: all .15s ease; font-size: 13px; }
+    .theme-btn:hover { border-color: var(--primary); color: var(--primary); }
+    .foot-btns { display: flex; gap: 6px; }
+    .foot-btns .el-button { flex: 1; margin: 0 !important; }
+    /* 侧边栏收起（点击按钮展开/收起，悬停不展开） */
+    .sidebar { transition: background .3s ease, width .2s ease; }
+    .sidebar.collapsed { width: 62px; }
+    .sidebar.collapsed .acc-item, .sidebar.collapsed .nav-item { justify-content: center; padding: 10px 0; }
+    .sidebar.collapsed .brand { justify-content: center; padding: 4px 0 16px; }
+    .sidebar.collapsed .acc-name,
+    .sidebar.collapsed .acc-running,
+    .sidebar.collapsed .acc-off,
+    .sidebar.collapsed .nav-item span:not(.nav-ico),
+    .sidebar.collapsed .brand span:not(.brand-icon),
+    .sidebar.collapsed .brand .ver,
+    .sidebar.collapsed .side-title,
+    .sidebar.collapsed .theme-btn,
+    .sidebar.collapsed .foot-btns { display: none; }
+    .acc-card-row .cd { color: var(--primary); font-weight: 500; font-variant-numeric: tabular-nums; }
+    /* 折叠按钮 */
+    .collapse-btn {
+      margin-left: auto;
+      background: none; border: none; cursor: pointer;
+      line-height: 1; color: var(--text-2);
+      padding: 5px; border-radius: 8px; transition: all .15s ease;
+    }
+    .collapse-btn svg { display: block; }
+    .collapse-btn:hover { background: var(--surface-2); color: var(--primary); }
+    .sidebar.collapsed .collapse-btn { margin-left: 0; }
+    /* 统计卡图标芯片 */
+    .stat-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+    .stat-head .card-label { margin-bottom: 0; }
+    .stat-icon { width: 30px; height: 30px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+    .stat-icon.icon-state { background: rgba(79,110,247,.12); }
+    .stat-icon.icon-session { background: rgba(52,199,123,.12); }
+    .stat-icon.icon-next { background: rgba(245,166,35,.14); }
+    .stat-icon.icon-friends { background: rgba(139,92,246,.12); }
+    /* 欢迎横幅 */
+    .hero-banner {
+      position: relative; overflow: hidden;
+      border-radius: 16px; padding: 22px 26px; margin-bottom: 18px;
+      background: linear-gradient(120deg, var(--primary-weak) 0%, rgba(139,92,246,.10) 100%);
+      border: 1px solid var(--border);
+    }
+    .hero-text h2 { margin: 0 0 6px; font-size: 19px; color: var(--text); }
+    .hero-text p { margin: 0; color: var(--text-2); font-size: 13px; }
+    .hero-decors .hc { position: absolute; border-radius: 50%; pointer-events: none; }
+    .hc1 { width: 130px; height: 130px; right: -35px; top: -50px; background: rgba(79,110,247,.10); }
+    .hc2 { width: 74px; height: 74px; right: 110px; bottom: -32px; background: rgba(139,92,246,.10); }
+    .hc3 { width: 38px; height: 38px; right: 220px; top: -14px; background: rgba(52,199,123,.12); }
+    /* 使用说明页 */
+    .help-intro { border-radius: 16px; padding: 20px 24px; margin-bottom: 18px; background: linear-gradient(120deg, var(--primary-weak) 0%, rgba(139,92,246,.10) 100%); border: 1px solid var(--border); }
+    .help-intro h2 { margin: 0 0 8px; font-size: 19px; color: var(--text); }
+    .help-intro p { margin: 0; color: var(--text-2); font-size: 13px; line-height: 1.7; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .step-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-sm); }
+    .step-n { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 50%; background: var(--primary-weak); color: var(--primary); font-weight: 700; font-size: 13px; margin-right: 8px; }
+    .step-card b { font-size: 14px; color: var(--text); }
+    .step-card p { margin: 8px 0 0; line-height: 1.7; }
+    .help-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
+    /* 两行网格：两行等高（minmax(auto,1fr)：行高≥内容、富余空间平分，绝不重叠） */
+    .help-grid--2rows { grid-auto-rows: minmax(auto, 1fr); min-height: 360px; }
+    @media (max-width: 900px) {
+      .help-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+      .help-grid--2rows { grid-auto-rows: auto; min-height: 0; }
+    }
+    .help-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; box-shadow: var(--shadow-sm); display: flex; flex-direction: column; }
+    .help-card h4 { margin: 0 0 8px; font-size: 14px; color: var(--text); }
+    .help-card ul { margin: 0; padding-left: 18px; color: var(--text-2); font-size: 12.5px; line-height: 1.9; }
+    .help-card ul.help-key { flex: 0 0 auto; }
+    .help-card .help-more { align-self: flex-start; margin-top: auto; padding: 2px 0 0; }
+    .help-full { margin-top: 8px; padding-top: 8px; border-top: 1px dashed var(--border); }
+    .help-full ul { margin: 0 0 2px; }
+    .help-sub { font-size: 12px; font-weight: 600; color: var(--primary); margin: 7px 0 1px; }
+    /* 使用说明弹窗 */
+    .help-doc { max-height: 62vh; overflow-y: auto; font-size: 13px; line-height: 1.95; color: var(--text); padding-right: 6px; }
+    .help-doc .help-sub { font-size: 13px; margin: 12px 0 2px; }
+    .help-doc .help-sub:first-child { margin-top: 0; }
+    .help-doc-ul { margin: 0 0 4px; padding-left: 20px; color: var(--text-2); }
+    .help-doc-ul li { margin-bottom: 2px; }
+    .help-tip { border-radius: 14px; padding: 14px 18px; margin-bottom: 4px; background: var(--primary-weak); border: 1px solid var(--border); color: var(--text-2); font-size: 12.5px; line-height: 1.9; }
+    .help-tip b { color: var(--text); }
+    code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; font-size: 12px; color: var(--text); }
+    /* 常见问题折叠框：统一成卡片风格 */
+    .el-collapse {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      --el-collapse-header-height: 46px;
+      --el-collapse-header-bg-color: transparent;
+      --el-collapse-header-text-color: var(--text);
+      --el-collapse-header-active-color: var(--primary);
+      --el-collapse-content-bg-color: var(--surface);
+      --el-collapse-content-text-color: var(--text-2);
+    }
+    .el-collapse-item { border-bottom: 1px solid var(--border); }
+    .el-collapse-item:last-child { border-bottom: none; }
+    .el-collapse-item__header { background: transparent; font-weight: 600; font-size: 13.5px; padding: 0 16px; }
+    .el-collapse-item__header:hover { background: var(--surface-2); }
+    .el-collapse-item__arrow { color: var(--text-2); }
+    .el-collapse-item__wrap { background: var(--surface); }
+    .el-collapse-item__content { padding: 0 16px 14px; line-height: 1.8; }
+    /* 细滚动条 */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-thumb { background: rgba(138,144,163,.35); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(138,144,163,.55); }
+    ::-webkit-scrollbar-track { background: transparent; }
+    /* ===== 内容区 ===== */
+    .main { flex: 1; min-width: 0; padding: 22px 26px 40px; max-width: 1360px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+    .content-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding-bottom: 14px; border-bottom: 1px solid var(--border); margin-bottom: 22px; }
+    .ch-title { display: flex; align-items: center; gap: 10px; }
+    .ch-title h2 { margin: 0; font-size: 24px; line-height: 1.35; font-weight: 700; letter-spacing: .5px; color: var(--text); }
+    /* 令牌登录门 */
+    .token-gate { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; background: var(--bg-grad); }
+    .token-gate-card { width: 360px; padding: 34px 32px; background: var(--surface); border: 1px solid var(--border); border-radius: 18px; box-shadow: var(--shadow); text-align: center; }
+    .token-gate-logo { font-size: 42px; margin-bottom: 6px; }
+    .token-gate-card h2 { margin: 6px 0 2px; color: var(--text); }
+    .token-gate-card .muted { margin: 6px 0 16px; }
+    .token-gate-card code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+    .panes .pane { animation: paneIn .22s ease; }
+    @keyframes paneIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    /* ===== 概览卡片墙 ===== */
+    /* 卡片墙工具栏与横向滑动 */
+    .wall-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+    .wall-arrows { display: flex; gap: 6px; }
+    .wall-arrow {
+      width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border);
+      background: var(--surface); color: var(--text-2); cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center;
+      transition: all .15s ease; padding: 0;
+    }
+    .wall-arrow svg { display: block; }
+    .wall-arrow:hover:not(:disabled) { border-color: var(--primary); color: var(--primary); }
+    .wall-arrow:disabled { opacity: .35; cursor: default; }
+    .overview-wall {
+      display: flex; gap: 14px; overflow-x: auto;
+      scroll-snap-type: x mandatory; scroll-behavior: smooth;
+      margin-bottom: 22px; padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .overview-wall::-webkit-scrollbar { display: none; }
+    .overview-wall > .muted { flex: 0 0 100%; }
+    .acc-card { flex: 0 0 calc(50% - 7px); scroll-snap-align: start; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: all .18s ease; box-shadow: var(--shadow-sm); box-sizing: border-box; }
+    .acc-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px; cursor: pointer; transition: all .18s ease; box-shadow: var(--shadow-sm); }
+    .acc-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+    .acc-card.active { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-weak), var(--shadow); }
+    .acc-card-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+    .acc-card-name { font-weight: 600; color: var(--text); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .acc-card-rows { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+    .acc-card-row { display: flex; align-items: center; font-size: 12.5px; min-width: 0; }
+    .acc-card-row .k { color: var(--text-2); flex-shrink: 0; white-space: nowrap; }
+    .acc-card-row .leader { flex: 1; border-bottom: 1px dotted var(--border); margin: 0 6px; min-width: 6px; }
+    .acc-card-row .v { color: var(--text); flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    /* ===== 统计卡片 ===== */
+    .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .cards .el-card { --el-card-padding: 16px; border-radius: 16px; border: 1px solid var(--border); background: var(--surface); box-shadow: var(--shadow-sm); transition: transform .18s ease, box-shadow .18s ease; }
+    .cards .el-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+    .card-label { color: var(--text-2); font-size: 12px; margin-bottom: 8px; letter-spacing: .3px; }
+    .card-value { font-size: 20px; font-weight: 700; color: var(--text); }
+    .card-value small { font-size: 12px; font-weight: 400; color: var(--text-2); }
+    /* ===== 日志 ===== */
+    .log-pre { background: var(--surface-2); color: var(--text); padding: 14px; border-radius: 14px; height: 430px; overflow: auto; font-size: 12.5px; line-height: 1.7; white-space: pre-wrap; border: 1px solid var(--border); box-shadow: inset 0 1px 4px rgba(0,0,0,.12); }
+    .log-pre details.log-detail { margin: 2px 0; }
+    .log-pre details.log-detail summary { cursor: pointer; font-weight: 600; user-select: none; list-style: none; }
+    .log-pre details.log-detail summary::before { content: '▸ '; opacity: .6; }
+    .log-pre details.log-detail[open] summary::before { content: '▾ '; }
+    .log-pre details.log-detail.fail summary { color: #f56c6c; }
+    .log-pre details.log-detail.partial summary { color: #e6a23c; }
+    .log-pre .log-detail-body { padding-left: 16px; color: var(--text-2); margin: 2px 0 4px; }
+    /* 超长日志行：收起态硬性单行（flex+nowrap+省略号），展开态整段续接可换行 */
+    .log-pre .log-long { display: flex; align-items: baseline; gap: 4px; max-width: 100%; overflow: hidden; }
+    .log-pre .log-long .lg-prev { flex: 0 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .log-pre .log-long .lg-ctrl { flex: 0 0 auto; }
+    .log-pre .lg-ctrl { color: var(--primary); font-weight: 600; cursor: pointer; opacity: .9; white-space: nowrap; }
+    .log-pre .lg-ctrl:hover { text-decoration: underline; }
+    .log-pre .log-long.is-open { display: block; overflow: visible; }
+    .log-pre .log-long.is-open { white-space: pre-wrap; word-break: break-all; }
+    .result-box { margin-top: 12px; }
+    .spacer { flex: 1; }
+    /* ===== 通用工具条 ===== */
+    .sec-toolbar { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+    /* ===== 好友行 ===== */
+    .friend-row { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 6px 12px; transition: border-color .15s ease, background .15s ease, box-shadow .15s ease; }
+    .friend-row:hover { border-color: var(--primary); background: var(--surface); box-shadow: 0 3px 10px rgba(31,45,90,.08); }
+    .friend-row .el-input { flex: 1; min-width: 140px; }
+    .friend-row .el-input__wrapper { box-shadow: none !important; background: transparent; padding: 0 6px; }
+    .friend-row .el-input__inner { font-weight: 600; }
+    .friend-name-input { flex: 1.4; }
+    .friend-name-text { flex: 1.4; min-width: 140px; padding: 0 6px; font-weight: 600; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; line-height: 32px; }
+    .friend-note-input { flex: 1; max-width: 200px; min-width: 120px; }
+    .friend-note-input .el-input__wrapper { box-shadow: 0 0 0 1px var(--border) inset !important; background: var(--note-bg); padding: 0 8px; border-radius: 6px; }
+    .friend-note-input .el-input__wrapper:hover { box-shadow: 0 0 0 1px var(--text-2) inset !important; }
+    .friend-note-input .el-input__wrapper.is-focus { box-shadow: 0 0 0 1px var(--primary) inset !important; }
+    .friend-note-input .el-input__inner { font-weight: 400; color: var(--text-2); font-size: 12.5px; }
+    .friend-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+    .friend-actions .el-button { opacity: .55; }
+    .friend-actions .el-button:hover:not(:disabled) { opacity: 1; }
+    .friend-actions .el-button.is-disabled { opacity: .3; }
+    /* ===== 聊天列表勾选 ===== */
+    .contacts-box { border: 1px solid var(--border); border-radius: 12px; background: var(--surface-2); overflow: hidden; }
+    .contacts-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; border-bottom: 1px solid var(--border); }
+    .sel-count { color: var(--primary); font-weight: 700; }
+    .contacts-quick { display: flex; gap: 2px; }
+    .contacts-list { max-height: 280px; overflow: auto; padding: 6px; }
+    .contact-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 10px; cursor: pointer; transition: background .15s ease; }
+    .contact-row:hover { background: var(--surface); }
+    .contact-row.checked { background: var(--primary-weak); }
+    .contact-check { width: 18px; height: 18px; border-radius: 6px; border: 1.5px solid var(--border); background: var(--surface); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 12px; font-weight: 700; flex-shrink: 0; transition: all .15s ease; }
+    .contact-row.checked .contact-check { background: var(--primary); border-color: var(--primary); }
+    .contact-avatar { width: 36px; height: 36px; border-radius: 10px; overflow: hidden; flex-shrink: 0; display: flex; align-items: center; justify-content: center; background: var(--surface); border: 1px solid var(--border); }
+    .contact-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .avatar-fallback { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; color: var(--text-2); font-size: 16px; }
+    .contact-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-size: 13.5px; }
+    .streak-tag { margin-left: auto; flex-shrink: 0; }
+    .contacts-footer { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-top: 1px solid var(--border); }
+    .muted { color: var(--text-2); font-size: 12px; }
+    /* ===== 预览框 ===== */
+    .preview-box { margin-top: 16px; padding: 10px 14px; border-radius: 10px; background: var(--primary-weak); border: 1px dashed var(--primary); color: var(--text); font-size: 13px; line-height: 1.6; }
+    .preview-box b { color: var(--primary); }
+    .rp-icons { display: inline-flex; align-items: center; gap: 4px; vertical-align: middle; }
+    .rp-ico { width: 22px; height: 22px; object-fit: contain; border: 1px solid rgba(0,0,0,.08); border-radius: 5px; background: #fff; vertical-align: middle; }
+    body.dark .rp-ico { border-color: rgba(255,255,255,.15); background: #1e2333; }
+    /* 模板行编辑器（每行输入 + 行尾小图标） */
+    .tpl-editor { margin-top: 10px; border: 1px solid var(--border); border-radius: 10px; padding: 8px 10px; background: var(--surface-2); display: flex; flex-direction: column; gap: 4px; }
+    .tpl-ed-row { display: flex; align-items: center; gap: 6px; }
+    .tpl-lno { min-width: 20px; font-size: 11px; color: var(--muted, #8a90a6); text-align: right; }
+    .tpl-row-in { flex: 1 1 auto; }
+    .tpl-row-in .el-input__wrapper { box-shadow: none !important; background: transparent; }
+    .tpl-row-del { flex: 0 0 auto; }
+    .tpl-tools { display: flex; align-items: center; gap: 8px; margin-top: 6px; }
+    .tpl-lico-wrap { display: inline-flex; align-items: center; gap: 3px; flex: 0 0 auto; }
+    .tpl-lico { width: 20px; height: 20px; object-fit: contain; border: 1px solid rgba(0,0,0,.08); border-radius: 5px; background: #fff; vertical-align: middle; }
+    body.dark .tpl-lico { border-color: rgba(255,255,255,.15); background: #1e2333; }
+    .tpl-front-ico { margin-right: 2px; }
+    /* ===== 抓取进度提示 ===== */
+    .fetch-progress { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; padding: 8px 14px; border-radius: 10px; background: var(--primary-weak); border: 1px solid var(--border); color: var(--text); font-size: 12.5px; }
+    /* ===== 全局同步横幅 ===== */
+    .sync-banner { position: fixed; right: 18px; top: 18px; z-index: 3000; display: flex; align-items: center; gap: 8px; background: var(--surface); border: 1px solid var(--primary); color: var(--text); font-size: 13px; padding: 9px 16px; border-radius: 999px; box-shadow: var(--shadow); }
+    .sync-banner b { color: var(--primary); }
+    .sync-spin { display: inline-block; animation: syncspin 1.2s linear infinite; }
+    @keyframes syncspin { to { transform: rotate(360deg); } }
+    /* ===== 引擎安装状态 ===== */
+    .engine-status { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+    .engine-item { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--text); }
+    .eng-dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+    .eng-dot.ok { background: #34c77b; box-shadow: 0 0 5px rgba(52,199,123,.6); }
+    .eng-dot.no { background: #f56c6c; box-shadow: 0 0 5px rgba(245,108,108,.6); }
+    /* 状态圆点 */
+    .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-right: 6px; box-shadow: 0 0 0 3px rgba(0,0,0,.05); }
+    .dot.ok { background: #34c77b; } .dot.expired { background: #f56c6c; } .dot.failed { background: #f56c6c; }
+    .dot.partial { background: #f5a623; } .dot.unknown { background: #a0a7bd; }
+    .dirty-badge { margin-left: 8px; }
+    .section-title { font-weight: 700; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+    /* 按钮 */
+    .el-button { border-radius: 8px; font-weight: 500; }
+    .el-button--primary { box-shadow: 0 4px 10px rgba(79,110,247,.25); }
+    /* 弹窗 */
+    .el-dialog { border-radius: 16px; box-shadow: 0 12px 40px rgba(31,45,90,.25); }
+    .el-dialog__title { font-weight: 600; }
+    /* 表格 */
+    .el-table { border-radius: 10px; }
+    /* 分割线 */
+    .el-divider__text { font-weight: 500; }
+    /* 按钮行：统一间距 */
+    .action-row > * { margin-left: 0 !important; margin-right: 0 !important; }
+    /* 深色模式细节 */
+    body.dark .el-input__wrapper { background: var(--surface-2); }
+    body.dark .el-table { --el-table-header-bg-color: var(--surface-2); --el-table-tr-bg-color: var(--surface); --el-table-row-hover-bg-color: var(--surface-2); }
+    body.dark .muted { color: #a3abbf; }
+    body.dark .el-tag { font-weight: 500; }
+    body.dark .el-tag--info { --el-tag-text-color: #b9bcc3; }
+    body.dark .el-button--primary { box-shadow: 0 4px 10px rgba(123,147,249,.22); }
+    body.dark .el-dialog { box-shadow: 0 12px 40px rgba(0,0,0,.6); }
+    body.dark .acc-card-row .v { color: #c6cbe0; }
+    /* 🖼 表情与图片 */
+    .emoji-tip { margin: 10px 0; padding: 8px 12px; border-radius: 10px; background: var(--primary-weak); border: 1px dashed var(--primary); color: var(--text); font-size: 12.5px; line-height: 1.7; }
+    .emoji-tip code { background: rgba(31,45,90,.08); padding: 1px 6px; border-radius: 6px; color: var(--primary); font-weight: 600; }
+    body.dark .emoji-tip code { background: rgba(255,255,255,.12); }
+    .emoji-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px; margin-top: 4px; }
+    .emoji-item { border: 1px solid var(--border); border-radius: 12px; padding: 8px; background: var(--surface-2); display: flex; flex-direction: column; align-items: center; gap: 4px; }
+    .emoji-item:hover { border-color: var(--primary); }
+    .emoji-item-add { cursor: pointer; position: relative; transition: transform .12s ease, border-color .12s ease, box-shadow .12s ease; }
+    .emoji-item-add:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(31,45,90,.12); }
+    .emoji-item-add:hover .emoji-ops-add { opacity: 1; }
+    .emoji-item-add .emoji-del { position: absolute; top: 2px; right: 2px; opacity: .65; transition: opacity .12s ease, transform .12s ease; background: rgba(255,255,255,.75); border-radius: 50%; z-index: 2; }
+    body.dark .emoji-item-add .emoji-del { background: rgba(0,0,0,.55); }
+    .emoji-item-add:hover .emoji-del { opacity: 1; transform: scale(1.12); }
+    .emoji-ops-add { font-size: 12px; color: var(--primary); opacity: 0; transition: opacity .12s ease; }
+    .emoji-selected { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary) inset; }
+    .emoji-check { position: absolute; top: 4px; left: 4px; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(120,120,120,.5); background: #fff; color: transparent; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; z-index: 2; }
+    body.dark .emoji-check { background: #1e2333; }
+    .emoji-check.on { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .emoji-thumb { width: 72px; height: 72px; object-fit: contain; border-radius: 8px; background: #fff; }
+    body.dark .emoji-thumb { background: #1e2333; }
+    .emoji-name { width: 100%; font-size: 11.5px; color: var(--text); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .emoji-size { font-size: 11px; color: var(--muted, #8a90a6); }
+    .emoji-ops { display: flex; gap: 2px; }
+    .native-emoji-btn { font-size: 26px; line-height: 1; padding: 8px 0; border: 1px solid var(--border); border-radius: 10px; background: var(--surface-2); cursor: pointer; transition: transform .12s ease, border-color .12s ease; }
+    .native-emoji-btn:hover { transform: scale(1.15); border-color: var(--primary); }
+    .native-emoji-btn:active { transform: scale(1.0); }
+    .native-emoji-btn.sticker-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 13px; padding: 8px 2px; color: var(--text); }
+    .sti-ico { width: 34px; height: 34px; object-fit: contain; border-radius: 6px; background: #fff; }
+    body.dark .sti-ico { background: #1e2333; }
+  </style>
+</head>
+<body>
+  <div id="fatal-error" style="display:none; position:fixed; top:0; left:0; right:0; z-index:99999; background:#f56c6c; color:#fff; padding:14px 16px; font-size:13px; line-height:1.6; white-space:pre-wrap; box-shadow:0 2px 8px rgba(0,0,0,.3);"></div>
+  <script>
+    // 报错安全网：任何 JS/模板错误都显示红条，而不是白屏
+    (function () {
+      var box = document.getElementById('fatal-error');
+      function show(msg) {
+        if (!box) return;
+        box.textContent = '⚠️ 页面出错：' + (msg || '未知错误') + '\n请把这段文字发给维护者';
+        box.style.display = 'block';
+      }
+      window.addEventListener('error', function (e) {
+        // 忽略浏览器的无害警告（ResizeObserver 循环等），只报真正的页面错误
+        if (!e || !e.message) return;
+        var m = String(e.message);
+        if (m.indexOf('ResizeObserver') >= 0 || m.indexOf('Script error') >= 0) return;
+        show(m);
+      });
+      window.addEventListener('unhandledrejection', function (e) {
+        var r = (e.reason && (e.reason.message || e.reason)) || 'Promise 错误';
+        if (String(r).indexOf('ResizeObserver') >= 0) return;
+        show(r);
+      });
+      window.addEventListener('load', function () {
+        if (typeof Vue === 'undefined') {
+          show('Vue 库加载失败（可能网络问题或缓存损坏），请按 Ctrl+F5 强制刷新');
+        }
+      });
+    })();
+  </script>
+  <div id="app">
+    <!-- 令牌登录门：首次进入（浏览器无令牌）时显示，输入 .env 里的访问令牌 -->
+    <div v-if="needsToken" class="token-gate">
+      <div class="token-gate-card">
+        <div class="token-gate-logo">🔥</div>
+        <h2>抖音续火花助手</h2>
+        <p class="muted">输入访问令牌后进入管理页面</p>
+        <el-input v-model="tokenInput" placeholder="访问令牌" show-password size="large" @keyup.enter="enterToken"></el-input>
+        <el-button type="primary" size="large" style="width:100%; margin-top:12px;" :loading="tokenChecking" @click="enterToken">进入</el-button>
+        <p v-if="tokenError" style="color:var(--el-color-danger); font-size:12px; margin-top:8px;">{{ tokenError }}</p>
+        <p class="muted" style="margin-top:14px; font-size:12px; line-height:1.7;">本机首次使用可直接设置新令牌；服务器 / 局域网部署请输入 <code>.env</code> 文件里的现有令牌（<code>AUTH_TOKEN=...</code>）</p>
+      </div>
+    </div>
+    <div class="shell">
+      <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+        <div class="brand">
+          <span class="brand-icon">🔥</span>
+          <span class="brand-title">抖音续火花助手</span>
+          <span class="ver">v{{ version }}</span>
+          <button class="collapse-btn" @click="toggleSidebar" :title="sidebarCollapsed ? '展开侧边栏' : '收起侧边栏'">
+            <svg v-if="!sidebarCollapsed" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+            <svg v-else viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+          </button>
+        </div>
+
+        <div class="side-title">我的账号</div>
+        <div class="acc-list">
+          <div v-for="a in accounts" :key="a.id" class="acc-item" :class="{ active: a.id === currentId }" @click="switchTo(a.id)">
+            <i class="dot" :class="statusClass(a)"></i>
+            <span class="acc-name">{{ a.name }}</span>
+            <span v-if="a.running" class="acc-running">⏳</span>
+            <span v-else-if="!a.enabled" class="acc-off">停用</span>
+          </div>
+          <div v-if="!accounts.length" class="muted" style="padding: 4px 10px;">暂无账号，去「账号管理」添加</div>
+        </div>
+
+        <div class="side-title">导航</div>
+        <div class="side-nav">
+          <div v-for="n in navs" :key="n.key" class="nav-item" :class="{ active: tab === n.key }" @click="switchTab(n.key)">
+            <span class="nav-ico">{{ n.ico }}</span>
+            <span>{{ n.label }}</span>
+          </div>
+        </div>
+
+        <div class="sidebar-footer">
+          <button class="theme-btn" @click="toggleTheme">{{ theme === 'dark' ? '🌙 当前深色 · 点击切浅色' : '☀️ 当前浅色 · 点击切深色' }}</button>
+          <div class="foot-btns">
+            <el-button size="small" @click="loadAll">🔄 刷新</el-button>
+            <el-button size="small" @click="openNotifyDialog">🔔 通知</el-button>
+            <el-button size="small" @click="showTokenDialog">🔑 令牌</el-button>
+          </div>
+        </div>
+      </aside>
+
+      <main class="main">
+        <transition name="el-fade-in">
+          <div v-if="status.streak_syncing_any" class="sync-banner">
+            <span class="sync-spin">🔄</span>
+            <span>正在同步火花：<b>{{ syncAccName }}</b>{{ shortPhaseText ? ' · ' + shortPhaseText : '' }}… 已进行 {{ syncElapsedText() }}</span>
+          </div>
+        </transition>
+        <div class="content-header">
+          <div class="ch-title">
+            <h2>{{ currentAccount ? currentAccount.name : '抖音续火花助手' }}</h2>
+            <el-tag v-if="currentAccount" :type="sessionTagType(currentAccount.session_status)">{{ sessionText(currentAccount.session_status) }}</el-tag>
+            <el-tag v-if="currentAccount && currentAccount.running" type="warning">运行中…</el-tag>
+          </div>
+          <el-tag v-if="currentAccount" size="small" type="info">当前账号 · {{ currentAccount.name }}</el-tag>
+        </div>
+
+        <div class="panes">
+        <!-- ============ 概览 ============ -->
+        <section v-show="tab === 'overview'" class="pane">
+          <div class="hero-banner">
+            <div class="hero-text">
+              <h2>👋 欢迎回来{{ currentAccount ? '，' + currentAccount.name : '' }}</h2>
+              <p>抖音续火花助手 · 多账号定时发送 · 登录态过期 / 限流自动提醒</p>
+            </div>
+            <div class="hero-decors"><span class="hc hc1"></span><span class="hc hc2"></span><span class="hc hc3"></span></div>
+          </div>
+          <div class="wall-toolbar">
+            <span class="muted">全部账号</span>
+            <div class="wall-arrows">
+              <button class="wall-arrow" @click="wallScroll(-1)" :disabled="wallAtStart" title="向左滑动">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>
+              </button>
+              <button class="wall-arrow" @click="wallScroll(1)" :disabled="wallAtEnd" title="向右滑动">
+                <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="overview-wall" ref="wallRef">
+            <div v-for="a in wallAccounts" :key="a.id" class="acc-card" :class="{ active: a.id === currentId }" @click="switchTo(a.id)">
+              <div class="acc-card-head">
+                <i class="dot" :class="statusClass(a)"></i>
+                <span class="acc-card-name">{{ a.name }}</span>
+                <span v-if="a.running" class="acc-running">⏳</span>
+                <el-tag v-else-if="!a.enabled" size="small" type="info">停用</el-tag>
+              </div>
+              <div class="acc-card-rows">
+                <div class="acc-card-row"><span class="k">会话状态</span><i class="leader"></i><span class="v">{{ sessionText(a.session_status) }}</span></div>
+                <div class="acc-card-row"><span class="k">登录态</span><i class="leader"></i><span class="v">{{ a.state_exists ? '✅ 已上传' : '❌ 未上传' }}</span></div>
+                <div class="acc-card-row"><span class="k">下次发送</span><i class="leader"></i><span class="v">{{ fmt(a.next_run) || '未设置' }}</span></div>
+                <div class="acc-card-row"><span class="k">浏览器</span><i class="leader"></i><span class="v">{{ browserName(a.browser) }}</span></div>
+                <div class="acc-card-row"><span class="k">上次运行</span><i class="leader"></i><span class="v">{{ fmt(a.last_run_at) || '—' }}</span></div>
+                <div class="acc-card-row"><span class="k">倒计时</span><i class="leader"></i><span class="v cd">{{ a.next_run ? countdown(a.next_run) : '—' }}</span></div>
+              </div>
+            </div>
+            <div v-if="!accounts.length" class="muted">暂无账号，请到「账号管理」添加</div>
+          </div>
+          <template v-if="currentAccount">
+            <div class="cards">
+              <el-card shadow="never">
+                <div class="stat-head">
+                  <span class="stat-icon icon-state">🔐</span>
+                  <div class="card-label">登录态</div>
+                </div>
+                <div class="card-value">
+                  <template v-if="status.state_file_exists"><span style="color:var(--el-color-success);">已上传</span></template>
+                  <template v-else><span style="color:var(--el-color-danger);">未上传</span></template>
+                </div>
+              </el-card>
+              <el-card shadow="never">
+                <div class="stat-head">
+                  <span class="stat-icon icon-session">💬</span>
+                  <div class="card-label">会话状态</div>
+                </div>
+                <div class="card-value">{{ status.running ? '⏳ 运行中' : sessionText(status.session_status) }}</div>
+              </el-card>
+              <el-card shadow="never">
+                <div class="stat-head">
+                  <span class="stat-icon icon-next">⏰</span>
+                  <div class="card-label">下次自动发送</div>
+                </div>
+                <div class="card-value" style="font-size:14px;">{{ fmt(status.next_run) || '未设置' }}</div>
+                <div class="muted" style="margin-top:4px;" v-if="status.next_run">还有 {{ countdown(status.next_run) }} · 实际发送会在设定时间后 0~{{ jitterMinutes }} 分钟内随机（抖动）</div>
+              </el-card>
+              <el-card shadow="never">
+                <div class="stat-head">
+                  <span class="stat-icon icon-friends">👥</span>
+                  <div class="card-label">启用的好友</div>
+                </div>
+                <div class="card-value">{{ enabledFriendCount }}<small> / {{ totalFriendCount }} 个</small></div>
+              </el-card>
+            </div>
+
+            <el-alert v-if="!status.state_file_exists" type="error" :closable="false" style="margin-bottom:12px;"
+              title="该账号还没有关联抖音（缺少登录态）" description="点下面的「📱 网页内扫码登录」，或用命令行 python extract_cookie.py 扫码导出后上传"></el-alert>
+            <el-alert v-else-if="enabledFriendCount === 0" type="warning" :closable="false" style="margin-bottom:12px;"
+              title="该账号未配置启用的好友" description="到「好友与消息」页添加好友并保存，否则定时发送不会发任何人"></el-alert>
+
+            <el-card shadow="never">
+              <div class="action-row" style="display:flex; gap:22px; align-items:center; flex-wrap:wrap;">
+                <el-button type="primary" :loading="status.running" @click="triggerRun(false)">🚀 立即发送</el-button>
+                <el-button :loading="status.running" @click="triggerRun(true)">干跑测试</el-button>
+                <el-button :loading="status.running" @click="sendOneDialog = true">只发指定好友</el-button>
+                <el-button type="success" plain @click="openQrLogin">📱 网页内扫码登录</el-button>
+                <label class="el-button el-button--default" for="stateFileInput" style="margin:0; cursor:pointer; display:inline-flex; align-items:center; justify-content:center;">
+                  选择 state.json
+                  <input id="stateFileInput" type="file" accept=".json" style="display:none;" @change="onNativeFileChange" />
+                </label>
+                <el-button type="success" :disabled="!uploadFile" @click="uploadState">上传登录态</el-button>
+              </div>
+              <div style="margin-top:12px; display:flex; align-items:center; flex-wrap:wrap; gap:10px;">
+                <el-switch v-model="settingsForm.enabled" @change="saveSettings" active-text="参与每日定时发送"></el-switch>
+                <el-switch v-model="autoStart" @change="toggleAutoStart" active-text="开机自启动" :disabled="!autostartSupported"></el-switch>
+                <template v-if="autoStart">
+                  <el-radio-group v-model="autoStartMinimized" size="small" @change="saveAutoStartMode">
+                    <el-radio-button :label="true">最小化运行</el-radio-button>
+                    <el-radio-button :label="false">正常窗口</el-radio-button>
+                  </el-radio-group>
+                  <span class="muted">Windows 登录时自动启动本程序</span>
+                </template>
+                <span v-else class="muted">{{ autostartSupported ? 'Windows 登录时自动启动本程序' : '服务器版：开机自启由 systemd 管理（deploy 目录一键配置）' }}</span>
+              </div>
+              <div class="result-box" v-if="status.last_run">
+                <el-divider content-position="left">上次执行（{{ fmt(status.last_run.at) }}<template v-if="status.last_run.dry_run">，干跑</template><template v-if="status.last_run.delay_seconds === 0">，准点发送</template><template v-else-if="status.last_run.delay_seconds">，比设定时间晚 {{ status.last_run.delay_seconds }} 秒</template>）</el-divider>
+                <div style="margin-bottom:6px;">
+                  <span style="color:var(--el-color-success);">成功 {{ status.last_run.ok.length }} 人：</span>
+                  <el-tag v-for="n in status.last_run.ok" :key="n" size="small" type="success" style="margin:2px;">{{ n }}</el-tag>
+                  <span v-if="!status.last_run.ok.length" class="muted">无</span>
+                </div>
+                <div>
+                  <span style="color:var(--el-color-danger);">失败 {{ status.last_run.failed.length }} 人：</span>
+                  <template v-for="(f, i) in status.last_run.failed" :key="f.name + i">
+                    <el-tooltip v-if="f.name !== '_system'" :content="f.reason" placement="top">
+                      <el-tag size="small" type="danger" style="margin:2px;">{{ f.name }}</el-tag>
+                    </el-tooltip>
+                    <el-tag v-else size="small" type="info" style="margin:2px;">{{ f.reason || '系统' }}</el-tag>
+                  </template>
+                  <span v-if="!status.last_run.failed.length" class="muted">无</span>
+                </div>
+                <el-alert v-if="status.last_run.logged_out" type="error" :closable="false" style="margin-top:8px;"
+                  title="登录态已过期：重新扫码并上传登录态"></el-alert>
+                <el-alert v-else-if="status.last_run.rate_limited" type="warning" :closable="false" style="margin-top:8px;"
+                  title="疑似触发抖音限流：本轮已停止，稍后会自动补发"></el-alert>
+              </div>
+            </el-card>
+          </template>
+          <el-empty v-else description="请先在「账号管理」添加账号"></el-empty>
+        </section>
+
+        <!-- ============ 好友与消息 ============ -->
+        <section v-show="tab === 'friends'" class="pane">
+          <el-card shadow="never">
+            <div class="section-title">
+              <span>📋 从聊天列表勾选</span>
+              <el-tag v-if="dirty" size="small" type="warning" class="dirty-badge">有未保存的更改</el-tag>
+            </div>
+            <div class="sec-toolbar">
+              <el-button type="primary" :loading="status.fetching" @click="fetchContacts">获取聊天列表</el-button>
+              <span class="muted">
+                <template v-if="status.contacts && status.contacts.length">共 {{ status.contacts.length }} 个聊天对象，最后更新 {{ fmt(status.contacts_at) }}</template>
+                <template v-else-if="status.contacts_error">获取失败：{{ status.contacts_error }}</template>
+                <template v-else>点击按钮读取抖音聊天列表（自动带火花天数与头像）</template>
+              </span>
+            </div>
+            <div v-if="status.fetching" class="fetch-progress">
+              <span class="sync-spin">🔄</span>
+              <span>{{ fetchPhaseText }}</span>
+            </div>
+            <div v-if="status.contacts && status.contacts.length" class="sec-toolbar">
+              <el-input v-model="contactSearch" placeholder="搜索好友名字…" clearable style="width:200px;"></el-input>
+              <span class="muted">显示 {{ filteredContacts.length }} / {{ status.contacts.length }} 个</span>
+            </div>
+            <div v-if="status.contacts && status.contacts.length" class="contacts-box">
+              <div class="contacts-head">
+                <span class="muted">共 {{ status.contacts.length }} 个聊天对象 · 已选 <b class="sel-count">{{ selectedContacts.length }}</b> 位</span>
+                <span class="contacts-quick">
+                  <el-button size="small" @click="selectAllContacts">全选</el-button>
+                  <el-button size="small" @click="clearAllContacts">取消全选</el-button>
+                </span>
+              </div>
+              <div class="contacts-list">
+                <div v-for="c in filteredContacts" :key="c.name" class="contact-row" :class="{ checked: isContactChecked(c.name) }" @click="toggleContact(c.name)">
+                  <span class="contact-check"><i v-if="isContactChecked(c.name)">✓</i></span>
+                  <span class="contact-avatar">
+                    <img v-if="c.avatar && !brokenAvatars[c.name]" :src="avatarSrc(c.avatar)" loading="lazy" referrerpolicy="no-referrer" @error="brokenAvatars[c.name] = true" alt="">
+                    <span v-else class="avatar-fallback">👤</span>
+                  </span>
+                  <span class="contact-name">{{ c.name }}</span>
+                  <el-tag v-if="c.streak" size="small" type="warning" class="streak-tag">🔥 {{ c.streak }}</el-tag>
+                </div>
+                <div v-if="!filteredContacts.length" class="muted" style="padding:14px; text-align:center;">没有匹配的联系人</div>
+              </div>
+              <div class="contacts-footer">
+                <el-button size="small" type="primary" :disabled="!selectedContacts.length" @click="addSelectedToFriends">把勾选加入好友名单</el-button>
+                <span class="muted">已选 {{ selectedContacts.length }} 位</span>
+              </div>
+            </div>
+          </el-card>
+
+          <el-card shadow="never" style="margin-top:14px;">
+            <div class="section-title">
+              <span>👥 好友名单</span>
+              <el-tag v-if="friendsList.length" size="small" type="success">{{ friendEnabledCount }}/{{ friendsList.length }} 启用</el-tag>
+            </div>
+            <div v-if="!friendsList.length" class="muted" style="margin-bottom:8px;">名单为空，从上方勾选加入，或用下方按钮手动添加</div>
+            <div v-for="(f, i) in friendsList" :key="i" class="friend-row">
+              <el-switch v-model="f.enabled" @change="markDirty" size="small"></el-switch>
+              <el-input v-if="!f.name" v-model="f.name" placeholder="昵称 / 抖音号（填一次后锁定）" class="friend-name-input" @input="markDirty"></el-input>
+              <span v-else class="friend-name-text" title="好友名字来自抖音，不可修改">{{ f.name }}</span>
+              <el-tag v-if="f.streak" size="small" type="warning">🔥 {{ f.streak }}</el-tag>
+              <el-input v-model="f.note" placeholder="备注（可选）" class="friend-note-input" @input="markDirty"></el-input>
+              <div class="friend-actions">
+                <el-button size="small" text :disabled="i === 0" @click="moveFriend(i, -1)" title="上移">↑</el-button>
+                <el-button size="small" text :disabled="i === friendsList.length - 1" @click="moveFriend(i, 1)" title="下移">↓</el-button>
+                <el-button size="small" type="danger" text @click="removeFriend(i)" title="删除">🗑</el-button>
+              </div>
+            </div>
+            <div class="sec-toolbar" style="margin-top:10px;">
+              <el-button size="small" type="primary" plain :loading="status.syncing_streaks" :disabled="!status.state_file_exists || (status.streak_syncing_any && !status.syncing_streaks)" @click="syncStreaks" :title="(status.streak_syncing_any && !status.syncing_streaks) ? '其他账号正在同步中，请稍候' : '重新抓取抖音聊天列表，更新火花天数与是否重燃'">🔄 同步火花</el-button>
+              <el-button size="small" @click="addFriendRow">+ 添加好友</el-button>
+              <el-button size="small" @click="selectAllFriends">✓ 全部启用</el-button>
+              <el-button size="small" @click="deselectAllFriends">✗ 全部停用</el-button>
+            </div>
+          </el-card>
+
+          <el-card shadow="never" style="margin-top:14px;">
+            <div class="section-title">
+              <span>💬 消息模板</span>
+              <el-tag v-if="templateCount" size="small" type="info">{{ templateCount }} 条</el-tag>
+            </div>
+            <div class="tpl-editor">
+              <div v-if="!tplRows.length" class="muted" style="padding:8px 2px 6px;">还没有模板行——点下面「＋ 添加一行」手写，或点上方贴纸/图片自动加一行，也可「📋 多行粘贴」。</div>
+              <div v-for="(r, i) in tplRows" :key="i" class="tpl-ed-row">
+                <span class="tpl-lno">{{ i + 1 }}</span>
+                <span v-if="splitLeadingMarkers(r).preIcons.length" class="tpl-lico-wrap tpl-front-ico">
+                  <img v-for="(u, j) in splitLeadingMarkers(r).preIcons" :key="j" class="tpl-lico" :src="u" alt="" loading="lazy" referrerpolicy="no-referrer" :title="'行首表情：' + splitLeadingMarkers(r).pre">
+                </span>
+                <el-input :model-value="rowRestText(i)" class="tpl-row-in" :placeholder="(r || '').trim() ? '' : '输入本条内容…（行首可写【火花】【贴纸:名】【图:文件名】变图标）'" @input="(v) => setRowRest(i, v)"></el-input>
+                <span v-if="templateIcons(splitLeadingMarkers(r).rest).length" class="tpl-lico-wrap">
+                  <img v-for="(u, j) in templateIcons(splitLeadingMarkers(r).rest)" :key="j" class="tpl-lico" :src="u" alt="" loading="lazy" referrerpolicy="no-referrer" :title="'行内其余表情'">
+                </span>
+                <el-button class="tpl-row-del" size="small" text type="danger" title="删除这行" @click="tplDelRow(i)">🗑</el-button>
+              </div>
+              <div class="tpl-tools">
+                <el-button size="small" @click="tplAddRow">＋ 添加一行</el-button>
+                <el-button size="small" @click="pasteDialogVisible = true">📋 多行粘贴</el-button>
+                <span class="muted">共 {{ tplRows.length }} 条</span>
+              </div>
+            </div>
+            <el-dialog v-model="pasteDialogVisible" title="📋 多行粘贴模板" width="480px">
+              <el-input v-model="pasteText" type="textarea" :rows="6" placeholder="每行一条消息模板，直接整段粘贴后点「拆行加入」"></el-input>
+              <template #footer>
+                <el-button @click="pasteDialogVisible = false">取消</el-button>
+                <el-button type="primary" @click="doPasteTpl">拆行加入</el-button>
+              </template>
+            </el-dialog>
+            <div class="preview-box">
+              🎲 将随机发送：<b>{{ randomPreview }}</b>
+              <span v-if="templateIcons(randomPreview).length" class="rp-icons" style="margin-left:6px;">
+                <img v-for="(u, i) in templateIcons(randomPreview)" :key="i" class="rp-ico" :src="u" alt="" loading="lazy" referrerpolicy="no-referrer" title="本条将发送的原生贴纸/图片">
+              </span>
+            </div>
+            <div class="sec-toolbar" style="margin-top:12px; justify-content:flex-end;">
+              <span class="muted">保存后立即生效，定时发送会自动使用新名单</span>
+              <el-button type="primary" @click="saveFriends">💾 保存好友与消息</el-button>
+            </div>
+          </el-card>
+
+          <el-card shadow="never" style="margin-top:14px;">
+            <div class="section-title">
+              <span>🖼 上传图片发送</span>
+              <el-tag v-if="emojis.length" size="small" type="success">{{ emojis.length }} 张</el-tag>
+            </div>
+            <div class="sec-toolbar">
+              <input ref="emojiFileRef" type="file" accept=".png,.jpg,.jpeg,.gif" style="display:none;" @change="onEmojiPick">
+              <el-button type="primary" plain :loading="emojiUploading" @click="pickEmojiFile">⬆ 上传图片</el-button>
+              <el-button v-if="!emojiManage" type="info" plain @click="toggleEmojiManage" :disabled="!emojis.length">🗂 批量管理</el-button>
+              <el-button v-if="emojiManage" type="warning" plain @click="selectAllEmojis">全选</el-button>
+              <template v-if="emojiManage">
+                <span class="muted">已选 <b class="sel-count">{{ emojiSel.length }}</b> 张</span>
+                <el-button type="danger" plain :disabled="!emojiSel.length" @click="deleteEmojiBatch">🗑 删除所选</el-button>
+                <el-button @click="toggleEmojiManage">✓ 完成</el-button>
+              </template>
+              <span class="muted">传自己的照片 / 梗图，模板里写 <code>【图:文件名】</code> 以原生图片发出（png / jpg / gif，≤10MB）</span>
+            </div>
+            <div v-if="emojiManage" class="muted" style="margin-top:6px;font-size:12.5px;">批量模式：点缩略图勾选/取消（不会加入模板），选好后「删除所选」；点「✓ 完成」退出。</div>
+            <div v-if="!emojis.length" class="muted" style="padding:10px 0;">还没有图片，上传一张试试</div>
+            <div v-else class="emoji-grid">
+              <div v-for="e in emojis" :key="e.name" class="emoji-item" :class="{ 'emoji-item-add': !emojiManage, 'emoji-selected': emojiManage && emojiSel.includes(e.name) }"
+                   :title="emojiManage ? (emojiSel.includes(e.name) ? '取消选择' : '选择这张') : ('点一下加入模板：【图:' + e.name + '】')"
+                   @click="emojiManage ? toggleEmojiSel(e.name) : addEmojiLine(e.name)">
+                <span v-if="emojiManage" class="emoji-check" :class="{ on: emojiSel.includes(e.name) }">✓</span>
+                <el-button v-if="!emojiManage" class="emoji-del" size="small" text type="danger" @click.stop="deleteEmoji(e.name)">🗑</el-button>
+                <img class="emoji-thumb" :src="emojiSrc(e.name)" loading="lazy" referrerpolicy="no-referrer" alt="">
+                <div class="emoji-name" :title="e.name">{{ e.name }}</div>
+                <div class="emoji-size">{{ fmtSize(e.size) }}</div>
+                <div v-if="!emojiManage" class="emoji-ops-add">＋ 点击加入模板</div>
+              </div>
+            </div>
+            <div style="margin-top:16px;border-top:1px dashed var(--border);padding-top:14px;">
+              <div class="section-title" style="margin-bottom:8px;">
+                <span>🎴 官方原生贴纸（推荐，点一下加入模板）</span>
+              </div>
+              <div class="muted" style="font-size:12.5px;margin-bottom:8px;line-height:1.7;">
+                这些是抖音网页版自带的原生贴纸，发送时对方收到的是<b>抖音原生大表情</b>（不是图片）。「续火花」写成 <code>【火花】</code>，其余写成 <code>【贴纸:名字】</code>。
+              </div>
+              <div class="emoji-grid" style="grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:6px;">
+                <button v-for="(s, i) in nativeStickers" :key="i" type="button" class="native-emoji-btn sticker-btn" :title="'把 ' + ((s === '续火花') ? '【火花】' : ('【贴纸:' + s + '】')) + ' 加入模板'" @click="addStickerLine(s)">
+                  <img class="sti-ico" :src="stickerIconSrc(s)" loading="lazy" alt="" referrerpolicy="no-referrer" @error="hideStickerIcon">
+                  <span>{{ s === '续火花' ? '🔥 续火花' : s }}</span>
+                </button>
+              </div>
+            </div>
+          </el-card>
+        </section>
+
+        <!-- ============ 定时与浏览器 ============ -->
+        <section v-show="tab === 'settings'" class="pane">
+          <el-card shadow="never">
+            <div class="section-title"><span>⏰ 定时发送设置</span></div>
+            <el-form label-width="150px">
+              <el-form-item label="⏰ 设定每天发送时间">
+                <el-input v-model="settingsForm.schedule_time" type="time" style="width:160px;"></el-input>
+              </el-form-item>
+              <el-form-item label="🎲 抖动窗口（分钟）">
+                <el-input-number v-model="settingsForm.jitter_minutes" :min="0" :max="240"></el-input-number>
+                <span class="muted" style="margin-left:8px;">在设定时间后 0～N 分钟内随机开始（测试建议设 0）</span>
+              </el-form-item>
+              <el-form-item label="🕐 好友间隔（秒钟）">
+                <el-input-number v-model="settingsForm.send_gap_min" :min="1" :max="300"></el-input-number>
+                <span style="margin:0 6px;">至</span>
+                <el-input-number v-model="settingsForm.send_gap_max" :min="1" :max="300"></el-input-number>
+              </el-form-item>
+              <el-form-item label="👥 每轮发送人数上限">
+                <el-input-number v-model="settingsForm.max_friends_per_run" :min="0" :max="200"></el-input-number>
+                <span class="muted" style="margin-left:8px;">0 表示不限制</span>
+              </el-form-item>
+              <el-form-item label="🔁 补发等待（分钟）">
+                <el-input-number v-model="settingsForm.retry_minutes" :min="5" :max="300"></el-input-number>
+                <span class="muted" style="margin-left:8px;">本轮有失败时自动补发一次</span>
+              </el-form-item>
+            </el-form>
+            <div class="preview-box">
+              📅 每天 <b>{{ settingsForm.schedule_time || '未设置' }}</b> 发送，实际在之后 <b>0～{{ settingsForm.jitter_minutes }}</b> 分钟内随机开始；每轮最多发送 <b>{{ settingsForm.max_friends_per_run === 0 ? '不限' : settingsForm.max_friends_per_run + ' 位好友' }}</b>
+            </div>
+          </el-card>
+
+          <el-card shadow="never" style="margin-top:14px;">
+            <div class="section-title"><span>🌐 浏览器设置</span></div>
+            <el-form label-width="150px">
+              <el-form-item label="💻 使用的浏览器引擎">
+                <el-select v-model="settingsForm.browser" style="width:220px;">
+                  <el-option label="Chromium（最稳定，推荐）" value="chromium"></el-option>
+                  <el-option label="Firefox（换指纹用）" value="firefox"></el-option>
+                  <el-option label="WebKit（换指纹用）" value="webkit"></el-option>
+                </el-select>
+                <span class="muted" style="margin-left:8px;">不同账号选不同引擎可降低账号间关联</span>
+              </el-form-item>
+              <el-form-item label="📦 各引擎的安装状态">
+                <div class="engine-status">
+                  <span class="engine-item"><i :class="['eng-dot', engines && engines.chromium ? 'ok' : 'no']"></i>Chromium {{ engines && engines.chromium ? '已安装' : '未安装' }}</span>
+                  <span class="engine-item"><i :class="['eng-dot', engines && engines.firefox ? 'ok' : 'no']"></i>Firefox {{ engines && engines.firefox ? '已安装' : '未安装' }}</span>
+                  <span class="engine-item"><i :class="['eng-dot', engines && engines.webkit ? 'ok' : 'no']"></i>WebKit {{ engines && engines.webkit ? '已安装' : '未安装' }}</span>
+                </div>
+                <span v-if="engines && (!engines.firefox || !engines.webkit)" class="muted" style="display:block; margin-top:4px;">未安装的引擎请运行：python -m playwright install firefox webkit（首次需下载，约几分钟）</span>
+              </el-form-item>
+              <el-form-item label="🌙 使用无头模式运行">
+                <el-switch v-model="settingsForm.headless"></el-switch>
+                <span class="muted" style="margin-left:8px;">关闭后弹出浏览器窗口便于观察；服务器请保持开启</span>
+              </el-form-item>
+              <el-form-item label="✅ 账号参与定时发送">
+                <el-switch v-model="settingsForm.enabled" active-text="参与每日定时发送"></el-switch>
+              </el-form-item>
+            </el-form>
+          </el-card>
+
+          <div class="sec-toolbar" style="margin-top:14px; justify-content:flex-end;">
+            <span class="muted">保存后定时任务立即按新配置生效</span>
+            <el-button type="primary" @click="saveSettings">💾 保存设置</el-button>
+          </div>
+        </section>
+
+        <!-- ============ 历史记录 ============ -->
+        <section v-show="tab === 'history'" class="pane">
+          <el-card shadow="never">
+            <div class="section-title"><span>📜 历史记录</span></div>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+              <el-select v-model="historyFilter" style="width:150px;">
+                <el-option label="全部记录" value="all"></el-option>
+                <el-option label="干跑测试" value="dry"></el-option>
+                <el-option label="真实发送" value="real"></el-option>
+                <el-option label="有异常" value="issue"></el-option>
+              </el-select>
+              <span class="muted">共 {{ filteredHistory.length }} 条</span>
+            </div>
+            <el-table :data="filteredHistory" size="small" max-height="520">
+              <el-table-column type="expand">
+                <template #default="{ row }">
+                  <div style="padding:0 16px;">
+                    <div style="margin-bottom:4px;"><b>成功：</b>
+                      <el-tag v-for="n in row.ok" :key="n" size="small" type="success" style="margin:2px;">{{ n }}</el-tag>
+                      <span v-if="!row.ok.length" class="muted">无</span>
+                    </div>
+                    <div><b>失败：</b>
+                      <el-tooltip v-for="(f, i) in row.failed" :key="f.name + i" :content="f.reason" placement="top">
+                        <el-tag size="small" type="danger" style="margin:2px;">{{ f.name === '_system' ? (f.reason || '系统') : f.name }}</el-tag>
+                      </el-tooltip>
+                      <span v-if="!row.failed.length" class="muted">无</span>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+              <el-table-column label="时间" width="180">
+                <template #default="{ row }">{{ fmt(row.at) }}</template>
+              </el-table-column>
+              <el-table-column label="类型" width="100">
+                <template #default="{ row }">
+                  <el-tag v-if="row.dry_run" size="small" type="info">干跑</el-tag>
+                  <el-tag v-else size="small" type="success">真实发送</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="发送延迟" width="120">
+                <template #default="{ row }">
+                  <template v-if="row.delay_seconds === undefined || row.delay_seconds === null"><span class="muted">手动/补发</span></template>
+                  <el-tag v-else-if="row.delay_seconds === 0" size="small" type="success">准点</el-tag>
+                  <el-tag v-else size="small" type="warning">晚 {{ row.delay_seconds }} 秒</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="成功" width="70">
+                <template #default="{ row }"><span style="color:var(--el-color-success);">{{ row.ok.length }}</span></template>
+              </el-table-column>
+              <el-table-column label="失败" width="70">
+                <template #default="{ row }"><span style="color:var(--el-color-danger);">{{ row.failed.length }}</span></template>
+              </el-table-column>
+              <el-table-column label="异常">
+                <template #default="{ row }">
+                  <el-tag v-if="row.logged_out" size="small" type="danger">登录态过期</el-tag>
+                  <el-tag v-else-if="row.rate_limited" size="small" type="warning">疑似限流</el-tag>
+                  <span v-else class="muted">无</span>
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-empty v-if="!status.history.length" description="暂无历史记录"></el-empty>
+          </el-card>
+        </section>
+
+        <!-- ============ 日志 ============ -->
+        <section v-show="tab === 'logs'" class="pane">
+          <el-card shadow="never">
+            <div class="section-title"><span>📄 日志</span></div>
+            <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+              <el-select v-model="logScope" style="width:140px;">
+                <el-option label="当前账号" value="account"></el-option>
+                <el-option label="全部（全局）" value="global"></el-option>
+              </el-select>
+              <el-button size="small" @click="loadLogs">刷新日志</el-button>
+              <el-button size="small" @click="copyLogs">📋 复制日志</el-button>
+              <el-checkbox v-model="autoRefresh">自动刷新</el-checkbox>
+            </div>
+            <pre class="log-pre" v-html="logs ? renderedLog : '暂无日志'"></pre>
+          </el-card>
+        </section>
+
+        <!-- ============ 账号管理 ============ -->
+        <section v-show="tab === 'accounts'" class="pane">
+          <el-card shadow="never">
+            <div class="section-title"><span>🗂 账号管理</span></div>
+            <div class="action-row" style="margin-bottom:12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+              <el-button type="primary" @click="addAccountDialog = true">+ 添加账号</el-button>
+              <el-button type="success" plain @click="runAllAccounts(false)">⚡ 全部账号立即发送</el-button>
+              <el-button @click="runAllAccounts(true)">🧪 全部干跑测试</el-button>
+              <el-button @click="downloadBackup">⬇️ 备份全部数据</el-button>
+              <label class="el-button el-button--default" for="restoreFileInput" style="margin:0; cursor:pointer;">♻️ 恢复备份</label>
+              <input id="restoreFileInput" type="file" accept=".zip" style="display:none;" @change="onRestoreChange" />
+              <span class="muted">每个账号有独立的登录态、好友名单、定时与日志；多账号串行执行</span>
+            </div>
+            <el-table :data="accounts" size="small" row-key="id">
+              <el-table-column label="状态" width="70">
+                <template #default="{ row }"><i class="dot" :class="statusClass(row)"></i></template>
+              </el-table-column>
+              <el-table-column label="名称" prop="name" min-width="120"></el-table-column>
+              <el-table-column label="ID" prop="id" width="110"></el-table-column>
+              <el-table-column label="浏览器" width="100">
+                <template #default="{ row }">{{ row.browser }}</template>
+              </el-table-column>
+              <el-table-column label="启用" width="80">
+                <template #default="{ row }">
+                  <el-tag v-if="row.enabled" size="small" type="success">启用</el-tag>
+                  <el-tag v-else size="small" type="info">停用</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="登录态" width="90">
+                <template #default="{ row }">
+                  <el-tag v-if="row.state_exists" size="small" type="success">已上传</el-tag>
+                  <el-tag v-else size="small" type="info">未上传</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="上次运行" width="170">
+                <template #default="{ row }">{{ fmt(row.last_run_at) || '—' }}</template>
+              </el-table-column>
+              <el-table-column label="下次发送" width="170">
+                <template #default="{ row }">{{ fmt(row.next_run) || '—' }}</template>
+              </el-table-column>
+              <el-table-column label="操作" width="280">
+                <template #default="{ row, $index }">
+                  <el-button size="small" text :disabled="$index === 0" @click="moveAccount($index, -1)" title="上移">↑</el-button>
+                  <el-button size="small" text :disabled="$index === accounts.length - 1" @click="moveAccount($index, 1)" title="下移">↓</el-button>
+                  <el-button size="small" @click="switchTo(row.id)">打开</el-button>
+                  <el-button size="small" @click="openRenameDialog(row)">重命名</el-button>
+                  <el-popconfirm title="确定删除该账号及其全部数据？" @confirm="deleteAccount(row)">
+                    <template #reference>
+                      <el-button size="small" type="danger" text>删除</el-button>
+                    </template>
+                  </el-popconfirm>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-card>
+        </section>
+
+        <!-- ============ 使用说明 ============ -->
+        <section v-show="tab === 'help'" class="pane">
+          <div class="help-intro">
+            <h2>📖 使用说明</h2>
+            <p>没看过 README 也没关系，这里 3 分钟带你上手：<b>添加账号 → 关联抖音 → 加好友 → 设定时</b>，之后每天自动帮你续火花。</p>
+          </div>
+
+          <div class="section-title"><span>🚀 快速上手（3 步）</span></div>
+          <div class="steps">
+            <div class="step-card">
+              <span class="step-n">1</span><b>添加账号</b>
+              <p class="muted">「账号管理」→「+ 添加账号」，给账号起个名字（如大号 / 小号），支持多账号同时管理。</p>
+            </div>
+            <div class="step-card">
+              <span class="step-n">2</span><b>关联抖音</b>
+              <p class="muted">「概览」→「📱 网页内扫码登录」，用手机抖音 App 右上角扫一扫确认登录。也可以用 extract_cookie.py 导出登录态后上传。</p>
+            </div>
+            <div class="step-card">
+              <span class="step-n">3</span><b>加好友 + 设定时</b>
+              <p class="muted">「好友与消息」：获取聊天列表 → 勾选好友加入名单 → 填好消息模板 → 保存。「定时与浏览器」：设好每天发送时间，开启「参与每日定时发送」。火花天数会自动更新，也可点「🔄 同步火花」手动刷新。</p>
+            </div>
+          </div>
+
+          <div class="section-title"><span>🗺 各页面说明</span></div>
+          <div class="help-grid help-grid--2rows">
+            <div class="help-card">
+              <h4>📊 概览</h4>
+              <ul class="help-key">
+                <li>当前账号状态 + 下次发送倒计时</li>
+                <li>🚀 立即发送 / 干跑测试（不真发）</li>
+                <li>📱 网页内扫码登录、上传登录态</li>
+              </ul>
+              <el-button class="help-more" size="small" text type="primary" @click="openHelp('overview')">▾ 查看完整说明</el-button>
+            </div>
+            <div class="help-card">
+              <h4>👥 好友与消息</h4>
+              <ul class="help-key">
+                <li>获取聊天列表 → 勾选好友 → 保存</li>
+                <li>消息模板：逐行编辑器，点图标加表情</li>
+                <li>支持【火花】【贴纸:名】【图:文件名】</li>
+              </ul>
+              <el-button class="help-more" size="small" text type="primary" @click="openHelp('friends')">▾ 查看完整说明</el-button>
+            </div>
+            <div class="help-card">
+              <h4>⏰ 定时与浏览器</h4>
+              <ul class="help-key">
+                <li>每天发送时间 + 抖动窗口</li>
+                <li>开启「参与每日定时发送」才生效</li>
+                <li>开机自启动（本机开关 / 服务器用 systemd）</li>
+              </ul>
+              <el-button class="help-more" size="small" text type="primary" @click="openHelp('settings')">▾ 查看完整说明</el-button>
+            </div>
+            <div class="help-card">
+              <h4>📜 历史记录</h4>
+              <ul class="help-key">
+                <li>每次运行的成功 / 失败名单</li>
+                <li>实际发送延迟与异常标记</li>
+                <li>可按类型筛选</li>
+              </ul>
+              <el-button class="help-more" size="small" text type="primary" @click="openHelp('history')">▾ 查看完整说明</el-button>
+            </div>
+            <div class="help-card">
+              <h4>📄 日志</h4>
+              <ul class="help-key">
+                <li>账号日志 / 全局日志切换、自动刷新</li>
+                <li>超行长日志自动收起，可展开</li>
+                <li>📋 一键复制完整日志</li>
+              </ul>
+              <el-button class="help-more" size="small" text type="primary" @click="openHelp('logs')">▾ 查看完整说明</el-button>
+            </div>
+            <div class="help-card">
+              <h4>🗂 账号管理</h4>
+              <ul class="help-key">
+                <li>添加 / 重命名 / 删除 / 排序账号</li>
+                <li>⚡ 全部账号立即发送</li>
+                <li>⬇️ 备份全部数据 / ♻️ 恢复</li>
+              </ul>
+              <el-button class="help-more" size="small" text type="primary" @click="openHelp('accounts')">▾ 查看完整说明</el-button>
+            </div>
+          </div>
+
+          <el-dialog v-model="helpDialog" :title="helpTitle" width="720px" top="6vh">
+            <div class="help-doc" v-html="helpContent"></div>
+            <template #footer>
+              <el-button type="primary" @click="helpDialog = false">知道了</el-button>
+            </template>
+          </el-dialog>
+
+          <div class="section-title"><span>🔧 侧边栏底部工具</span></div>
+          <div class="help-grid">
+            <div class="help-card">
+              <h4>🔄 刷新</h4>
+              <ul>
+                <li>手动刷新全部数据（账号列表、状态、日志、浏览器检测）</li>
+                <li>页面每 20 秒会自动轮询一次，这里用于立即刷新</li>
+              </ul>
+            </div>
+            <div class="help-card">
+              <h4>🔔 通知</h4>
+              <ul>
+                <li>程序在电脑右下角弹系统通知气泡</li>
+                <li>发送完成、登录态过期、疑似限流时提醒你</li>
+                <li>可「🧪 发送测试通知」验证系统通知是否正常弹出</li>
+              </ul>
+              <el-button size="small" type="primary" plain style="margin-top:8px;" @click="notifyGuideDialog = true">🔔 通知配置流程 · 点击打开</el-button>
+            </div>
+            <div class="help-card">
+              <h4>🔑 令牌</h4>
+              <ul>
+                <li>访问本网页的钥匙：浏览器打开时需输入令牌</li>
+                <li>首次启动自动生成并保存在 .env 文件，可在这里修改</li>
+                <li>修改后立即生效，请牢记新令牌并妥善保管，勿外泄</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="section-title"><span>🖥 服务器部署与管理</span></div>
+          <div class="help-grid">
+<div class="help-card">
+              <h4>🚀 一键部署</h4>
+              <ul>
+                <li>把整个项目文件夹上传到 Debian / Ubuntu 服务器</li>
+                <li>执行 <code>sudo bash deploy/deploy.sh</code>，自动完成：装 Python 依赖、Playwright、Chromium、swap、时区、访问令牌、systemd 服务</li>
+                <li>完成后访问 <code>http://服务器IP:8000</code>，令牌保存在 <code>.env</code> 文件</li>
+              </ul>
+              <el-button size="small" type="primary" plain style="margin-top:8px;" @click="deployTutorialDialog = true">📖 部署教程 · 点击打开（从注册开始）</el-button>
+            </div>
+            <div class="help-card">
+              <h4>🛠 systemd 管理</h4>
+              <ul>
+                <li>开机自启 + 崩溃 5 秒自动重启（脚本已配好）</li>
+                <li>常用命令：</li>
+              </ul>
+              <div class="help-code">systemctl status douyin-spark     # 看状态
+systemctl restart douyin-spark    # 重启
+journalctl -u douyin-spark -f     # 实时日志</div>
+              <ul>
+                <li>改 <code>.env</code>（端口 / 令牌）后重启生效</li>
+              </ul>
+            </div>
+            <div class="help-card">
+              <h4>🔐 HTTPS 与安全</h4>
+              <ul>
+                <li>公网部署建议 nginx + certbot 配 HTTPS（配置示例见 <code>DEPLOY_SERVER.md</code> 第五章）</li>
+                <li>访问令牌是唯一钥匙，不要外泄</li>
+                <li>服务器无桌面：扫码登录只能用「网页内二维码」，提醒用 webhook 推手机（见上方「🔔 通知」）</li>
+                <li>数据迁移：用「⬇️ 备份 / ♻️ 恢复备份」在服务器与电脑之间搬运账号</li>
+              </ul>
+            </div>
+          </div>
+          <div class="section-title"><span>❓ 常见问题</span></div>
+          <el-collapse accordion style="margin-bottom:20px;">
+            <el-collapse-item title="登录态过期了怎么办？">
+              <p class="muted" style="line-height:1.8;">概览会显示红色提示。点「📱 网页内扫码登录」重新扫码关联；或在本机命令行运行 <code>python extract_cookie.py</code> 重新导出后，在概览「选择 state.json」上传。</p>
+            </el-collapse-item>
+            <el-collapse-item title="提示「疑似触发限流」怎么办？">
+              <p class="muted" style="line-height:1.8;">工具已自动停止本轮，稍后会自动补发。建议把时间抖动调大一点、每次发送人数调低，别发太频繁；若频繁限流请暂停使用一段时间。</p>
+            </el-collapse-item>
+            <el-collapse-item title="选了 Firefox / WebKit 但报错？">
+              <p class="muted" style="line-height:1.8;">浏览器引擎没安装。在任意命令行窗口运行 <code>python -m playwright install firefox webkit</code>（首次需下载，约几分钟），装完在扫码对话框点「🔄 重新检测浏览器」。</p>
+            </el-collapse-item>
+            <el-collapse-item title="桌面通知不弹？">
+              <p class="muted" style="line-height:1.8;">先检查 Windows「设置 → 系统 → 通知」总开关是否打开、「专注助手（勿扰）」是否开启。然后在「🔔 通知」设置里点「🧪 发送测试通知」验证。</p>
+            </el-collapse-item>
+            <el-collapse-item title="定时发送没动静？">
+              <p class="muted" style="line-height:1.8;">依次检查：账号是否「启用」、好友名单里是否有「启用」状态的好友、登录态是否有效（概览会话状态）、时间是否设对。还不行就看「日志」页排查。</p>
+            </el-collapse-item>
+            <el-collapse-item title="头像不显示 / 显示占位图标？">
+              <p class="muted" style="line-height:1.8;">抖音头像链接带时效，过期后显示 👤 占位。重新点「获取聊天列表」或「🔄 同步火花」即可刷新头像与火花天数。</p>
+            </el-collapse-item>
+            <el-collapse-item title="「同步火花」和「获取聊天列表」有什么区别？">
+              <p class="muted" style="line-height:1.8;">「获取聊天列表」用于重新抓取列表、勾选加好友；「🔄 同步火花」用于更新已有好友名单的火花天数与头像。其实每次手动 / 定时发送后，程序也会自动顺手刷新一次天数。</p>
+            </el-collapse-item>
+            <el-collapse-item title="想换电脑 / 重装系统？">
+              <p class="muted" style="line-height:1.8;">旧机器「账号管理」点「⬇️ 备份全部数据」下载 zip；新机器装好后点「♻️ 恢复备份」选择该 zip，即可一键还原所有账号的登录态、好友名单、配置与历史。</p>
+            </el-collapse-item>
+                      <el-collapse-item title="电脑锁屏或休眠时会正常发送吗？">
+              <p class="muted" style="line-height:1.8;"><b>锁屏</b>：程序照常运行，定时发送不受影响。<b>休眠 / 睡眠</b>：系统暂停，程序不会运行，当天错过的那次不会自动补发。<br>想要 24 小时稳定：在 Windows「电源和电池 → 屏幕和睡眠」里把<b>睡眠改为「从不」</b>（插电时也设一遍），只让屏幕关闭即可。</p>
+            </el-collapse-item>
+            <el-collapse-item title="移动 / 重命名了程序文件夹，开机自启动失效？">
+              <p class="muted" style="line-height:1.8;">开机自启动登记的是<b>当时的绝对路径</b>。文件夹移动或改名后，去「⏰ 定时与浏览器」把「开机自启动」开关<b>关闭再打开一次</b>即可重新绑定新路径；之后重启电脑验证一次。另外文件夹改名后建议顺手重启一次程序（start.bat），让数据目录也切到新路径。</p>
+            </el-collapse-item>
+            <el-collapse-item title="想发原生表情 / 自己的图片怎么配？">
+              <p class="muted" style="line-height:1.8;">官方原生表情（22 个）在「好友与消息 → 🎴 官方原生贴纸」点一下即加入模板，写法是【火花】（续火花）或【贴纸:名字】（如【贴纸:比心】）。自己的图片先「⬆ 上传图片」，然后点缩略图把【图:文件名】加入模板；一条模板里可混合文字、贴纸、图片，发送时按顺序分别送出。</p>
+            </el-collapse-item>
+</el-collapse>
+
+          <div class="help-tip">
+            <b>⚠️ 安全与使用提醒</b><br>
+            ① 访问令牌（🔑 令牌）请勿外泄，浏览器地址栏或局域网访问时别人知道令牌就能控制本程序。<br>
+            ② 登录态文件（state.json）等同于你的登录凭据，备份 zip 请妥善保管，不要发给他人。<br>
+            ③ 本工具仅供个人自用，请合理控制发送频率，遵守平台规则；使用产生的一切风险由使用者自行承担。
+          </div>
+        </section>
+        </div>
+      </main>
+    </div>
+
+    <!-- 网页内扫码登录对话框 -->
+    <el-dialog v-model="qrDialog" title="手机扫码登录（关联抖音账号）" width="480px" :close-on-click-modal="false" @close="cancelQrLogin">
+      <div style="margin-bottom:10px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <span class="muted">登录方式：</span>
+        <el-radio-group v-model="qrMode" size="small" @change="restartQrLogin">
+          <el-radio-button label="window">弹出浏览器窗口（推荐）</el-radio-button>
+          <el-radio-button label="dialog">网页内二维码</el-radio-button>
+        </el-radio-group>
+      </div>
+      <div style="margin-bottom:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <span class="muted">用哪个浏览器登录：</span>
+        <el-select v-model="qrEngine" style="width:220px;" @change="restartQrLogin">
+          <el-option v-for="o in browserOptions" :key="o.value" :label="o.label" :value="o.value"></el-option>
+        </el-select>
+        <el-button size="small" @click="loadBrowsers">🔄 重新检测浏览器</el-button>
+        <span class="muted">自动检测本机安装的浏览器，装好了新的点这里刷新</span>
+      </div>
+      <div v-if="engines && (!engines.firefox || !engines.webkit)" class="muted" style="margin-bottom:10px; color:var(--el-color-warning);">
+        提示：Firefox/WebKit 引擎未安装（选它们会报错）。安装方法：任意命令行窗口运行 python -m playwright install firefox webkit
+      </div>
+      <div v-if="qrEngine === '__custom__'" style="margin-bottom:12px;">
+        <el-input v-model="customPath" placeholder="粘贴浏览器 exe 完整路径，如 C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe" @change="markDirty"></el-input>
+        <div class="muted" style="margin-top:4px;">夸克/360/QQ 等未自动检测到的浏览器，可在此手动填路径</div>
+      </div>
+      <div style="text-align:center;">
+        <img v-if="qrImg" :src="qrImg" :style="qrSessionActive ? 'width:100%;max-width:460px;height:auto;border:1px solid var(--el-border-color);border-radius:8px;cursor:crosshair;' : 'width:230px;height:230px;border:1px solid var(--el-border-color);border-radius:8px;'" @click="onQrClick" title="手动操作模式下点击画面可控制页面" />
+        <el-empty v-else :description="qrSessionActive ? '二维码加载中…' : '选择浏览器后点「开始扫码登录」'" :image-size="60"></el-empty>
+        <p class="muted" style="margin-top:10px;">{{ qrMsg }}</p>
+        <p v-if="qrNote" class="muted" style="font-size:11px;">{{ qrNote }}</p>
+        <p v-if="qrSessionActive && qrMode === 'window'" class="muted">已弹出真实浏览器窗口：请直接在该窗口里用手机抖音 App 扫码（如果窗口里没自动出现二维码，手动点页面右上角「登录」）。下方为实时画面预览，登录完成前不要关闭那个窗口。</p>
+        <p v-else-if="qrSessionActive" class="muted">用手机抖音 App 右上角「扫一扫」扫码，确认登录后自动关联到当前账号</p>
+        <p v-if="qrNeedVerify && qrVerifyType === 'sms'" class="muted" style="margin-top:8px;">📲 短信验证步骤：① 点画面里的「获取/发送验证码」→ ② 在下方输入框输码，点「输入」（或直接按回车）→ ③ 点画面里的「确定」</p>
+        <p v-if="qrNeedVerify && qrVerifyType === 'slider'" class="muted" style="margin-top:8px;">🖐 滑块验证步骤：点下方「🖐 模拟拖动」→ 先点画面里的滑块手柄 → 再点缺口位置</p>
+        <div v-if="qrNeedVerify" style="margin-top:12px; display:flex; gap:8px; align-items:center; flex-wrap:wrap; justify-content:center; background:var(--primary-weak); border:1px solid var(--border); border-radius:12px; padding:10px 12px;">
+          <span style="font-size:13px;">🔐 验证中：在下方输入框填内容，或直接点画面操作</span>
+          <el-button size="small" @click="resendVerifyCode">重新发送验证码</el-button>
+          <el-button v-if="platform === 'win32'" size="small" @click="switchToWindowVerify">🪟 改弹窗模式</el-button>
+        </div>
+        <div v-if="qrSessionActive" style="margin-top:10px; display:flex; gap:8px; align-items:center; justify-content:center; flex-wrap:wrap;">
+          <el-button size="small" :type="manualMode ? 'primary' : 'default'" @click="toggleManualMode">{{ manualMode ? '✅ 手动操作中（全屏画面）' : '🖱 手动操作（点画面里的按钮）' }}</el-button>
+          <template v-if="manualMode">
+            <span class="muted">点画面里的按钮 / 输入框；在下框输字点「输入」（或回车），提交点画面里的「确定」</span>
+            <el-input v-model="manualText" placeholder="输入文字（如验证码）" style="width:170px;" @keyup.enter="manualDoType"></el-input>
+            <el-button type="primary" size="small" @click="manualDoType">输入</el-button>
+            <el-button size="small" @click="manualScroll(-300)">⬆️ 上滚</el-button>
+            <el-button size="small" @click="manualScroll(300)">⬇️ 下滚</el-button>
+          </template>
+          <el-button size="small" :type="dragState !== 'off' ? 'warning' : 'default'" @click="toggleDragMode">{{ dragState === 'pick-handle' ? '点滑块手柄…' : dragState === 'pick-gap' ? '点缺口位置…' : '🖐 模拟拖动（滑块）' }}</el-button>
+          <el-button size="small" @click="copyQrDiagnosis">📋 复制诊断信息</el-button>
+          <el-button size="small" @click="saveQrShot">💾 保存截图</el-button>
+        </div>
+      </div>
+      <template #footer>
+        <el-button v-if="qrSessionActive" @click="refreshQr">刷新画面</el-button>
+        <el-button type="primary" @click="startQrSession">{{ qrSessionActive ? '重新开始（换浏览器/重试）' : '▶ 开始扫码登录' }}</el-button>
+        <el-button @click="qrDialog = false">完成</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 令牌对话框 -->
+    <el-dialog v-model="tokenDialog" title="访问令牌" width="380px" :close-on-click-modal="false">
+      <p style="margin-top:0;color:var(--el-text-color-regular);font-size:13px;">输入新的访问令牌（至少 8 位），保存后立即生效。</p>
+      <el-input v-model="tokenInput" placeholder="新令牌" show-password @keyup.enter="saveToken"></el-input>
+      <template #footer>
+        <el-button type="primary" @click="saveToken">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 通知设置对话框 -->
+    <el-dialog v-model="notifyDialog" title="通知设置（发送完成 / 异常时提醒你）" width="440px">
+      <el-form label-width="110px">
+        <el-form-item label="桌面通知">
+          <el-switch v-model="notifyForm.desktop" active-text="开启"></el-switch>
+        </el-form-item>
+        <el-form-item label="说明">
+          <span class="muted">发送完成、登录态过期、疑似限流时提醒你。Windows 用系统气泡；服务器或出门在外用下面的 webhook 推送到手机。</span>
+        </el-form-item>
+        <el-divider content-position="left">📱 webhook 推送（推送到手机）</el-divider>
+        <el-form-item label="启用">
+          <el-switch v-model="notifyForm.webhook_enabled" active-text="开启"></el-switch>
+        </el-form-item>
+        <el-form-item label="服务">
+          <el-select v-model="notifyForm.webhook_type" style="width:150px;">
+            <el-option label="ntfy" value="ntfy"></el-option>
+            <el-option label="Server酱" value="serverchan"></el-option>
+            <el-option label="PushPlus" value="pushplus"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="地址 / Key">
+          <el-input v-model="notifyForm.webhook_url" placeholder="https://ntfy.sh/你的话题名"></el-input>
+        </el-form-item>
+        <el-form-item label="说明">
+          <span class="muted">
+            <template v-if="notifyForm.webhook_type === 'serverchan'">填 Server酱 SendKey（sctp...），到 sct.ftqq.com 用 GitHub 登录获取</template>
+            <template v-else-if="notifyForm.webhook_type === 'pushplus'">填 PushPlus 的 token，到 pushplus.plus 微信扫码获取</template>
+            <template v-else>ntfy 无需注册，话题名自己取一个即可</template>
+          </span>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="saveNotify">保存</el-button>
+          <el-button type="success" @click="testNotify">🧪 发送测试通知</el-button>
+        </el-form-item>
+        <el-alert v-if="notifyTestMsg" :type="notifyTestType" :closable="false" style="margin-top:4px;"
+          :title="notifyTestMsg"></el-alert>
+      </el-form>
+    </el-dialog>
+
+    <el-dialog v-model="deployTutorialDialog" title="📖 部署教程：阿里云轻量服务器从零开始（仅以此为例，具体服务器租赁可看个人选择）" width="760px" top="4vh">
+      <div style="max-height:78vh; overflow:auto; padding-right:8px;">
+        <p class="muted" style="line-height:1.8; margin-top:0;">面向<b>从没碰过服务器</b>的新手，从注册账号到网页打开全程手把手。以阿里云轻量应用服务器为例（腾讯云轻量流程几乎一样，差异有备注）。全程约 30~60 分钟，大部分时间是等服务器装环境。完整版文档见项目里《部署教程-阿里云从零开始.md》。</p>
+
+        <div class="section-title" style="margin-top:16px;"><span>准备工作</span></div>
+        <p class="muted" style="line-height:1.8;">需要：手机（收验证码/实名认证/收通知）、身份证、支付宝或微信、一台 Windows 电脑。花费：轻量服务器新用户活动价通常<b>几十到一百多元一年</b>（以购买页为准），之后运行基本不花钱。</p>
+
+        <div class="section-title"><span>第 1 步 · 注册阿里云并实名</span></div>
+        <p class="muted" style="line-height:1.8;">打开 <code>www.aliyun.com</code> → 右上角「免费注册」→ 手机号 + 验证码 → 按提示完成<b>实名认证</b>（身份证 + 支付宝扫脸，几分钟通过）。不实名买不了服务器。</p>
+
+        <div class="section-title"><span>第 2 步 · 购买轻量应用服务器</span></div>
+        <p class="muted" style="line-height:1.8;">搜索「轻量应用服务器」→ 立即购买，按下面选：<br>
+        ① <b>地域</b>：选离你近的（广州 / 上海 / 深圳等）<br>
+        ② <b>镜像</b>：系统镜像 → <b>Ubuntu 22.04</b>（重要：别选 Windows，程序是 Linux 的）<br>
+        ③ <b>套餐</b>：2 核 2G 起步够用；时长 1 年（活动价最划算）<br>
+        确认订单 → 支付。腾讯云轻量在 <code>cloud.tencent.com/product/lighthouse</code>，流程一样。</p>
+
+        <div class="section-title"><span>第 3 步 · 拿到 IP 和密码</span></div>
+        <p class="muted" style="line-height:1.8;">进入控制台 → 轻量应用服务器 → 等实例「运行中」，记下<b>公网 IP</b>；在实例详情点「重置密码」自己设一个（务必记住），按提示重启实例。</p>
+
+        <div class="section-title"><span>第 4 步 · 开放防火墙 8000 端口（关键！）</span></div>
+        <p class="muted" style="line-height:1.8;">新服务器默认只开 SSH(22)。到实例「防火墙」页签 →「添加规则」：协议 TCP、端口 <code>8000</code>、来源 <code>0.0.0.0/0</code> → 保存。<b>不开放 8000，网页永远打不开。</b></p>
+
+        <div class="section-title"><span>第 5 步 · 连接服务器（Windows）</span></div>
+        <p class="muted" style="line-height:1.8;">方式 A（最简单，无需装软件）：按 <code>Win + R</code> 输入 <code>powershell</code> 回车，然后：</p>
+        <div class="help-code">ssh root@你的公网IP</div>
+        <p class="muted" style="line-height:1.8;">首次连接输入 <code>yes</code> → 输密码（<b>输入时屏幕不显示任何字符，正常</b>）。看到 <code>root@xxx:~#</code> 即连上。<br>方式 B：下载 FinalShell / Xshell 图形化连接（主机填 IP、用户名 root、密码）。<br>连不上？查密码 / 是否重启实例 / 22 端口防火墙。</p>
+
+        <div class="section-title"><span>第 6 步 · 上传程序到服务器</span></div>
+        <p class="muted" style="line-height:1.8;">下载 <b>WinSCP</b>（winscp.net，选简体中文）→ 登录（主机=IP，用户名=root，密码）→ 右侧进 <code>/root</code> → 把整个「服务器版」文件夹拖到右侧。<b>建议先删掉本地的 .env</b>（服务器会自动生成新令牌，更安全）。</p>
+
+        <div class="section-title"><span>第 7 步 · 一键部署（耐心等）</span></div>
+        <p class="muted" style="line-height:1.8;">回到 SSH 终端：</p>
+        <div class="help-code">cd /root/服务器版
+sudo bash deploy/deploy.sh</div>
+        <p class="muted" style="line-height:1.8;">脚本自动完成：装 Python 依赖 → <b>下载 Chromium（几百 MB，最慢 5~15 分钟，耐心等）</b> → 1G 内存自动建 2G swap → 设时区 → 生成访问令牌 → 注册 systemd 服务。<br>看到「部署完成！」和「访问令牌: xxx」就是成功，<b>把令牌记下来</b>（之后可 <code>cat /root/服务器版/.env</code> 查看）。</p>
+
+        <div class="section-title"><span>第 8 步 · 打开网页开始用</span></div>
+        <p class="muted" style="line-height:1.8;">自己电脑浏览器打开 <code>http://你的IP:8000</code> → 输访问令牌 →「账号管理」添加账号 →「概览」→「📱 网页内扫码登录」→ 选引擎 →「开始扫码登录」（<b>用网页内二维码模式</b>，服务器无桌面弹不了窗）→ 手机抖音扫码确认 → 配好友名单和消息模板 → 定时与浏览器设好时间并开启「参与每日定时发送」→ 先「干跑测试」再「立即发送」。</p>
+
+        <div class="section-title"><span>第 9 步 · 配手机通知（强烈建议）</span></div>
+        <p class="muted" style="line-height:1.8;">服务器没有桌面，通知弹不出来。「🔔 通知」→ 开启「📱 webhook 推送」→ 服务选 <b>ntfy</b> → 地址填 <code>https://ntfy.sh/随便起个话题名</code> → 手机装 ntfy App 订阅同话题 → 点「🧪 发送测试通知」验证。</p>
+
+        <div class="section-title"><span>第 10 步 ·（可选）HTTPS 加密</span></div>
+        <p class="muted" style="line-height:1.8;">nginx 反代 + certbot 免费证书，配置示例见 <code>DEPLOY_SERVER.md</code> 第五章。公网部署建议尽快配上。</p>
+
+        <div class="section-title"><span>🗓 日常管理速查</span></div>
+        <div class="help-code">systemctl status douyin-spark     # 看状态
+systemctl restart douyin-spark    # 重启
+journalctl -u douyin-spark -f     # 实时日志（Ctrl+C 退出）
+systemctl stop douyin-spark       # 停止</div>
+        <p class="muted" style="line-height:1.8;">改 <code>.env</code>（端口/令牌）后执行 <code>sudo systemctl restart douyin-spark</code>；数据备份用网页「账号管理 → ⬇️ 备份全部数据」。</p>
+
+        <div class="section-title"><span>🚨 常见卡壳点</span></div>
+        <p class="muted" style="line-height:1.8;">· 网页打不开 → 防火墙 8000 端口没加 / <code>systemctl status</code> 不是 active<br>
+        · SSH 连不上 → 密码错 / 没重启实例 / 22 端口被挡<br>
+        · 部署报错 → 多为网络问题，重跑 <code>deploy.sh</code>（可重复执行）<br>
+        · 扫码失败 → 确认用「网页内二维码」模式，<code>journalctl -f</code> 看日志<br>
+        · 公网怕被扫 → 尽快配 HTTPS，令牌勿外泄，不用时可关掉 8000 防火墙规则</p>
+
+        <div class="section-title"><span>🧭 备用平台</span></div>
+        <p class="muted" style="line-height:1.8;">腾讯云轻量（流程几乎一样，默认用户是 <code>ubuntu</code>，连上先 <code>sudo -i</code>）· Oracle Cloud 免费层（永久免费，需绑卡）· Vultr / DigitalOcean（海外按小时计费，国内访问慢）。</p>
+      </div>
+    </el-dialog>
+
+    <el-dialog v-model="notifyGuideDialog" title="🔔 通知配置完整流程" width="720px" top="4vh">
+      <div style="max-height:78vh; overflow:auto; padding-right:8px;">
+        <p class="muted" style="line-height:1.8; margin-top:0;">程序会在<b>发送完成、登录态过期、疑似限流</b>时提醒你。两种方式可同时开启：<b>Windows 桌面气泡</b>（个人电脑）和 <b>webhook 推送到手机</b>（服务器 / 出门在外）。</p>
+
+        <div class="section-title" style="margin-top:16px;"><span>方式一 · Windows 桌面通知（个人电脑）</span></div>
+        <p class="muted" style="line-height:1.8;">① 先确认系统开关：设置 → 系统 → 通知 → 打开「获取来自应用和其他发送者的通知」；「专注助手（勿扰）」要关闭<br>
+        ② 网页侧边栏点「🔔 通知」→ 保持「桌面通知」开启 → 点「保存」<br>
+        ③ 点「🧪 发送测试通知」，右下角弹出系统气泡即成功。</p>
+
+        <div class="section-title"><span>方式二 · webhook 推送到手机（服务器 / 出门在外）</span></div>
+        <p class="muted" style="line-height:1.8;">三种免费服务任选其一，流程都是：网页「🔔 通知」→ 开启「📱 webhook 推送」→ 选服务 → 填地址/Key → 保存 → 测试。下面分别讲。</p>
+
+        <div class="section-title"><span>① ntfy（最简单，免注册）</span></div>
+        <p class="muted" style="line-height:1.8;">1. 手机安装「ntfy」App（或手机浏览器打开 <code>ntfy.sh</code>）<br>
+        2. 自己定一个<b>话题名</b>，越独特越好（如 <code>douyin-spark-abc123</code>），避免别人碰巧看到你的消息<br>
+        3. 网页通知设置：服务选 <b>ntfy</b>，地址填 <code>https://ntfy.sh/你的话题名</code><br>
+        4. 手机 App 点「+」订阅同一个话题名（大小写要完全一致）<br>
+        5. 点「🧪 发送测试通知」，手机收到即成功</p>
+
+        <div class="section-title"><span>② Server酱（推送到微信）</span></div>
+        <p class="muted" style="line-height:1.8;">1. 浏览器打开 <code>sct.ftqq.com</code>，用 <b>GitHub 账号</b>登录<br>
+        2. 页面上点「SendKey」→ 复制（形如 <code>sctp1234...</code>）<br>
+        3. 网页通知设置：服务选 <b>Server酱</b>，「地址 / Key」填 SendKey<br>
+        4. 保存 → 点「🧪 发送测试通知」，微信服务号收到即成功<br>
+        <span style="color:var(--el-color-warning);">说明：Server酱的推送走微信「服务号」，需要你的微信能收到服务号消息。</span></p>
+
+        <div class="section-title"><span>③ PushPlus（推送到微信）</span></div>
+        <p class="muted" style="line-height:1.8;">1. 浏览器打开 <code>pushplus.plus</code>，用<b>微信扫码</b>登录<br>
+        2. 登录后首页复制你的 <b>token</b><br>
+        3. 网页通知设置：服务选 <b>PushPlus</b>，「地址 / Key」填 token<br>
+        4. 保存 → 点「🧪 发送测试通知」，微信「PushPlus」服务号收到即成功</p>
+
+        <div class="section-title"><span>🧪 测试与验证</span></div>
+        <p class="muted" style="line-height:1.8;">每次改完配置，务必点「🧪 发送测试通知」。弹窗里会逐渠道显示结果：<code>✓</code> 表示成功，<code>✗（原因）</code> 表示失败及原因。保存后不测试、直接等提醒，容易白等。</p>
+
+        <div class="section-title"><span>🚨 收不到提醒怎么办</span></div>
+        <p class="muted" style="line-height:1.8;">· 桌面气泡：查系统通知总开关、专注助手是否开着<br>
+        · ntfy：话题名前后是否完全一致（含大小写）、App 是否已订阅、服务器能否访问外网<br>
+        · Server酱 / PushPlus：SendKey / token 是否复制完整、有没有少字符<br>
+        · 测试结果会直接显示失败原因，照着改即可</p>
+      </div>
+    </el-dialog>
+
+    <!-- 添加账号对话框 -->
+    <el-dialog v-model="addAccountDialog" title="添加账号" width="380px">
+      <el-input v-model="newAccountName" placeholder="账号名称，如：小号" @keyup.enter="addAccount"></el-input>
+      <template #footer>
+        <el-button type="primary" @click="addAccount">创建</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 重命名对话框 -->
+    <el-dialog v-model="renameDialog" title="重命名账号" width="380px">
+      <el-input v-model="renameName" placeholder="账号名称" @keyup.enter="doRename"></el-input>
+      <template #footer>
+        <el-button type="primary" @click="doRename">保存</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 只发指定好友对话框 -->
+    <el-dialog v-model="sendOneDialog" title="只发指定好友" width="420px">
+      <div class="muted" style="margin-bottom:8px;" v-if="enabledFriends.length">已选 <b style="color:var(--el-color-primary);">{{ sendOneNames.length }}</b> / 共 {{ enabledFriends.length }} 位</div>
+      <el-checkbox-group v-model="sendOneNames">
+        <el-checkbox v-for="f in enabledFriends" :key="f.name" :label="f.name" style="display:block;margin:4px 0;">{{ f.name }}</el-checkbox>
+      </el-checkbox-group>
+      <el-empty v-if="!enabledFriends.length" description="好友名单为空，请先到「好友与消息」添加" :image-size="60"></el-empty>
+      <div style="margin-top:10px;">
+        <el-switch v-model="sendOneDry" active-text="干跑（不真实发送）"></el-switch>
+      </div>
+      <template #footer>
+        <el-button type="primary" :disabled="!sendOneNames.length" @click="doSendOne">发送</el-button>
+      </template>
+    </el-dialog>
+  </div>
+
+  <script src="/static/vendor/vue.global.prod.js"></script>
+  <script src="/static/vendor/element-plus.full.min.js"></script>
+  <script src="/static/vendor/axios.min.js"></script>
+  <script>
+    const { createApp, ref, reactive, computed, watch, nextTick, onMounted, onUnmounted } = Vue;
+
+    const app = createApp({
+      setup() {
+        const tab = ref('overview');
+        const theme = ref(localStorage.getItem('ds_theme') || (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
+        const sidebarCollapsed = ref(false);
+        const userCollapsed = ref(null);
+        const tick = ref(0);
+        const wallRef = ref(null);
+        const wallAtStart = ref(true);
+        const wallAtEnd = ref(true);
+        const historyFilter = ref('all');
+        const navs = [
+          { key: 'overview', ico: '📊', label: '概览' },
+          { key: 'friends', ico: '👥', label: '好友与消息' },
+          { key: 'settings', ico: '⏰', label: '定时与浏览器' },
+          { key: 'history', ico: '📜', label: '历史记录' },
+          { key: 'logs', ico: '📄', label: '日志' },
+          { key: 'accounts', ico: '🗂', label: '账号管理' },
+          { key: 'help', ico: '📖', label: '使用说明' },
+        ];
+        const token = ref(localStorage.getItem('ds_token') || '');
+        const tokenChecking = ref(false);
+        const tokenError = ref('');
+        const needsToken = computed(() => !token.value);
+        async function enterToken() {
+          const t = tokenInput.value.trim();
+          if (t.length < 8) { tokenError.value = '令牌至少 8 位'; return; }
+          tokenChecking.value = true;
+          tokenError.value = '';
+          try {
+            let ok = false;
+            try { await api.get('/accounts', { headers: { 'X-Auth-Token': t } }); ok = true; } catch (e) { /* 校验失败 → 尝试设为新令牌 */ }
+            if (!ok) {
+              try { await api.put('/token', { token: t }); ok = true; } catch (e2) { /* 非本机来源需现有令牌 */ }
+            }
+            if (!ok) {
+              tokenError.value = '无法使用该令牌：服务器/局域网部署需输入 .env 里的现有令牌';
+              return;
+            }
+            token.value = t;
+            localStorage.setItem('ds_token', t);
+            tokenDialog.value = false;
+            await loadAll();
+            ElementPlus.ElMessage.success('欢迎回来');
+          } finally {
+            tokenChecking.value = false;
+          }
+        }
+        const tokenInput = ref('');
+        const tokenDialog = ref(false);
+
+        const accounts = ref([]);
+        const version = ref('');
+        const currentId = ref(localStorage.getItem('ds_acc') || '');
+        const currentAccount = computed(() => accounts.value.find((a) => a.id === currentId.value) || null);
+        const wallAccounts = computed(() => {
+          const cur = currentId.value;
+          const rank = new Map(accounts.value.map((a, i) => [a.id, i]));
+          return accounts.value.slice().sort((x, y) => {
+            if (x.id === cur) return -1;
+            if (y.id === cur) return 1;
+            return rank.get(x.id) - rank.get(y.id);
+          });
+        });
+        const friendEnabledCount = computed(() => friendsList.value.filter((f) => f.enabled).length);
+        const contactSearch = ref('');
+        const filteredContacts = computed(() => {
+          const kw = contactSearch.value.trim();
+          const list = status.contacts || [];
+          if (!kw) return list;
+          return list.filter((c) => (c.name || '').includes(kw));
+        });
+        function avatarSrc(u) {
+          return '/api/avatar?url=' + encodeURIComponent(u) + '&token=' + encodeURIComponent(token.value);
+        }
+        function isContactChecked(name) { return selectedContacts.value.includes(name); }
+        function toggleContact(name) {
+          const i = selectedContacts.value.indexOf(name);
+          if (i >= 0) selectedContacts.value.splice(i, 1);
+          else selectedContacts.value.push(name);
+        }
+        function selectAllContacts() {
+          const cur = new Set(selectedContacts.value);
+          (status.contacts || []).forEach((c) => cur.add(c.name));
+          selectedContacts.value = [...cur];
+        }
+        function clearAllContacts() {
+          selectedContacts.value = [];
+        }
+        const templateLines = computed(() => {
+          // 主源：tplRows（行编辑器）；旧值兜底：messagesText
+          if (tplRows.value && tplRows.value.length) return tplRows.value.map((s) => s.trim()).filter(Boolean);
+          return String(messagesText.value || '').split('\n').map((s) => s.trim()).filter(Boolean);
+        });
+        const templateCount = computed(() => templateLines.value.length);
+        const randomPreview = computed(() => {
+          const lines = templateLines.value;
+          if (!lines.length) return '（先在上方输入一条模板）';
+          return lines[Math.floor(Math.random() * lines.length)];
+        });
+
+        const fetchStartAt = ref(0);
+        const FETCH_PHASE_MAP = {
+          launch: '正在启动浏览器…',
+          open: '正在打开抖音私信页…',
+          wait: '正在等待页面加载…',
+          login: '正在检查登录状态…',
+          scrape: '正在读取聊天列表，抓取名字和头像…',
+        };
+        const shortPhaseText = computed(() => FETCH_PHASE_MAP[status.fetch_phase] || '');
+        const fetchPhaseText = computed(() => {
+          tick.value; // 每秒刷新计时
+          const base = shortPhaseText.value || '正在抓取聊天列表…';
+          if (fetchStartAt.value && status.fetching) {
+            const s = Math.max(0, Math.floor((Date.now() - fetchStartAt.value) / 1000));
+            return base + '（已 ' + s + ' 秒）';
+          }
+          return base;
+        });
+        const syncAccName = computed(() => {
+          const id = status.streak_syncing_acc;
+          if (!id) return '';
+          const acc = accounts.value.find((a) => a.id === id);
+          return acc ? acc.name : id;
+        });
+        function syncElapsedText() {
+          tick.value; // 依赖每秒 tick，保证秒表实时走
+          if (!status.streak_syncing_since) return '';
+          const since = new Date(status.streak_syncing_since).getTime();
+          if (isNaN(since)) return '';
+          const s = Math.max(0, Math.floor((Date.now() - since) / 1000));
+          const m = Math.floor(s / 60), sec = s % 60;
+          return (m > 0 ? m + ' 分 ' : '') + sec + ' 秒';
+        }
+        const filteredHistory = computed(() => {
+          const h = status.history || [];
+          if (historyFilter.value === 'all') return h;
+          if (historyFilter.value === 'dry') return h.filter((r) => r.dry_run);
+          if (historyFilter.value === 'real') return h.filter((r) => !r.dry_run);
+          return h.filter((r) => r.logged_out || r.rate_limited || (r.failed || []).length > 0);
+        });
+
+        const status = reactive({ state_file_exists: false, session_status: 'unknown', running: false, last_run: null, next_run: null, history: [], contacts: [], contacts_at: '', contacts_error: '', fetching: false, fetch_phase: '', syncing_streaks: false, streak_syncing_any: false, streak_syncing_acc: null, streak_syncing_since: null, config: {} });
+        const config = reactive({ enabled: true });
+        const settingsForm = reactive({ schedule_time: '21:00', jitter_minutes: 30, send_gap_min: 6, send_gap_max: 12, max_friends_per_run: 20, retry_minutes: 45, browser: 'chromium', headless: true, enabled: true });
+        const friendsList = ref([]);
+        const messagesText = ref('');
+        const dirty = ref(false);
+        const emojis = ref([]);
+        const emojiUploading = ref(false);
+        const emojiFileRef = ref(null);
+        const emojiManage = ref(false);
+        const emojiSel = ref([]);
+        // 模板行编辑（唯一编辑源）：tplRows 稳定数组，打字只改当前行；messagesText 作为导出镜像
+        const tplRows = ref([]);
+        function tplFromText(v) { return String(v || '').split('\n').map((s) => s.trim()).filter(Boolean); }
+        function tplExport() { messagesText.value = tplRows.value.join('\n'); }
+        function tplAddRow() { tplRows.value.push(''); tplExport(); markDirty(); }
+        function tplDelRow(i) { tplRows.value.splice(i, 1); tplExport(); markDirty(); }
+        function tplRowEdited() { markDirty(); }
+        const pasteDialogVisible = ref(false);
+        const pasteText = ref('');
+        function addLineMarker(marker) {
+          if (tplRows.value.includes(marker)) {
+            ElementPlus.ElMessage.info(marker + ' 已经在模板里了');
+            return;
+          }
+          tplRows.value.push(marker);
+          tplExport();
+          markDirty();
+          ElementPlus.ElMessage.success('已把 ' + marker + ' 加入模板');
+        }
+        function doPasteTpl() {
+          const lines = (pasteText.value || '').split('\n').map((s) => s.trim()).filter(Boolean);
+          if (!lines.length) { ElementPlus.ElMessage.info('没有可加入的内容'); return; }
+          const old = tplRows.value.length;
+          lines.forEach((l) => tplRows.value.push(l));
+          pasteText.value = '';
+          pasteDialogVisible.value = false;
+          tplExport();
+          markDirty();
+          ElementPlus.ElMessage.success('已加入 ' + lines.length + ' 行（共 ' + (old + lines.length) + ' 行）');
+        }
+        const MARKERS_STRIP = /^(?:\s*【(?:火花|火焰|贴纸:[^】]+|图:[^】]+|图片:[^】]+)】)+/;
+        function splitLeadingMarkers(raw) {
+          const s = String(raw || '');
+          const m = MARKERS_STRIP.exec(s);
+          if (!m) return { pre: '', rest: s, preIcons: [] };
+          const pre = m[0];
+          return { pre: pre, rest: s.slice(pre.length), preIcons: templateIcons(pre) };
+        }
+        function rowRestText(i) { return splitLeadingMarkers(tplRows.value[i] || '').rest; }
+        function setRowRest(i, v) {
+          const cur = tplRows.value[i] || '';
+          const pre = splitLeadingMarkers(cur).pre;
+          tplRows.value[i] = pre + String(v || '');
+          tplExport();
+          markDirty();
+        }
+        // 官方原生贴纸（抖音表情面板里可发送的名字；【火花】=续火花）
+        const nativeStickers = ['续火花', '比心', 'V我50', '在干嘛', '笑死', '麻了', '躺平', '摇骰子', '猜拳', '开心', '嗨', '吹泡泡', '黑人问号', '早上好', '晚上好', '早点睡', '爱心', '便便', '戳一戳', '绝了', '已阅', '生日祝福'];
+        const selectedContacts = ref([]);
+        const brokenAvatars = reactive({});
+        watch(() => status.contacts, () => {
+          Object.keys(brokenAvatars).forEach((k) => delete brokenAvatars[k]);
+        });
+        const logs = ref('');
+        const logScope = ref('account');
+        const autoRefresh = ref(false);
+        const autoStart = ref(false);
+        const autoStartMinimized = ref(true);
+
+        // 使用说明：卡片保持精简，点「查看完整说明」弹窗展示全文
+        const helpDialog = ref(false);
+        const helpTitle = ref('');
+        const helpContent = ref('');
+        const HELP_DOCS = {
+          overview: [
+            ["功能", [
+              "卡片墙：每个账号一张卡，点卡片切换当前账号（当前账号置顶显示）",
+              "账号卡显示：会话状态、浏览器、登录态、上次运行、下次发送倒计时",
+              "🚀 立即发送：立刻跑一轮真实发送；🧪 干跑测试：只演练不真发",
+              "只发指定好友：临时给几个人补发，不动正式名单",
+              "📱 网页内扫码登录（可切浏览器 / 弹出窗口或网页内二维码）、上传 state.json",
+              "右上角全局同步横幅：同步火花时显示账号名 + 秒表，切页也可见"
+            ]],
+            ["注意", [
+              "登录态过期会红色提示，需重新扫码或重新上传",
+              "「开机自启动」在本页设置：移动/改名文件夹后需关闭再打开一次"
+            ]]
+          ],
+          friends: [
+            ["好友名单", [
+              "「获取聊天列表」读取抖音聊天对象（头像 + 火花天数🔥 + 上次聊天时间），有实时进度提示",
+              "勾选加入名单（全选 / 取消全选 / 搜索过滤），每位好友可单独启用或停用",
+              "↑↓ 调整顺序 = 实际发送顺序；🔄 同步火花：随时刷新天数与头像，天数变小会标记「重燃」",
+              "好友名字锁定不可改（后端靠名字匹配发送），备注可自由填写"
+            ]],
+            ["消息模板（逐行编辑器）", [
+              "每行一个输入格；行首写【火花】【贴纸:名】【图:文件名】会显示成小图标，输入格只编辑剩余文字",
+              "＋ 添加一行：手动加一条；📋 多行粘贴：整段粘贴后自动拆行",
+              "空行才显示占位提示；有文字或已带图标就不再提示",
+              "发送时按标记顺序分段：文字走文字、图片走原生图片、【火花】/【贴纸:名】自动打开抖音表情面板点选，对方收到原生大表情",
+              "每次发送从模板里随机选一条（🎲 随机预览可看即将发送的内容）"
+            ]],
+            ["官方原生贴纸（22 个）", [
+              "【火花】= 续火花；其余写【贴纸:名字】，面板点按钮可一键加入模板",
+              "可用名字：续火花、比心、V我50、在干嘛、笑死、麻了、躺平、摇骰子、猜拳、开心、嗨、吹泡泡、黑人问号、早上好、晚上好、早点睡、爱心、便便、戳一戳、绝了、已阅、生日祝福",
+              "名字写错会跳过并在日志提示；深处行的贴纸会自动滚动面板后再点选"
+            ]],
+            ["图片与批量管理", [
+              "⬆ 上传图片：照片/梗图存到 data/emojis/，点缩略图一键把【图:文件名】加入模板",
+              "🗂 批量管理：点缩略图多选 → 全选 / 🗑 删除所选；单张删除用缩略图右上角 🗑",
+              "支持 png / jpg / jpeg / gif，单张 ≤ 10MB"
+            ]],
+            ["注意", [
+              "只给「启用」的好友发送；改完记得点「💾 保存好友与消息」",
+              "模板里引用的图片若被删除，发送时会跳过该图并在日志提示"
+            ]]
+          ],
+          settings: [
+            ["定时", [
+              "发送时间 HH:MM；抖动窗口设 0 = 准点发送，设 N = 设定时间后 0~N 分钟内随机开始（更像真人）",
+              "好友间隔（秒）：相邻两位好友之间的等待时间；每轮人数上限 0 = 不限",
+              "补发等待（分钟）：本轮有失败时，等待 N 分钟后自动补发一次",
+              "历史记录里能看到实际发送延迟（比设定时间晚多少秒），用于验证抖动效果"
+            ]],
+            ["浏览器", [
+              "引擎：Chromium（最稳，推荐）/ Firefox / WebKit；多账号选不同引擎可降低账号关联",
+              "无头模式：开启则后台静默运行；关闭会弹出真实浏览器窗口，便于观察调试",
+              "各引擎安装状态实时显示；未安装的引擎需执行 python -m playwright install firefox webkit"
+            ]],
+            ["开机自启动与运行环境", [
+              "本机版：开启后 Windows 登录时自动启动（可选最小化 / 正常窗口）；服务器版：开机自启由 systemd 管理，见下方「🖥 服务器部署与管理」",
+              "本机版移动或重命名程序文件夹后，请把此开关关闭再打开一次重新绑定路径；服务器版移动目录后请重新执行 deploy/deploy.sh",
+              "电脑锁屏时照常运行；休眠/睡眠时会暂停，错过当天那次不会补发（建议电源设置把「睡眠」改为「从不」）",
+              "重启电脑后：开了自启会自动恢复；没开需手动双击 start.bat"
+            ]]
+          ],
+          history: [
+            ["功能", [
+              "保留最近 30 次执行明细，可展开查看完整成功 / 失败名单",
+              "筛选：全部 / 干跑测试 / 真实发送 / 有异常",
+              "失败的好友把鼠标悬停上去可看具体失败原因（如未找到会话、限流等）",
+              "发送延迟字段：比设定时间晚多少秒；0 表示准点"
+            ]]
+          ],
+          logs: [
+            ["功能", [
+              "打开日志页自动滚到最新；勾选「自动刷新」后每 20 秒跟随刷新",
+              "超过一行的日志（含报错堆栈、Call log）按时间戳归组并自动收起为一行：点「展开全文」在原地无缝续接完整内容，文末「收起」收回",
+              "头像抓取失败 / 部分成功也会折叠成一行，点开看详情，避免刷屏",
+              "📋 复制日志：复制完整原文，不受折叠影响，反馈问题直接粘贴即可"
+            ]],
+            ["常见关键字", [
+              "【图片测试】：上传与发送的观察记录",
+              "原生火花 / 贴纸：面板检测与点击记录",
+              "「已发送给 xxx」= 成功；「失败」行含具体原因"
+            ]]
+          ],
+          accounts: [
+            ["功能", [
+              "每个账号独立的登录态、好友名单、消息模板、定时、日志与历史；多账号串行执行（一次只跑一个），避免同 IP 并发触发风控",
+              "↑↓ 排序会同步到左侧边栏与概览卡片墙",
+              "⚡ 全部账号立即发送：所有启用账号依次各跑一轮；🧪 全部干跑测试同理但不会真发",
+              "⬇️ 备份全部数据：打包下载所有账号数据（含登录态）；♻️ 恢复备份：上传 zip 一键还原（换电脑 / 重装系统用）",
+              "删除账号会一并删除其数据，操作不可恢复"
+            ]]
+          ]
+        };
+        const HELP_TITLES = { overview: '📊 概览', friends: '👥 好友与消息', settings: '⏰ 定时与浏览器', history: '📜 历史记录', logs: '📄 日志', accounts: '🗂 账号管理' };
+        function openHelp(key) {
+          const groups = HELP_DOCS[key] || [];
+          let html = '';
+          groups.forEach((g) => {
+            html += '<div class="help-sub">' + g[0] + '</div><ul class="help-doc-ul">';
+            g[1].forEach((t) => { html += '<li>' + t + '</li>'; });
+            html += '</ul>';
+          });
+          helpContent.value = html || '<p class="muted">暂无说明</p>';
+          helpTitle.value = HELP_TITLES[key] || '使用说明';
+          helpDialog.value = true;
+        }
+
+        const uploadFile = ref(null);
+        const notifyDialog = ref(false);
+        const notifyForm = reactive({ desktop: true, webhook_enabled: false, webhook_type: 'ntfy', webhook_url: '' });
+        const notifyTestMsg = ref('');
+        const notifyTestType = ref('success');
+        const deployTutorialDialog = ref(false);
+        const notifyGuideDialog = ref(false);
+        const addAccountDialog = ref(false);
+        const newAccountName = ref('');
+        const renameDialog = ref(false);
+        const renameId = ref('');
+        const renameName = ref('');
+        const sendOneDialog = ref(false);
+        const sendOneNames = ref([]);
+        const sendOneDry = ref(false);
+        const qrDialog = ref(false);
+        const qrImg = ref('');
+        const qrMsg = ref('');
+        const qrNote = ref('');
+        const qrEngine = ref('chromium');
+        const qrMode = ref('window');
+        const qrSessionActive = ref(false);
+        const qrNeedVerify = ref(false);
+        const qrVerifyType = ref('');
+        const manualMode = ref(false);
+        const manualText = ref('');
+        const qrText = ref('');
+        const dragState = ref('off');
+        let dragA = null;
+        const platform = ref('win32');
+        const autostartSupported = ref(true);
+        const detectedBrowsers = ref([]);
+        const engines = ref({});
+        const customPath = ref('');
+        let qrTimer = null;
+
+        const browserOptions = computed(() => {
+          const eng = (name) => (engines.value && engines.value[name] ? '，已安装' : '，未安装');
+          const opts = [
+            { label: 'Chromium（内置，最稳）', value: 'chromium' },
+            ...detectedBrowsers.value.map((b) => ({ label: b.name + '（本机检测到）', value: b.path })),
+            { label: 'Firefox（内置' + eng('firefox') + '）', value: 'firefox' },
+            { label: 'WebKit（内置' + eng('webkit') + '）', value: 'webkit' },
+            { label: '自定义浏览器路径…', value: '__custom__' },
+          ];
+          return opts;
+        });
+
+        const enabledFriends = computed(() => (friendsList.value || []).filter((f) => f.enabled));
+        const enabledFriendCount = computed(() => ((status.config && status.config.friends) || []).filter((f) => f.enabled !== false).length);
+        const totalFriendCount = computed(() => ((status.config && status.config.friends) || []).length);
+        const jitterMinutes = computed(() => ((status.config && status.config.jitter_minutes) || 0));
+        let timer = null;
+        let tickTimer = null;
+
+        const api = axios.create({ baseURL: '/api', timeout: 900000 });
+        api.interceptors.request.use((cfg) => {
+          if (token.value) cfg.headers['X-Auth-Token'] = token.value;
+          return cfg;
+        });
+        api.interceptors.response.use(
+          (r) => r,
+          (err) => {
+            // 令牌失效（如换副本/换令牌后旧值残留）：清掉本地令牌，回到登录门重新设置
+            if (err.response && err.response.status === 401) {
+              token.value = '';
+              tokenInput.value = '';
+              localStorage.removeItem('ds_token');
+            }
+            return Promise.reject(err);
+          }
+        );
+
+        // ---------- 工具 ----------
+        function fmt(iso) {
+          if (!iso) return '';
+          const d = new Date(iso);
+          return isNaN(d) ? iso : d.toLocaleString('zh-CN', { hour12: false });
+        }
+        function countdown(iso) {
+          tick.value; // 依赖每秒 tick，保证实时刷新
+          if (!iso) return '';
+          const diff = new Date(iso).getTime() - Date.now();
+          if (isNaN(diff)) return '';
+          if (diff <= 0) return '即将执行';
+          const s = Math.floor(diff / 1000);
+          const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = s % 60;
+          if (h > 0) return `${h} 小时 ${m} 分`;
+          if (m > 0) return `${m} 分 ${sec} 秒`;
+          return `${sec} 秒`;
+        }
+        function browserName(b) {
+          return { chromium: 'Chromium', firefox: 'Firefox', webkit: 'WebKit' }[b] || b || '—';
+        }
+        function statusClass(a) {
+          const s = a.session_status || 'unknown';
+          return s === 'ok' ? 'ok' : (s === 'expired' || s === 'failed') ? 'expired' : s === 'partial' ? 'partial' : 'unknown';
+        }
+        function sessionText(s) {
+          return { ok: '登录正常', expired: '登录态已过期', partial: '部分成功', failed: '发送失败', unknown: '状态未知' }[s] || s;
+        }
+        function sessionTagType(s) {
+          return { ok: 'success', expired: 'danger', partial: 'warning', failed: 'danger', unknown: 'info' }[s] || 'info';
+        }
+        function markDirty() { dirty.value = true; }
+        function removeFriend(i) { friendsList.value.splice(i, 1); markDirty(); }
+        function addFriendRow() { friendsList.value.push({ name: '', enabled: true, streak: '', note: '' }); markDirty(); }
+        function moveFriend(i, dir) {
+          const j = i + dir;
+          if (j < 0 || j >= friendsList.value.length) return;
+          const arr = friendsList.value;
+          const t = arr[i]; arr[i] = arr[j]; arr[j] = t;
+          markDirty();
+        }
+        function applyTheme(t) {
+          theme.value = t;
+          document.body.classList.toggle('dark', t === 'dark');
+          localStorage.setItem('ds_theme', t);
+        }
+        function toggleTheme() { applyTheme(theme.value === 'dark' ? 'light' : 'dark'); }
+        // 动态标题：随当前账号变化
+        watch(currentAccount, (acc) => {
+          document.title = (acc ? acc.name + ' · ' : '') + '抖音续火花助手';
+        }, { immediate: true });
+        // 复制日志
+        async function copyLogs() {
+          const text = logs.value || '';
+          if (!text) { ElementPlus.ElMessage.warning('当前没有日志可复制'); return; }
+          try {
+            await navigator.clipboard.writeText(text);
+          } catch (e) {
+            const ta = document.createElement('textarea');
+            ta.value = text; document.body.appendChild(ta); ta.select();
+            document.execCommand('copy'); document.body.removeChild(ta);
+          }
+          ElementPlus.ElMessage.success('日志已复制');
+        }
+
+        // ---------- 数据加载 ----------
+        async function loadAccounts() {
+          try {
+            const r = await api.get('/accounts');
+            accounts.value = r.data.accounts || [];
+            if (r.data.version) version.value = r.data.version;
+            if (accounts.value.length && !accounts.value.find((a) => a.id === currentId.value)) {
+              currentId.value = accounts.value[0].id;
+              localStorage.setItem('ds_acc', currentId.value);
+            }
+          } catch (e) { /* handled */ }
+        }
+        function applyConfig(cfg) {
+          Object.assign(config, cfg);
+          Object.assign(settingsForm, cfg);
+          status.config = cfg;   // 让「启用的好友」卡片立即刷新
+          friendsList.value = (cfg.friends || []).map((f) => ({ ...f }));
+          tplRows.value = tplFromText((cfg.messages || []).join('\n'));
+          messagesText.value = tplRows.value.join('\n');
+          dirty.value = false;
+        }
+        // applyCfg=true 只在初始化/切账号时用；20 秒轮询不覆盖正在编辑的表单
+        async function loadStatus(applyCfg) {
+          if (!currentId.value) return;
+          try {
+            const r = await api.get('/accounts/' + currentId.value + '/status');
+            Object.assign(status, r.data);
+            if (applyCfg && r.data.config) applyConfig(r.data.config);
+            // 轮询时只同步火花天数/重燃标记，不覆盖正在编辑的表单
+            if (!applyCfg && r.data.config && Array.isArray(r.data.config.friends) && r.data.config.friends.length) {
+              const byName = new Map(r.data.config.friends.map((f) => [f.name, f]));
+              friendsList.value.forEach((f) => {
+                const s = byName.get(f.name);
+                if (s) { f.streak = s.streak; f.rekindled = !!s.rekindled; }
+              });
+            }
+            const acc = accounts.value.find((a) => a.id === currentId.value);
+            if (acc && r.data.session_status) acc.session_status = r.data.session_status;
+            if (acc) acc.running = !!r.data.running;
+            if (acc) acc.next_run = r.data.next_run;   // 概览卡片倒计时保持新鲜
+          } catch (e) { /* handled */ }
+        }
+        async function loadLogs() {
+          try {
+            const url = logScope.value === 'account' && currentId.value
+              ? '/accounts/' + currentId.value + '/logs?n=800'
+              : '/logs?n=800';
+            const r = await api.get(url);
+            logs.value = r.data.logs;
+            measureLogWidth();
+            await nextTick();
+            requestAnimationFrame(() => {
+              const el = document.querySelector('.log-pre');
+              if (el) el.scrollTop = el.scrollHeight;   // 始终滚到最底部的最新日志
+            });
+          } catch (e) { /* handled */ }
+        }
+        function escapeHtml(s) {
+          return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+        // 日志框可用宽度与真实字体（截断长度必须按「实际渲染的字体」测算，否则会量窄 → 该折的不折）
+        const logPaneWidth = ref(860);
+        let _logCanvas = null;
+        let _logFontStr = '';
+        let _logResizeObserver = null;
+        function logPreStyle() {
+          try {
+            const el = document.querySelector('.log-pre');
+            if (!el) return null;
+            const cs = getComputedStyle(el);
+            return { el, cs };
+          } catch (e) { return null; }
+        }
+        function measureLogWidth() {
+          const info = logPreStyle();
+          if (!info) return;
+          const { el, cs } = info;
+          // clientWidth 已排除滚动条与边框，再扣掉左右内边距 = 真正能放文字的宽度
+          const pad = (parseFloat(cs.paddingLeft) || 0) + (parseFloat(cs.paddingRight) || 0);
+          const w = Math.floor(el.clientWidth - pad - 2);
+          if (w > 80) logPaneWidth.value = w;
+          // 与 .log-pre 完全一致的字体串（font-style / weight / size / family），只在测宽时刷新一次
+          _logFontStr = ((cs.fontStyle && cs.fontStyle !== 'normal') ? cs.fontStyle + ' ' : '')
+            + ((cs.fontWeight && cs.fontWeight !== '400') ? cs.fontWeight + ' ' : '')
+            + (cs.fontSize || '12.5px') + ' ' + (cs.fontFamily || 'sans-serif');
+          try {
+            if (!_logResizeObserver && window.ResizeObserver) {
+              _logResizeObserver = new ResizeObserver(() => measureLogWidth());
+              _logResizeObserver.observe(el);
+            }
+          } catch (e) { /* ignore */ }
+        }
+        function logCtx() {
+          try {
+            if (!_logCanvas) _logCanvas = document.createElement('canvas').getContext('2d');
+            // 字体串由 measureLogWidth 统一刷新（这里不再查 DOM，避免逐字测量时反复 getComputedStyle）
+            if (!_logFontStr) _logFontStr = '12.5px "Microsoft YaHei", "PingFang SC", system-ui, sans-serif';
+            if (_logCanvas.font !== _logFontStr) _logCanvas.font = _logFontStr;
+            return _logCanvas;
+          } catch (e) { return null; }
+        }
+        function logTextWidth(str) {
+          const c = logCtx();
+          // 制表符按 8 空格展开后测量（canvas 量 \t 宽度不可靠，会漏判超长）
+          const s = String(str).replace(/\t/g, '        ').replace(/\r/g, '');
+          if (!c) return s.length * 13;
+          return c.measureText(s).width;
+        }
+        // 收起态右侧「展开全文 / 收起」按钮占的宽度（优先量真实 DOM，其次按字体估算）
+        function logCtrlWidth() {
+          try {
+            const el = document.querySelector('.log-pre .log-long .lg-ctrl');
+            if (el) {
+              const w = el.getBoundingClientRect().width;
+              if (w > 8) return w + 10; // 含 gap 与前导省略号余量
+            }
+          } catch (e) { /* ignore */ }
+          return logTextWidth('…展开全文') + 8;
+        }
+        // 返回一行内能放下的前缀截断点（含省略号与「展开全文」按钮宽度）；整行真的放得下返回 null
+        function cutForOneLine(line) {
+          const c = logCtx();
+          if (!c) return null;
+          const src = String(line).replace(/\t/g, '        ').replace(/\r/g, '');
+          if (!src) return null;
+          const avail = logPaneWidth.value - logCtrlWidth();
+          if (avail < 20) return 1;
+          if (logTextWidth(src) <= avail) return null; // 整行确实能放下
+          // 二分找最大可显示前缀（含省略号），避免逐字累加在比例字体下的误差
+          let lo = 1;
+          let hi = src.length;
+          while (lo < hi) {
+            const mid = Math.ceil((lo + hi) / 2);
+            if (logTextWidth(src.slice(0, mid) + '…') <= avail) lo = mid;
+            else hi = mid - 1;
+          }
+          return Math.max(1, Math.min(lo, String(line).length));
+        }
+        // 是否需要折叠：多行日志必折；单行只在「这行文字本身超过一行宽度」时折
+        // （判定不给「展开全文」按钮留宽度，否则会把刚好放得下的行也折起来）
+        function entryNeedsFold(entry) {
+          if (entry.length > 1) return true;
+          const only = String(entry[0] || '').replace(/\r$/, '');
+          if (!only) return false;
+          return logTextWidth(only) > (logPaneWidth.value - 3);
+        }
+        // 日志渲染：按时间戳归组 → 组内「任意一行超宽或多行」即折叠（含堆栈/多行续行）
+        const renderedLog = computed(() => {
+          const text = logs.value || '';
+          const rawLines = text.split('\n').map((l) => l.replace(/\r$/, ''));
+          const TS_RE = /^\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}/;
+          const entries = [];
+          let cur = null;
+          rawLines.forEach((ln) => {
+            if (TS_RE.test(ln)) {
+              if (cur) entries.push(cur);
+              cur = [ln];
+            } else if (cur) {
+              cur.push(ln);
+            } else {
+              cur = [ln];
+            }
+          });
+          if (cur) entries.push(cur);
+          const out = [];
+          entries.forEach((entry) => {
+            const first = entry[0];
+            if (first.includes('【头像抓取失败】') || first.includes('【头像抓取部分成功】')) {
+              const isFail = first.includes('【头像抓取失败】');
+              const details = entry.slice(1).map((d) => escapeHtml(d.replace('【头像抓取详情】', '').trim())).filter(Boolean);
+              out.push('<details class="log-detail ' + (isFail ? 'fail' : 'partial') + '"><summary>' + escapeHtml(first) + '</summary><div class="log-detail-body">' + (details.join('<br>') || '（无详情）') + '</div></details>');
+              return;
+            }
+            if (entryNeedsFold(entry)) {
+              const raw = entry.join('\n');
+              const cut = cutForOneLine(first);
+              let preview = (cut === null) ? escapeHtml(first) : (escapeHtml(first.slice(0, cut)) + '…');
+              if (cut === null && entry.length > 1) preview += ' …';
+              const rawAttr = escapeHtml(raw).replace(/"/g, '&quot;').replace(/\n/g, '&#10;');
+              out.push('<div class="log-long" data-raw="' + rawAttr + '"><span class="lg-prev">' + preview + '</span> <span class="lg-ctrl" data-ctrl="more">展开全文</span></div>');
+            } else {
+              out.push(escapeHtml(first));
+            }
+          });
+          let html = out.join('\n');
+          html = html.replace(/\n(?=<div class="log-long")/g, '').replace(/<\/div>\n/g, '</div>');
+          return html;
+        });
+        function onLogPaneResize() { if (tab.value === 'logs') measureLogWidth(); }
+        function updateSidebar() {
+          // 用户手动点过折叠按钮后以手动为准；没点过则窄窗自动收起
+          if (userCollapsed.value !== null) { sidebarCollapsed.value = userCollapsed.value; wallScrollListener(); return; }
+          sidebarCollapsed.value = window.innerWidth < 1120;
+          wallScrollListener();
+        }
+        function onLogToolClick(ev) {
+          const ctrl = ev.target && ev.target.closest ? ev.target.closest('.lg-ctrl') : null;
+          if (!ctrl) return;
+          const wrap = ctrl.closest('.log-long');
+          if (!wrap) return;
+          const raw = wrap.getAttribute('data-raw') || '';
+          const full = escapeHtml(raw);
+          if (ctrl.getAttribute('data-ctrl') === 'more') {
+            // 无缝续接：剩余文字接在同一段后面，尾部变为 收起
+            wrap.innerHTML = full + ' <span class="lg-ctrl" data-ctrl="less">收起</span>';
+            wrap.classList.add('is-open');
+          } else {
+            // 收回：仍按一行内能放下的宽度截断
+            const c2 = cutForOneLine(raw);
+            const prev = (c2 === null) ? full : escapeHtml(raw.slice(0, c2)) + '…';
+            wrap.innerHTML = '<span class="lg-prev">' + prev + '</span> <span class="lg-ctrl" data-ctrl="more">展开全文</span>';
+            wrap.classList.remove('is-open');
+          }
+        }
+        function toggleSidebar() {
+          userCollapsed.value = !sidebarCollapsed.value;
+          sidebarCollapsed.value = userCollapsed.value;
+          // 侧栏收起/展开会改变日志框宽度 → 立刻重测，否则折叠判定用的是旧宽度
+          requestAnimationFrame(() => measureLogWidth());
+        }
+        // 账号卡片墙：横向滑动（每行 2 个）
+        function wallScroll(dir) {
+          const el = wallRef.value;
+          if (!el) return;
+          const card = el.querySelector('.acc-card');
+          const step = card ? card.offsetWidth + 14 : el.clientWidth * 0.5;
+          el.scrollBy({ left: dir * step, behavior: 'smooth' });
+        }
+        function wallScrollListener() {
+          const el = wallRef.value;
+          if (!el) return;
+          wallAtStart.value = el.scrollLeft <= 2;
+          wallAtEnd.value = el.scrollLeft + el.clientWidth >= el.scrollWidth - 2;
+        }
+        async function runAllAccounts(dry) {
+          try {
+            const r = await api.post('/run-all', { dry: !!dry });
+            ElementPlus.ElMessage.success((dry ? '干跑测试已启动全部 ' : '已启动全部 ') + r.data.accounts + ' 个账号');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '启动失败');
+          }
+        }
+        async function onRestoreChange(e) {
+          const file = e.target.files && e.target.files[0];
+          e.target.value = '';
+          if (!file) return;
+          try {
+            ElementPlus.ElMessage.info('正在恢复备份…');
+            const fd = new FormData();
+            fd.append('file', file);
+            const r = await api.post('/backup/restore', fd);
+            ElementPlus.ElMessage.success('恢复完成：' + r.data.files + ' 个文件，正在刷新…');
+            await loadAll();
+            if (!accounts.value.some((a) => a.id === currentId.value)) {
+              currentId.value = accounts.value.length ? accounts.value[0].id : '';
+              localStorage.setItem('ds_acc', currentId.value);
+              await loadStatus(true);
+            }
+          } catch (err) {
+            ElementPlus.ElMessage.error(err.response?.data?.detail || '恢复失败');
+          }
+        }
+        function selectAllFriends() { friendsList.value.forEach((f) => { f.enabled = true; }); markDirty(); }
+        function deselectAllFriends() { friendsList.value.forEach((f) => { f.enabled = false; }); markDirty(); }
+        async function downloadBackup() {
+          try {
+            const r = await api.get('/backup', { responseType: 'blob' });
+            const url = URL.createObjectURL(r.data);
+            const a = document.createElement('a');
+            const cd = r.headers['content-disposition'] || '';
+            const m = cd.match(/filename="?([^";]+)"?/);
+            a.download = m ? m[1] : 'douyin-spark-backup.zip';
+            a.href = url;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(() => { URL.revokeObjectURL(url); document.body.removeChild(a); }, 1500);
+            ElementPlus.ElMessage.success('备份已下载');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '备份失败');
+          }
+        }
+        async function loadAll() {
+          await loadAccounts();
+          await loadStatus(true);
+          await loadLogs();
+          await loadAutoStart();
+          await loadEngines();
+        }
+        async function loadEngines() {
+          // 页面加载即获取浏览器检测结果，让「引擎安装状态」立即显示（静默失败）
+          try {
+            const r = await api.get('/browsers');
+            detectedBrowsers.value = r.data.browsers || [];
+            engines.value = r.data.engines || {};
+            if (r.data.platform) platform.value = r.data.platform;
+          } catch (e) { /* 旧版后端无此接口时忽略 */ }
+        }
+        async function loadAutoStart() {
+          try {
+            const r = await api.get('/autostart');
+            autoStart.value = !!r.data.enabled;
+            if (r.data.supported !== undefined) autostartSupported.value = !!r.data.supported;
+            if (r.data.minimized !== null && r.data.minimized !== undefined) {
+              autoStartMinimized.value = !!r.data.minimized;
+            }
+          } catch (e) { /* 旧版后端无此接口时忽略 */ }
+        }
+        async function toggleAutoStart() {
+          if (!autostartSupported.value) {
+            autoStart.value = false;
+            ElementPlus.ElMessage.warning('服务器版请用 systemd 管理开机自启（deploy 目录一键配置）');
+            return;
+          }
+          try {
+            const r = await api.put('/autostart', { enabled: autoStart.value, minimized: autoStartMinimized.value });
+            autoStart.value = !!r.data.enabled;
+            if (r.data.minimized !== null && r.data.minimized !== undefined) {
+              autoStartMinimized.value = !!r.data.minimized;
+            }
+            ElementPlus.ElMessage.success(autoStart.value ? '已开启开机自启动（下次登录 Windows 自动运行）' : '已关闭开机自启动');
+          } catch (e) {
+            autoStart.value = !autoStart.value; // 回滚
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '设置失败');
+          }
+        }
+        async function saveAutoStartMode() {
+          try {
+            const r = await api.put('/autostart', { enabled: true, minimized: autoStartMinimized.value });
+            autoStartMinimized.value = !!r.data.minimized;
+            ElementPlus.ElMessage.success(autoStartMinimized.value ? '已设为最小化运行' : '已设为正常窗口');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '保存失败');
+          }
+        }
+        function onSwitchAccount() {
+          localStorage.setItem('ds_acc', currentId.value);
+          loadStatus(true);
+          loadLogs();
+        }
+        function switchTo(id) { currentId.value = id; localStorage.setItem('ds_acc', id); onSwitchAccount(); }
+        // 每次点击左侧导航都拉取最新数据（账号列表 + 当前账号状态），避免倒计时等长期不刷新
+        async function refreshPageData() {
+          if (!currentId.value) return;
+          try { await loadAccounts(); } catch (e) { /* handled */ }
+          try { await loadStatus(false); } catch (e) { /* handled */ }
+        }
+        async function switchTab(key) {
+          tab.value = key;
+          await refreshPageData();
+          // 打开日志页时重新拉取并滚到底（面板刚显示，隐藏时设置滚动位置无效）
+          if (key === 'logs') await loadLogs();
+        }
+
+        // ---------- 运行 ----------
+        async function waitForRunFinish(maxSeconds) {
+          const start = Date.now();
+          while (Date.now() - start < maxSeconds * 1000) {
+            await new Promise((r) => setTimeout(r, 5000));
+            await loadStatus(false);
+            if (!status.running) return;
+          }
+          ElementPlus.ElMessage.warning('等待超时，任务可能仍在后台运行');
+        }
+        async function triggerRun(dry) {
+          if (!currentId.value) return;
+          if (!dry && enabledFriendCount.value === 0) {
+            ElementPlus.ElMessage.warning('该账号还没有启用的好友，请先到「好友与消息」添加并保存');
+            return;
+          }
+          try {
+            const r = await api.post('/accounts/' + currentId.value + '/run', { dry });
+            if (r.data.started) {
+              ElementPlus.ElMessage.info(dry ? '干跑测试已启动' : '发送任务已启动');
+              await waitForRunFinish(1200);
+              await loadStatus(true);
+              await loadLogs();
+            }
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '启动失败');
+          }
+        }
+        async function doSendOne() {
+          if (!sendOneNames.value.length) return;
+          try {
+            await api.post('/accounts/' + currentId.value + '/run', { dry: sendOneDry.value, only_names: sendOneNames.value.slice() });
+            sendOneDialog.value = false;
+            ElementPlus.ElMessage.info('已启动，只发送选中的 ' + sendOneNames.value.length + ' 位好友');
+            await waitForRunFinish(1200);
+            await loadStatus(true);
+            await loadLogs();
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '启动失败');
+          }
+        }
+
+        // ---------- 好友 ----------
+        async function fetchContacts() {
+          if (!currentId.value) return;
+          fetchStartAt.value = Date.now();
+          try {
+            await api.post('/accounts/' + currentId.value + '/contacts/fetch');
+            status.fetching = true;
+            ElementPlus.ElMessage.info('正在读取聊天列表，可能需要半分钟左右…');
+            for (let i = 0; i < 80; i++) {
+              await new Promise((r) => setTimeout(r, 3000));
+              await loadStatus(false);
+              if (!status.fetching) break;
+            }
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '获取失败');
+          }
+        }
+        async function syncStreaks() {
+          if (!currentId.value) return;
+          const accId = currentId.value;
+          try {
+            await api.post('/accounts/' + accId + '/streaks/sync');
+            status.syncing_streaks = true;   // 立即反馈；服务器状态随后由轮询接管
+            ElementPlus.ElMessage.info('正在同步火花天数，稍等…');
+            for (let i = 0; i < 120; i++) {
+              await new Promise((r) => setTimeout(r, 3000));
+              let st = null;
+              try { st = (await api.get('/accounts/' + accId + '/status')).data; } catch (e) { continue; }
+              if (st && !st.syncing_streaks) {
+                if (st.streaks_sync_error) ElementPlus.ElMessage.error('同步失败：' + st.streaks_sync_error);
+                else ElementPlus.ElMessage.success('火花天数已同步到最新');
+                break;
+              }
+            }
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '同步失败');
+          }
+        }
+        function buildPayload() {
+          return { config: { ...settingsForm } };
+        }
+        // ---------- 🖼 表情与图片 ----------
+        function emojiSrc(name) {
+          return '/api/emojis/file?name=' + encodeURIComponent(name) + '&token=' + encodeURIComponent(token.value);
+        }
+        function stickerIconSrc(name) {
+          return '/api/sticker-icons/file?name=' + encodeURIComponent(name + '.png') + '&token=' + encodeURIComponent(token.value);
+        }
+        function hideStickerIcon(ev) { ev.target.style.display = 'none'; }
+        // 提取一行模板里的贴纸/图片标记 → 图标地址列表（只读展示用，不改原文）
+        const TPL_ICON_RE = /【(火花|火焰)】|【贴纸:([^】]+)】|【(?:图|图片):([^】]+)】/g;
+        function templateIcons(line) {
+          const icons = [];
+          if (!line || typeof line !== 'string') return icons;
+          try {
+            TPL_ICON_RE.lastIndex = 0;
+            let m;
+            while ((m = TPL_ICON_RE.exec(line)) !== null) {
+              if (m[1]) icons.push(stickerIconSrc('续火花'));
+              else if (m[2]) {
+                const q = m[2].trim().toLowerCase().replace(/ /g, '');
+                const nm = (nativeStickers.find((s) => s.toLowerCase().replace(/ /g, '') === q)) || m[2].trim();
+                icons.push(stickerIconSrc(nm));
+              } else if (m[3]) {
+                const fname = m[3].trim();
+                if ((emojis.value || []).some((e) => e.name === fname)) icons.push(emojiSrc(fname));
+              }
+            }
+          } catch (e) { /* 展示用，忽略异常 */ }
+          return icons;
+        }
+        function fmtSize(n) {
+          if (!n && n !== 0) return '';
+          if (n < 1024) return n + ' B';
+          if (n < 1024 * 1024) return (n / 1024).toFixed(1) + ' KB';
+          return (n / 1024 / 1024).toFixed(2) + ' MB';
+        }
+        async function loadEmojis() {
+          try {
+            const r = await api.get('/emojis');
+            emojis.value = r.data.emojis || [];
+          } catch (e) { /* 旧版后端无此接口时静默忽略 */ }
+        }
+        function pickEmojiFile() {
+          const el = emojiFileRef.value;
+          if (el) el.click();
+        }
+        async function onEmojiPick(ev) {
+          const el = ev.target;
+          const file = el.files && el.files[0];
+          if (!file) return;
+          emojiUploading.value = true;
+          try {
+            const fd = new FormData();
+            fd.append('file', file);
+            const r = await api.post('/emojis/upload', fd);
+            ElementPlus.ElMessage.success('已上传：' + (r.data.name || file.name));
+            await loadEmojis();
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '上传失败');
+          } finally {
+            emojiUploading.value = false;
+            el.value = '';
+          }
+        }
+        function toggleEmojiManage() {
+          emojiManage.value = !emojiManage.value;
+          if (!emojiManage.value) emojiSel.value = [];
+        }
+        function toggleEmojiSel(name) {
+          const i = emojiSel.value.indexOf(name);
+          if (i >= 0) emojiSel.value.splice(i, 1);
+          else emojiSel.value.push(name);
+        }
+        function selectAllEmojis() {
+          emojiSel.value = (emojis.value || []).map((e) => e.name);
+        }
+        async function deleteEmojiBatch() {
+          const n = emojiSel.value.length;
+          if (!n) return;
+          let ok = false;
+          try {
+            ok = await ElementPlus.ElMessageBox.confirm('删除选中的 ' + n + ' 张图片？（引用它们的消息模板会跳过对应图片）', '批量删除', { type: 'warning', confirmButtonText: '删除 ' + n + ' 张', cancelButtonText: '取消' }).then(() => true).catch(() => false);
+          } catch (e) { ok = false; }
+          if (!ok) return;
+          let fail = 0;
+          for (const name of [...emojiSel.value]) {
+            try { await api.post('/emojis/delete', { name }); }
+            catch (e) { fail++; }
+          }
+          emojiSel.value = [];
+          emojiManage.value = false;
+          await loadEmojis();
+          ElementPlus.ElMessage.success(fail ? ('已删除 ' + (n - fail) + ' 张，失败 ' + fail + ' 张') : ('已删除 ' + n + ' 张图片'));
+        }
+        async function deleteEmoji(name) {
+          let ok = false;
+          try {
+            ok = await ElementPlus.ElMessageBox.confirm('删除图片「' + name + '」？（引用它的消息模板会跳过该图）', '删除确认', { type: 'warning', confirmButtonText: '删除', cancelButtonText: '取消' }).then(() => true).catch(() => false);
+          } catch (e) { ok = false; }
+          if (!ok) return;
+          try {
+            await api.post('/emojis/delete', { name });
+            ElementPlus.ElMessage.success('已删除');
+            await loadEmojis();
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '删除失败');
+          }
+        }
+        function addEmojiLine(name) {
+          addLineMarker('【图:' + name + '】');
+        }
+        function addStickerLine(name) {
+          const marker = (name === '续火花') ? '【火花】' : ('【贴纸:' + name + '】');
+          addLineMarker(marker);
+        }
+        async function persistFriends() {
+          tplExport(); // 行编辑器 → 导出 messagesText（保存前确保同步）
+          const payload = buildPayload();
+          payload.config.friends = (friendsList.value || []).filter((f) => f.name && f.name.trim()).map((f) => ({ ...f, name: f.name.trim() }));
+          payload.config.messages = tplRows.value.map((s) => s.trim()).filter(Boolean);
+          const r = await api.put('/accounts/' + currentId.value + '/config', payload);
+          applyConfig(r.data.config);
+          await loadAccounts();
+          return r.data.config;
+        }
+        async function addSelectedToFriends() {
+          const existing = new Set((friendsList.value || []).map((f) => f.name));
+          const contacts = status.contacts || [];
+          let added = 0;
+          selectedContacts.value.forEach((name) => {
+            if (existing.has(name)) return;
+            const c = contacts.find((x) => x.name === name);
+            friendsList.value.push({ name, enabled: true, streak: c ? c.streak : '', note: '' });
+            existing.add(name);
+            added++;
+          });
+          if (!added) { ElementPlus.ElMessage.info('勾选的好友都已在名单中'); return; }
+          try {
+            await persistFriends();
+            ElementPlus.ElMessage.success('已加入 ' + added + ' 位好友并自动保存');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '保存失败，请点「保存好友与消息」重试');
+          }
+        }
+        async function saveFriends() {
+          if (!currentId.value) return;
+          try {
+            await persistFriends();
+            ElementPlus.ElMessage.success('好友与消息已保存，定时发送将使用新名单');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '保存失败');
+          }
+        }
+        async function saveSettings() {
+          if (!currentId.value) return;
+          try {
+            await persistFriends();
+            ElementPlus.ElMessage.success('设置已保存');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '保存失败');
+          }
+        }
+
+        // ---------- 登录态上传 ----------
+        function onFileChange(file) { uploadFile.value = file.raw || null; }
+        function onFileRemove() { uploadFile.value = null; }
+        function onNativeFileChange(e) {
+          const f = e.target.files && e.target.files[0];
+          if (f) {
+            uploadFile.value = f;
+            ElementPlus.ElMessage.info('已选择 ' + f.name + '，点「上传登录态」完成上传');
+          }
+          e.target.value = ''; // 允许重复选择同一文件
+        }
+        async function uploadState() {
+          if (!uploadFile.value || !currentId.value) return;
+          try {
+            const fd = new FormData();
+            fd.append('file', uploadFile.value);
+            const r = await api.post('/accounts/' + currentId.value + '/upload-state', fd);
+            ElementPlus.ElMessage.success('登录态已上传（' + r.data.size + ' 字节）');
+            uploadFile.value = null;
+            await loadAll();
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '上传失败');
+          }
+        }
+
+        // ---------- 令牌 ----------
+        function showTokenDialog() { tokenInput.value = token.value; tokenDialog.value = true; }
+        async function saveToken() {
+          const t = tokenInput.value.trim();
+          if (t.length < 8) { ElementPlus.ElMessage.warning('令牌至少 8 位'); return; }
+          try {
+            await api.put('/token', { token: t });
+            token.value = t;
+            localStorage.setItem('ds_token', t);
+            tokenDialog.value = false;
+            ElementPlus.ElMessage.success('令牌已更新，请牢记新令牌');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '保存失败');
+          }
+        }
+
+        // ---------- 通知 ----------
+        async function openNotifyDialog() {
+          try {
+            const r = await api.get('/global/config');
+            Object.assign(notifyForm, r.data.notify || {});
+            notifyDialog.value = true;
+          } catch (e) { /* handled */ }
+        }
+        async function saveNotify() {
+          try {
+            await api.put('/global/config', { config: { notify: { ...notifyForm } } });
+            ElementPlus.ElMessage.success('通知设置已保存');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '保存失败');
+          }
+        }
+        async function testNotify() {
+          notifyTestMsg.value = '';
+          try {
+            const r = await api.post('/notify/test');
+            const joined = (r.data.results || []).join('；');
+            const warns = r.data.warnings || [];
+            const warnText = warns.length ? ' ⚠️ ' + warns.join('；') : '';
+            if (joined.indexOf('✗') >= 0 || joined.indexOf('失败') >= 0) {
+              notifyTestType.value = 'error';
+              notifyTestMsg.value = joined + warnText;
+            } else {
+              notifyTestType.value = warns.length ? 'warning' : 'success';
+              notifyTestMsg.value = joined + (warns.length
+                ? '。命令已执行，但系统可能屏蔽了气泡：' + warnText
+                : '。请查看电脑右下角的系统通知气泡，看到即表示通知功能正常');
+            }
+          } catch (e) {
+            notifyTestType.value = 'error';
+            notifyTestMsg.value = e.response?.data?.detail || '测试失败';
+          }
+        }
+
+        // ---------- 账号管理 ----------
+        async function addAccount() {
+          try {
+            const r = await api.post('/accounts', { name: newAccountName.value.trim() || '新账号' });
+            newAccountName.value = '';
+            addAccountDialog.value = false;
+            await loadAccounts();
+            switchTo(r.data.id);
+            ElementPlus.ElMessage.success('账号已创建');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '创建失败');
+          }
+        }
+        function openRenameDialog(row) {
+          renameId.value = row.id;
+          renameName.value = row.name;
+          renameDialog.value = true;
+        }
+        async function doRename() {
+          try {
+            await api.put('/accounts/' + renameId.value, { name: renameName.value.trim() });
+            renameDialog.value = false;
+            await loadAccounts();
+            ElementPlus.ElMessage.success('已重命名');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '重命名失败');
+          }
+        }
+        async function deleteAccount(row) {
+          try {
+            await api.delete('/accounts/' + row.id);
+            await loadAccounts();
+            if (currentId.value === row.id) {
+              currentId.value = accounts.value.length ? accounts.value[0].id : '';
+              localStorage.setItem('ds_acc', currentId.value);
+              await loadStatus(true);
+            }
+            ElementPlus.ElMessage.success('账号已删除');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '删除失败');
+          }
+        }
+        async function moveAccount(index, dir) {
+          const target = index + dir;
+          const list = accounts.value;
+          if (target < 0 || target >= list.length) return;
+          const arr = list.slice();
+          const [item] = arr.splice(index, 1);
+          arr.splice(target, 0, item);
+          try {
+            await api.post('/accounts/reorder', { ids: arr.map((a) => a.id) });
+            await loadAccounts();
+            ElementPlus.ElMessage.success('账号顺序已更新');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '调整失败');
+          }
+        }
+
+        // ---------- 网页内扫码登录 ----------
+        function stopQrPoll() { if (qrTimer) { clearInterval(qrTimer); qrTimer = null; } }
+        async function loadBrowsers() {
+          try {
+            await loadEngines();
+            return detectedBrowsers.value;
+          } catch (e) {
+            ElementPlus.ElMessage.warning('浏览器检测失败，请确认服务已升级到 v0.5.8+ 并重启');
+            return [];
+          }
+        }
+        function resolveQrEngine() {
+          if (qrEngine.value === '__custom__') return (customPath.value || '').trim();
+          return qrEngine.value;
+        }
+        async function startQrSession() {
+          if (!currentId.value) return;
+          const eng = resolveQrEngine();
+          if (!eng) {
+            qrMsg.value = '请先选择浏览器，或在自定义路径里填上浏览器 exe 路径';
+            ElementPlus.ElMessage.warning('请选择浏览器后再开始');
+            return;
+          }
+          qrSessionActive.value = true;
+          qrNeedVerify.value = false;
+          qrImg.value = '';
+          qrMsg.value = '正在启动扫码会话…（' + (eng.indexOf('\\') >= 0 || eng.indexOf('/') >= 0 ? '本机浏览器' : eng) + '）';
+          try {
+            await api.post('/accounts/' + currentId.value + '/login/start', { engine: eng, mode: qrMode.value });
+            await refreshQr();
+            stopQrPoll();
+            qrTimer = setInterval(async () => {
+              try {
+                const r = await api.post('/accounts/' + currentId.value + '/login/status');
+                qrNeedVerify.value = !!r.data.need_verify;
+                qrVerifyType.value = r.data.verify_type || '';
+                if (qrNeedVerify.value) manualMode.value = true;
+                if (r.data.logged_in) {
+                  stopQrPoll();
+                  qrSessionActive.value = false;
+                  qrNeedVerify.value = false;
+                  ElementPlus.ElMessage.success('登录成功，已关联该账号');
+                  qrDialog.value = false;
+                  await loadAll();
+                } else if (r.data.message && r.data.message.indexOf('超时') >= 0) {
+                  stopQrPoll();
+                  qrSessionActive.value = false;
+                  qrNeedVerify.value = false;
+                  qrMsg.value = r.data.message;
+                  ElementPlus.ElMessage.warning(r.data.message);
+                } else {
+                  qrMsg.value = r.data.message;
+                }
+              } catch (e) { /* 瞬时错误忽略 */ }
+              // 定期刷新画面（手动模式用全屏，坐标与显示一致）
+              try {
+                const q = await api.get('/accounts/' + currentId.value + '/login/qr' + (manualMode.value ? '?full=1' : ''));
+                if (q.data.qr) { qrImg.value = q.data.qr; qrNote.value = q.data.note || ''; qrText.value = q.data.text || ''; }
+              } catch (e) { /* 瞬时错误忽略 */ }
+            }, 3000);
+          } catch (e) {
+            qrSessionActive.value = false;
+            qrMsg.value = e.response?.data?.detail || '启动失败';
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '启动失败');
+          }
+        }
+        async function openQrLogin() {
+          if (!currentId.value) return;
+          // 只打开设置弹窗，不自动启动；选择好浏览器后手动点「开始扫码登录」
+          await loadBrowsers();
+          qrSessionActive.value = false;
+          qrNeedVerify.value = false;
+          stopQrPoll();
+          qrImg.value = '';
+          qrMsg.value = '请选择浏览器，然后点「开始扫码登录」';
+          qrEngine.value = config.browser && ['chromium', 'firefox', 'webkit'].includes(config.browser) ? config.browser : 'chromium';
+          qrMode.value = 'window';
+          qrDialog.value = true;
+        }
+        async function restartQrLogin() {
+          if (!qrDialog.value) return;
+          if (!qrSessionActive.value) return;   // 未开始前切换选择不触发启动
+          stopQrPoll();
+          qrImg.value = '';
+          qrMsg.value = '正在重新生成…';
+          try { await api.post('/accounts/' + currentId.value + '/login/cancel'); } catch (e) { /* 忽略 */ }
+          await startQrSession();
+        }
+        async function refreshQr() {
+          try {
+            // 手动操作模式用全视口截图（看得全、坐标准），扫码模式用智能放大截图
+            const r = await api.get('/accounts/' + currentId.value + '/login/qr' + (manualMode.value ? '?full=1' : ''));
+            qrImg.value = r.data.qr;
+            qrNote.value = r.data.note || '';
+            qrText.value = r.data.text || '';
+            qrMsg.value = '请用手机抖音 App 扫码';
+          } catch (e) {
+            qrMsg.value = e.response?.data?.detail || '画面加载失败';
+          }
+        }
+        async function cancelQrLogin() {
+          stopQrPoll();
+          qrSessionActive.value = false;
+          qrNeedVerify.value = false;
+          if (currentId.value) {
+            try { await api.post('/accounts/' + currentId.value + '/login/cancel'); } catch (e) { /* 忽略 */ }
+          }
+        }
+        async function resendVerifyCode() {
+          try {
+            const r = await api.post('/accounts/' + currentId.value + '/login/resend-code');
+            ElementPlus.ElMessage.success(r.data.message || '已请求');
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '操作失败');
+          }
+        }
+        async function switchToWindowVerify() {
+          try { await api.post('/accounts/' + currentId.value + '/login/cancel'); } catch (e) { /* 忽略 */ }
+          stopQrPoll();
+          qrSessionActive.value = false;
+          qrNeedVerify.value = false;
+          manualMode.value = false;
+          qrMode.value = 'window';
+          ElementPlus.ElMessage.info('已切换到弹出窗口模式：请在真实浏览器窗口里扫码并完成验证');
+          await startQrSession();
+        }
+        function onQrClick(e) {
+          if (!qrSessionActive.value) return;
+          const img = e.target;
+          const rect = img.getBoundingClientRect();
+          // 无头页面视口固定 1000x800（截图尺寸），按显示比例换算坐标
+          const x = Math.round((e.clientX - rect.left) / rect.width * 1000);
+          const y = Math.round((e.clientY - rect.top) / rect.height * 800);
+          // 拖动模式：第一次点记录手柄，第二次点记录缺口并执行模拟拖动
+          if (dragState.value === 'pick-handle') {
+            dragA = { x, y };
+            dragState.value = 'pick-gap';
+            ElementPlus.ElMessage.info('已记录滑块手柄，再点缺口位置');
+            return;
+          }
+          if (dragState.value === 'pick-gap') {
+            const a = dragA;
+            dragState.value = 'off';
+            doDrag(a.x, a.y, x, y);
+            return;
+          }
+          if (!manualMode.value) return;
+          api.post('/accounts/' + currentId.value + '/login/manual-click', { x, y })
+            .then(() => refreshQr())
+            .catch((err) => ElementPlus.ElMessage.error(err.response?.data?.detail || '点击失败'));
+        }
+        function toggleManualMode() {
+          manualMode.value = !manualMode.value;
+          refreshQr();   // 切到全屏画面（坐标 1:1 对应页面）
+        }
+        function toggleDragMode() {
+          if (dragState.value !== 'off') { dragState.value = 'off'; ElementPlus.ElMessage.info('已取消拖动'); return; }
+          dragState.value = 'pick-handle';
+          ElementPlus.ElMessage.info('先点击画面里的滑块手柄，再点击缺口位置');
+        }
+        async function doDrag(x1, y1, x2, y2) {
+          try {
+            const r = await api.post('/accounts/' + currentId.value + '/login/manual-drag', { x1, y1, x2, y2 });
+            ElementPlus.ElMessage.success(r.data.message || '已模拟拖动');
+            await refreshQr();
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '拖动失败');
+          }
+        }
+        async function manualDoType() {
+          if (!manualText.value) { ElementPlus.ElMessage.warning('先输入文字'); return; }
+          try {
+            const r = await api.post('/accounts/' + currentId.value + '/login/manual-type', { text: manualText.value });
+            ElementPlus.ElMessage.success(r.data.message || '已输入');
+            manualText.value = '';
+            await refreshQr();
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '输入失败');
+          }
+        }
+        async function manualScroll(dy) {
+          try {
+            await api.post('/accounts/' + currentId.value + '/login/manual-scroll', { dy });
+            await refreshQr();
+          } catch (e) {
+            ElementPlus.ElMessage.error(e.response?.data?.detail || '滚动失败');
+          }
+        }
+        function copyQrDiagnosis() {
+          const text = [
+            'qrMsg: ' + qrMsg.value,
+            'qrNote: ' + (qrNote.value || ''),
+            '页面文字:\n' + (qrText.value || '（无）'),
+          ].join('\n');
+          const done = () => ElementPlus.ElMessage.success('诊断信息已复制，直接粘贴发给开发者即可');
+          try {
+            navigator.clipboard.writeText(text).then(done).catch(() => { legacyCopy(text); done(); });
+          } catch (e) { legacyCopy(text); done(); }
+        }
+        function legacyCopy(text) {
+          const ta = document.createElement('textarea');
+          ta.value = text; document.body.appendChild(ta); ta.select();
+          document.execCommand('copy'); document.body.removeChild(ta);
+        }
+        function saveQrShot() {
+          if (!qrImg.value) { ElementPlus.ElMessage.warning('还没有画面可保存'); return; }
+          const a = document.createElement('a');
+          a.href = qrImg.value; a.download = 'login-screenshot.png';
+          document.body.appendChild(a); a.click();
+          setTimeout(() => { document.body.removeChild(a); }, 1000);
+          ElementPlus.ElMessage.success('截图已保存，可以发给我');
+        }
+
+        onMounted(async () => {
+          applyTheme(theme.value);
+          updateSidebar();
+          window.addEventListener('resize', updateSidebar);
+          window.addEventListener('resize', onLogPaneResize);
+          document.addEventListener('click', onLogToolClick);
+          tickTimer = setInterval(() => tick.value++, 1000);
+          await loadAll();
+          loadEmojis();
+          // 每次打开固定显示：账号管理里第一个账号的概览（会话中切换不受影响）
+          if (accounts.value.length) {
+            currentId.value = accounts.value[0].id;
+            localStorage.setItem('ds_acc', currentId.value);
+            await loadStatus(true);
+          }
+          wallScrollListener();
+          if (wallRef.value) wallRef.value.addEventListener('scroll', wallScrollListener);
+          timer = setInterval(() => {
+            loadStatus(false);   // 轮询不覆盖正在编辑的表单
+            if (autoRefresh.value) loadLogs();
+          }, 20000);
+        });
+
+        onUnmounted(() => {
+          if (timer) clearInterval(timer);
+          if (tickTimer) clearInterval(tickTimer);
+          window.removeEventListener('resize', updateSidebar);
+          window.removeEventListener('resize', onLogPaneResize);
+          document.removeEventListener('click', onLogToolClick);
+          try { if (_logResizeObserver) { _logResizeObserver.disconnect(); _logResizeObserver = null; } } catch (e) { /* ignore */ }
+          if (wallRef.value) wallRef.value.removeEventListener('scroll', wallScrollListener);
+        });
+
+        return {
+          tab, theme, toggleTheme, navs, wallAccounts, accounts, version, currentId, currentAccount, status, config, settingsForm, friendsList, messagesText, dirty,
+          sidebarCollapsed, toggleSidebar, wallRef, wallAtStart, wallAtEnd, wallScroll, historyFilter, friendEnabledCount, filteredHistory, countdown, runAllAccounts, downloadBackup, onRestoreChange, contactSearch, filteredContacts, selectAllFriends, deselectAllFriends, templateLines, templateCount, randomPreview, tplRows, tplAddRow, tplDelRow, tplRowEdited, splitLeadingMarkers, rowRestText, setRowRest, pasteDialogVisible, pasteText, doPasteTpl, addFriendRow, moveFriend, syncAccName, syncElapsedText, renderedLog, fetchPhaseText, shortPhaseText,
+          selectedContacts, brokenAvatars, isContactChecked, toggleContact, avatarSrc, selectAllContacts, clearAllContacts, logs, logScope, autoRefresh, autoStart, autoStartMinimized, uploadFile, token, needsToken, enterToken, tokenChecking, tokenError, tokenDialog, tokenInput,
+          notifyDialog, notifyForm, deployTutorialDialog, notifyGuideDialog, autostartSupported, addAccountDialog, newAccountName, renameDialog, renameId, renameName,
+          sendOneDialog, sendOneNames, sendOneDry, enabledFriends, qrDialog, qrImg, qrMsg, qrNote, qrEngine, qrMode,
+          qrSessionActive, qrNeedVerify, qrVerifyType, resendVerifyCode, switchToWindowVerify, manualMode, manualText, qrText, dragState, toggleManualMode, toggleDragMode, onQrClick, manualDoType, manualScroll, doDrag, copyQrDiagnosis, saveQrShot, platform, browserOptions, detectedBrowsers, engines, customPath,
+          enabledFriendCount, totalFriendCount, jitterMinutes,
+          fmt, statusClass, sessionText, sessionTagType, markDirty, removeFriend, copyLogs, browserName,
+          loadAll, loadStatus, loadLogs, onSwitchAccount, switchTo, switchTab,
+          triggerRun, doSendOne, fetchContacts, syncStreaks, addSelectedToFriends, saveFriends, saveSettings,
+          onFileChange, onFileRemove, onNativeFileChange, uploadState, showTokenDialog, saveToken,
+          openNotifyDialog, saveNotify, testNotify, notifyTestMsg, notifyTestType, addAccount, openRenameDialog, doRename, deleteAccount, moveAccount,
+          loadAutoStart, toggleAutoStart, saveAutoStartMode, helpDialog, helpTitle, helpContent, openHelp,
+          openQrLogin, startQrSession, restartQrLogin, refreshQr, cancelQrLogin, loadBrowsers,
+          emojis, emojiUploading, emojiFileRef, emojiManage, emojiSel, toggleEmojiManage, toggleEmojiSel, selectAllEmojis, deleteEmojiBatch, emojiSrc, stickerIconSrc, hideStickerIcon, templateIcons, fmtSize, pickEmojiFile, onEmojiPick, addEmojiLine, deleteEmoji, loadEmojis, nativeStickers, addStickerLine,
+        };
+      },
+    });
+
+    app.use(ElementPlus);
+    app.mount('#app');
+  </script>
+</body>
+</html>
