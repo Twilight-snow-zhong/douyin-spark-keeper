@@ -2667,6 +2667,17 @@
           try { localStorage.removeItem('ds_token_input'); } catch (e3) { /* 忽略 */ }
           location.reload();
         }
+        // ---------- 时间归一：把 02:00:00 / ISO 串统一成 HH:MM（后端只认这个格式） ----------
+        function _normHHMM(v) {
+          const s = String(v == null ? '' : v).trim();
+          let m = s.match(/^(\d{1,2}):(\d{2})/);
+          if (m) return String(parseInt(m[1], 10)).padStart(2, '0') + ':' + m[2];
+          const d = new Date(s);
+          if (!isNaN(d.getTime())) {
+            return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+          }
+          return s;
+        }
         async function warnIfScheduleClash(timeStr) {
           try {
             const parts = String(timeStr || '').split(':');
@@ -2697,6 +2708,14 @@
           const payload = buildPayload();
           payload.config.friends = (friendsList.value || []).filter((f) => f.name && f.name.trim()).map((f) => ({ ...f, name: f.name.trim() }));
           payload.config.messages = tplRows.value.map((s) => s.trim()).filter(Boolean);
+          // 保存前把定时时间归一成 HH:MM，避免"时间选择器给出 02:00:00 导致保存失败"
+          try {
+            if (typeof payload !== "undefined" && payload && payload.schedule_time) {
+              payload.schedule_time = _normHHMM(payload.schedule_time);
+            } else if (config.value && config.value.schedule_time) {
+              config.value.schedule_time = _normHHMM(config.value.schedule_time);
+            }
+          } catch (e) { /* 归一失败不影响保存 */ }
           await warnIfScheduleClash(
             (typeof payload !== "undefined" && payload && payload.schedule_time) ||
             (config.value && config.value.schedule_time) || ""
