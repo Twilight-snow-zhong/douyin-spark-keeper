@@ -207,6 +207,43 @@
     .help-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 20px; }
     /* 两行网格：两行等高（minmax(auto,1fr)：行高≥内容、富余空间平分，绝不重叠） */
     .help-grid--2rows { grid-auto-rows: minmax(auto, 1fr); min-height: 360px; }
+    /* ===== 手机/窄屏适配（≤768px）：侧栏改为顶部导航，内容满宽 ===== */
+    @media (max-width: 768px) {
+      .shell { flex-direction: column; }
+      .sidebar {
+        width: 100% !important; position: static; height: auto;
+        border-right: none; border-bottom: 1px solid var(--border);
+        padding: 10px 12px 8px;
+      }
+      .sidebar.collapsed { width: 100% !important; }
+      .sidebar .brand { padding: 2px 4px 10px; }
+      .side-title { display: none; }
+      .acc-list { max-height: none; display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+      .acc-item { padding: 6px 10px; border: 1px solid var(--border); }
+      .side-nav { display: flex; flex-wrap: wrap; gap: 6px; flex: none; }
+      .nav-item { padding: 7px 10px; margin-bottom: 0; border: 1px solid var(--border); }
+      .sidebar-footer { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding-top: 8px; }
+      .theme-btn { width: auto; margin-bottom: 0; padding: 6px 10px; }
+      .main { padding: 12px 12px 32px; max-width: none; }
+      .content-header { flex-wrap: wrap; gap: 6px; }
+      /* 窄屏下侧栏是满宽横条：即使处于"已收起"状态，也要把文字显示出来 */
+      .sidebar.collapsed .acc-name,
+      .sidebar.collapsed .acc-running,
+      .sidebar.collapsed .acc-off,
+      .sidebar.collapsed .nav-item span:not(.nav-ico),
+      .sidebar.collapsed .brand span:not(.brand-icon),
+      .sidebar.collapsed .brand .ver { display: inline-flex !important; }
+      .sidebar.collapsed .brand { justify-content: flex-start !important; padding: 2px 4px 10px !important; }
+      .sidebar.collapsed .acc-item,
+      .sidebar.collapsed .nav-item { justify-content: flex-start !important; padding: 7px 10px !important; }
+      .sidebar.collapsed .theme-btn { display: block !important; width: auto !important; }
+      .sidebar.collapsed .foot-btns { display: flex !important; }
+      .sidebar.collapsed .side-title { display: none !important; }
+      /* 账号卡片：窄屏下一张卡占满宽度、明细改单列，避免文字互相重叠 */
+      .acc-card { flex: 0 0 100% !important; }
+      .acc-card-rows { grid-template-columns: 1fr !important; gap: 2px !important; }
+      .acc-card-row .v { white-space: normal !important; word-break: break-all; }
+    }
     @media (max-width: 900px) {
       .help-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
       .help-grid--2rows { grid-auto-rows: auto; min-height: 0; }
@@ -661,7 +698,7 @@
                 <span v-else class="muted">服务器版：开机自启由 systemd 管理（deploy 目录一键配置）</span>
               </div>
               <div class="result-box" v-if="status.last_run">
-                <el-divider content-position="left">上次执行（{{ fmt(status.last_run.at) }}<template v-if="status.last_run.dry_run">，干跑</template><template v-if="status.last_run.delay_seconds === 0">，准点发送</template><template v-else-if="status.last_run.delay_seconds">，比设定时间晚 {{ status.last_run.delay_seconds }} 秒</template>）</el-divider>
+                <el-divider content-position="left">上次执行（{{ fmt(status.last_run.at) }}<template v-if="status.last_run.dry_run">，干跑</template><template v-if="status.last_run.delay_seconds === 0">，准点发送</template><template v-else-if="status.last_run.delay_seconds">，比设定时间晚 {{ fmtDelay(status.last_run.delay_seconds) }}</template>）</el-divider>
                 <div style="margin-bottom:6px;">
                   <span style="color:var(--el-color-success);">成功 {{ status.last_run.ok.length }} 人：</span>
                   <el-tag v-for="n in status.last_run.ok" :key="n" size="small" type="success" style="margin:2px;">{{ n }}</el-tag>
@@ -963,7 +1000,7 @@
                 <template #default="{ row }">
                   <template v-if="row.delay_seconds === undefined || row.delay_seconds === null"><span class="muted">手动/补发</span></template>
                   <el-tag v-else-if="row.delay_seconds === 0" size="small" type="success">准点</el-tag>
-                  <el-tag v-else size="small" type="warning">晚 {{ row.delay_seconds }} 秒</el-tag>
+                  <el-tag v-else size="small" type="warning">晚 {{ fmtDelay(row.delay_seconds) }}</el-tag>
                 </template>
               </el-table-column>
               <el-table-column label="成功" width="70">
@@ -1353,7 +1390,7 @@ journalctl -u douyin-spark -f     # 实时日志</div>
         <el-form-item label="说明">
           <span class="muted">
             <template v-if="notifyForm.webhook_type === 'serverchan'">填 Server酱 SendKey（sctp...），到 sct.ftqq.com 用 GitHub 登录获取</template>
-            <template v-else-if="notifyForm.webhook_type === 'pushplus'">填 PushPlus 的 token，到 pushplus.plus 微信扫码获取</template>
+            <template v-else-if="notifyForm.webhook_type === 'pushplus'">填 PushPlus 的 token（pushplus.plus 微信扫码获取）。<b>必须关注「PushPlus 推送加」公众号</b>，否则接口成功也收不到消息</template>
             <template v-else>ntfy 无需注册，话题名自己取一个即可</template>
           </span>
         </el-form-item>
@@ -1460,7 +1497,7 @@ systemctl stop douyin-spark       # 停止</div>
         <div class="section-title"><span>③ PushPlus（推送到微信）</span></div>
         <p class="muted" style="line-height:1.8;">1. 浏览器打开 <code>pushplus.plus</code>，用<b>微信扫码</b>登录<br>
         2. 登录后首页复制你的 <b>token</b><br>
-        3. 网页通知设置：服务选 <b>PushPlus</b>，「地址 / Key」填 token<br>
+        3. <b>微信里搜「PushPlus 推送加」并关注</b>（不关注就收不到！）<br>4. 网页通知设置：服务选 <b>PushPlus</b>，「地址 / Key」填 token<br>
         4. 保存 → 点「🧪 发送测试通知」，微信「PushPlus」服务号收到即成功</p>
 
         <div class="section-title"><span>🧪 测试与验证</span></div>
@@ -1555,6 +1592,7 @@ systemctl stop douyin-spark       # 停止</div>
             localStorage.setItem('ds_token', t);
             tokenDialog.value = false;
             await loadAll();
+            loadEmojis();
             ElementPlus.ElMessage.success('欢迎回来');
           } finally {
             tokenChecking.value = false;
@@ -1915,7 +1953,16 @@ systemctl stop douyin-spark       # 停止</div>
           const d = new Date(iso);
           return isNaN(d) ? iso : d.toLocaleString('zh-CN', { hour12: false });
         }
-        function countdown(iso) {
+        // 把秒数说成人话：1576 秒 → 26 分 16 秒
+        function fmtDelay(sec) {
+          if (sec === undefined || sec === null || isNaN(sec)) return '';
+          const s = Math.round(Number(sec));
+          if (s < 60) return s + ' 秒';
+          const m = Math.floor(s / 60), rs = s % 60;
+          if (m < 60) return rs ? (m + ' 分 ' + rs + ' 秒') : (m + ' 分钟');
+          const h = Math.floor(m / 60), rm = m % 60;
+          return rm ? (h + ' 小时 ' + rm + ' 分') : (h + ' 小时');
+        }        function countdown(iso) {
           tick.value; // 依赖每秒 tick，保证实时刷新
           if (!iso) return '';
           const diff = new Date(iso).getTime() - Date.now();
@@ -2948,8 +2995,10 @@ systemctl stop douyin-spark       # 停止</div>
           window.addEventListener('resize', onLogPaneResize);
           document.addEventListener('click', onLogToolClick);
           tickTimer = setInterval(() => tick.value++, 1000);
-          await loadAll();
-          loadEmojis();
+          if (token.value) {   // 没有令牌就别去请求接口（否则控制台刷 5 条 401）
+            await loadAll();
+            loadEmojis();
+          }
           // 每次打开固定显示：账号管理里第一个账号的概览（会话中切换不受影响）
           if (accounts.value.length) {
             currentId.value = accounts.value[0].id;
