@@ -160,10 +160,14 @@
     .sidebar.collapsed .nav-item span:not(.nav-ico),
     .sidebar.collapsed .brand span:not(.brand-icon),
     .sidebar.collapsed .brand .ver,
-    .sidebar.collapsed .side-title,
-    .sidebar.collapsed .theme-btn,
-    .sidebar.collapsed .foot-btns { display: none; }
+    .sidebar.collapsed .side-title { display: none; }
     .acc-card-row .cd { color: var(--primary); font-weight: 500; font-variant-numeric: tabular-nums; }
+    /* 收起时：底部工具栏也保留（只显示图标 + 悬停提示），和导航行为一致 */
+    .sidebar.collapsed .theme-btn { padding: 8px 0; font-size: 15px; }
+    .sidebar.collapsed .theme-btn .bt-txt { display: none; }
+    .sidebar.collapsed .foot-btns { flex-direction: column; gap: 6px; }
+    .sidebar.collapsed .foot-btns .el-button { padding: 7px 0; font-size: 15px; min-height: 30px; }
+    .sidebar.collapsed .foot-btns .bt-txt { display: none; }
     /* 折叠按钮 */
     .collapse-btn {
       margin-left: auto;
@@ -564,11 +568,11 @@
         </div>
 
         <div class="sidebar-footer">
-          <button class="theme-btn" @click="toggleTheme">{{ theme === 'dark' ? '🌙 当前深色 · 点击切浅色' : '☀️ 当前浅色 · 点击切深色' }}</button>
+          <button class="theme-btn" @click="toggleTheme" :title="theme === 'dark' ? '切换到浅色' : '切换到深色'"><span class="bt-ico">{{ theme === 'dark' ? '🌙' : '☀️' }}</span><span class="bt-txt">{{ theme === 'dark' ? ' 当前深色 · 点击切浅色' : ' 当前浅色 · 点击切深色' }}</span></button>
           <div class="foot-btns">
-            <el-button size="small" @click="loadAll">🔄 刷新</el-button>
-            <el-button size="small" @click="openNotifyDialog">🔔 通知</el-button>
-            <el-button size="small" @click="showTokenDialog">🔑 令牌</el-button>
+            <el-button size="small" @click="loadAll" title="刷新数据"><span class="bt-ico">🔄</span><span class="bt-txt">刷新</span></el-button>
+            <el-button size="small" @click="openNotifyDialog" title="通知设置"><span class="bt-ico">🔔</span><span class="bt-txt">通知</span></el-button>
+            <el-button size="small" @click="showTokenDialog" title="访问令牌"><span class="bt-ico">🔑</span><span class="bt-txt">令牌</span></el-button>
           </div>
         </div>
       </aside>
