@@ -242,6 +242,7 @@
       .sidebar.collapsed .nav-item { justify-content: flex-start !important; padding: 7px 10px !important; }
       .sidebar.collapsed .theme-btn { display: block !important; width: auto !important; }
       .sidebar.collapsed .foot-btns { display: flex !important; }
+      .sidebar.collapsed .bt-txt { display: inline !important; }   /* 窄屏横条够宽：按钮文字也显示 */
       .sidebar.collapsed .side-title { display: none !important; }
       /* 账号卡片：窄屏下一张卡占满宽度、明细改单列，避免文字互相重叠 */
       .acc-card { flex: 0 0 100% !important; }
@@ -484,6 +485,18 @@
     body.dark .emoji-thumb { background: #1e2333; }
     .emoji-name { width: 100%; font-size: 11.5px; color: var(--text); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .emoji-size { font-size: 11px; color: var(--muted, #8a90a6); }
+    /* 手机/窄屏：所有弹窗按视口宽度自适应，避免固定像素宽度横向越界 */
+    @media (max-width: 900px) {
+      .el-dialog { width: 92vw !important; max-width: 92vw !important; margin: 6vh auto !important; }
+      .el-dialog__header { padding: 14px 16px 8px; }
+      .el-dialog__body { padding: 10px 14px 16px; }
+      .el-dialog__footer { padding: 10px 14px 16px; }
+      .el-message-box { width: 90vw !important; max-width: 90vw !important; }
+      .el-message-box__content { padding: 12px 16px; }
+      /* 弹窗内的两列表单自动换行，避免挤压 */
+      .el-dialog .el-form-item { display: block; }
+      .el-dialog .el-form-item__content { margin-left: 0 !important; }
+    }
     /* 扫码等待面板：让"正在启动"看起来是活的 */
     .qr-waiting { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; padding: 34px 16px; }
     .qr-spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--el-border-color, #dcdfe6); border-top-color: var(--el-color-primary, #409eff); animation: qr-spin 0.9s linear infinite; }

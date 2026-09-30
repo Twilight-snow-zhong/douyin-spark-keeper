@@ -28,6 +28,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from core import accounts, automation, autostart, browsers, login, notify, scheduler
+from core import errors
 from core.config import (
     BASE_DIR,
     DATA_DIR,
@@ -138,18 +139,23 @@ def _get_account(acc_id: str) -> Path:
     if not acc_dir.exists():
         raise HTTPException(status_code=404, detail="账号不存在")
     return acc_dir
+RETRY_DELAYS = (15, 30, 45)      # 失败后自动重试的间隔（分钟）：第 1/2/3 次
 
 
-def _notify_run(acc_id: str, acc_name: str, result: dict) -> None:
+def _notify_run(acc_id: str, acc_name: str, result: dict, with_reasons: bool = False) -> None:
     try:
         title, content = notify.run_summary(acc_name, result)
+        if with_reasons:
+            # 把失败原因归成「人话分类」，让人一眼知道要不要处理
+            line = errors.summary_line(result.get("failed", []))
+            if line:
+                content = ((content or "").rstrip() + "\n\n" + line).strip()
         gcfg = load_global_config()
         res = notify.send_notification(gcfg, title, content)
         for r in res:
             logger.info("【%s】通知结果: %s", acc_id, r)
     except Exception as e:
         logger.warning("发送通知异常: %s", str(e)[:100])
-
 
 def _start_run(
     acc_id: str,
@@ -181,28 +187,40 @@ def _start_run(
                     len(result.get("failed", [])),
                     dry,
                 )
-                _notify_run(acc_id, acc_cfg.get("name", acc_id), result)
-
-                if not dry:
-                    failed_names = [
-                        f["name"]
-                        for f in result.get("failed", [])
-                        if isinstance(f, dict)
-                        and isinstance(f.get("name"), str)
-                        and f["name"] != "_system"
-                    ]
-                    if failed_names and not result.get("logged_out"):
-                        rt = load_runtime(acc_dir)
-                        today = datetime.now().date().isoformat()
-                        if rt.get("retry_date") != today:
-                            update_runtime(acc_dir, retry_date=today)
-                            scheduler.schedule_retry(
-                                acc_id,
-                                lambda: _start_run(acc_id, False, failed_names),
-                                delay_minutes=int(acc_cfg.get("retry_minutes", 45)),
-                            )
-                    else:
+                # ---- 失败处理：先静默重试最多 3 次，仍失败才推失败通知 ----
+                failed_items = [
+                    f for f in result.get("failed", [])
+                    if isinstance(f, dict) and f.get("name") != "_system"
+                ]
+                logged_out = bool(result.get("logged_out"))
+                rt = load_runtime(acc_dir) if not dry else {}
+                today = datetime.now().date().isoformat()
+                retry_count = int(rt.get("retry_count", 0) or 0)
+                if rt.get("retry_date") != today:
+                    retry_count = 0
+                can_retry = (
+                    (not dry) and bool(failed_items) and (not logged_out)
+                    and retry_count < len(RETRY_DELAYS)
+                )
+                if can_retry:
+                    failed_names = [f["name"] for f in failed_items if isinstance(f.get("name"), str)]
+                    delay = RETRY_DELAYS[retry_count]
+                    update_runtime(acc_dir, retry_date=today, retry_count=retry_count + 1)
+                    scheduler.schedule_retry(
+                        acc_id,
+                        lambda: _start_run(acc_id, False, failed_names),
+                        delay_minutes=delay,
+                    )
+                    logger.info(
+                        "【%s】有 %d 人失败（第 %d 次尝试）→ %d 分钟后自动重试；成功前不打扰",
+                        acc_id, len(failed_names), retry_count + 1, delay,
+                    )
+                else:
+                    _notify_run(acc_id, acc_cfg.get("name", acc_id), result, with_reasons=bool(failed_items))
+                    if not dry:
                         scheduler.cancel_retry(acc_id)
+                        if not failed_items:
+                            update_runtime(acc_dir, retry_count=0)
             finally:
                 set_running(acc_dir, False)
         except HTTPException as e:
