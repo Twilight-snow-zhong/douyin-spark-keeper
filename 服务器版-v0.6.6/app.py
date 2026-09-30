@@ -100,6 +100,23 @@ logger = setup_logging()
 print(f"访问令牌: {AUTH_TOKEN}  （保存在 {ENV_PATH}）")
 
 run_lock = threading.Lock()
+# 按工作区的运行锁：同一工作区内**串行**（2GB 内存下并发两个 Chromium 会 OOM），
+# 不同工作区**互不阻塞**（你和朋友可以各发各的）。没有工作区概念时回落到全局锁。
+_ws_locks: dict = {}
+_ws_locks_guard = threading.Lock()
+
+
+def _run_lock() -> threading.Lock:
+    try:
+        ws = workspace.current_ws()
+    except Exception:
+        return run_lock                      # 老版本（无多令牌）→ 全局一把锁
+    with _ws_locks_guard:
+        lk = _ws_locks.get(ws)
+        if lk is None:
+            lk = threading.Lock()
+            _ws_locks[ws] = lk
+        return lk
 contacts_fetching: dict[str, bool] = {}
 streak_syncing: dict[str, bool] = {}
 image_diag_running: dict[str, bool] = {}
@@ -164,8 +181,25 @@ def _start_run(
     only_names: list[str] | None = None,
     extra: dict | None = None,
 ) -> None:
-    if not run_lock.acquire(blocking=False):
-        raise HTTPException(status_code=409, detail="已有任务在运行（多账号串行执行）")
+    lock = _run_lock()
+    # 定时/补发撞车 → **排队等待**（避免静默丢掉一次发送）；手动点发送 → 立即提示（不用干等）
+    if bool((extra or {}).get("queued")):
+        if not lock.acquire(timeout=900):
+            raise HTTPException(status_code=409, detail="排队等待超时（前面的任务一直没结束）")
+        logger.info("【%s】已进入发送队列（同一工作区内串行，等待前一个任务结束）", acc_id)
+    else:
+        # 全量发送（定时/手动发全部好友）本来就覆盖所有好友 → 先取消还挂着的补发，
+    # 避免"补发刚补成功、紧接着全量又发一遍"造成重复发送。
+    if (not dry) and only_names is None:
+        try:
+            scheduler.cancel_retry(acc_id)
+        except Exception:
+            pass
+    elif not lock.acquire(blocking=False):
+        raise HTTPException(
+            status_code=409,
+            detail="已有任务在运行（同一工作区内串行执行，等它结束再试）",
+        )
 
     def worker() -> None:
         acc_dir = None
@@ -209,7 +243,7 @@ def _start_run(
                     update_runtime(acc_dir, retry_date=today, retry_count=retry_count + 1)
                     scheduler.schedule_retry(
                         acc_id,
-                        lambda: _start_run(acc_id, False, failed_names),
+                        lambda: _start_run(acc_id, False, failed_names, {"queued": True}),
                         delay_minutes=delay,
                     )
                     logger.info(
@@ -228,7 +262,7 @@ def _start_run(
             logger.warning("【%s】任务启动失败: %s", acc_id, e.detail)
         finally:
             set_log_account(None)
-            run_lock.release()
+            lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -252,7 +286,7 @@ def _start_fetch_contacts(acc_id: str) -> None:
             contacts_fetching[acc_id] = False
         finally:
             set_log_account(None)
-            run_lock.release()
+            lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -293,7 +327,7 @@ def _start_sync_streaks(acc_id: str) -> None:
             streak_syncing[acc_id] = False
         finally:
             set_log_account(None)
-            run_lock.release()
+            lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -325,7 +359,7 @@ def _start_image_diag(acc_id: str, test_target: str = "") -> None:
             image_diag_running[acc_id] = False
         finally:
             set_log_account(None)
-            run_lock.release()
+            lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -358,7 +392,7 @@ def _start_emoji_diag(acc_id: str) -> None:
             image_diag_running[acc_id] = False
         finally:
             set_log_account(None)
-            run_lock.release()
+            lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -395,7 +429,7 @@ def _start_emoji_probe(
             image_diag_running[acc_id] = False
         finally:
             set_log_account(None)
-            run_lock.release()
+            lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -426,7 +460,7 @@ def _start_emoji_rec(acc_id: str, target: str = "") -> None:
             image_diag_running[acc_id] = False
         finally:
             set_log_account(None)
-            run_lock.release()
+            lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -924,7 +958,7 @@ def api_run_all(body: RunBody, token: str = Header(default="", alias="X-Auth-Tok
                     set_running(acc_dir, False)
         finally:
             set_log_account(None)
-            run_lock.release()
+            lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
     return {"ok": True, "started": True, "accounts": len(enabled)}

@@ -34,7 +34,7 @@ def _daily_job(acc_id: str) -> None:
         time.sleep(delay)
     if _run_func:
         # 把本次实际延迟秒数传给运行层，写入历史记录（抖动=0 时为 0）
-        _run_func(acc_id, {"delay_seconds": round(delay)})
+        _run_func(acc_id, {"delay_seconds": round(delay), "queued": True})
 
 
 def configure(run_func: Callable[[str, dict | None], None]) -> None:
