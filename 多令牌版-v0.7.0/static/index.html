@@ -1498,6 +1498,7 @@ journalctl -u douyin-spark -f     # 实时日志</div>
       <p style="margin-top:0;color:var(--el-text-color-regular);font-size:13px;">输入新的访问令牌（至少 8 位），保存后立即生效。</p>
       <el-input v-model="tokenInput" placeholder="新令牌" show-password @keyup.enter="saveToken"></el-input>
       <template #footer>
+        <el-button plain type="danger" @click="logout">🚪 退出登录</el-button>
         <el-button type="primary" @click="saveToken">保存</el-button>
       </template>
     </el-dialog>
@@ -2896,6 +2897,19 @@ systemctl stop douyin-spark       # 停止</div>
           } catch (e) { /* 忽略 */ }
           return '火花助手';
         });
+        // ---------- 退出登录：清除本机保存的令牌，回到令牌输入页 ----------
+        async function logout() {
+          try {
+            await ElementPlus.ElMessageBox.confirm(
+              '退出后本机保存的令牌会被清除，需要重新输入令牌才能进入。继续？',
+              '退出登录',
+              { type: 'warning', confirmButtonText: '退出', cancelButtonText: '取消' }
+            );
+          } catch (e) { return; }
+          try { localStorage.removeItem('ds_token'); } catch (e2) { /* 忽略 */ }
+          try { localStorage.removeItem('ds_token_input'); } catch (e3) { /* 忽略 */ }
+          location.reload();
+        }
         async function warnIfScheduleClash(timeStr) {
           try {
             const parts = String(timeStr || '').split(':');
@@ -3533,6 +3547,7 @@ systemctl stop douyin-spark       # 停止</div>
           notifyDialog, notifyForm, deployTutorialDialog, notifyGuideDialog, autostartSupported, addAccountDialog, newAccountName, renameDialog, renameId, renameName,
           qrWaitSec, qrWaitText,
           checkupDialog, checkupLoading, checkupData, runCheckup,
+          logout,
           mobileNavOpen, toggleMobileNav, mobileTabTitle,
           monthStat,
         sendOneDialog, sendOneNames, sendOneDry, enabledFriends, qrDialog, qrImg, qrMsg, qrNote, qrEngine, qrMode,
