@@ -2961,16 +2961,20 @@ systemctl stop douyin-spark       # 停止</div>
           const payload = buildPayload();
           payload.config.friends = (friendsList.value || []).filter((f) => f.name && f.name.trim()).map((f) => ({ ...f, name: f.name.trim() }));
           payload.config.messages = tplRows.value.map((s) => s.trim()).filter(Boolean);
-          // 保存前把定时时间归一成 HH:MM，避免"时间选择器给出 02:00:00 导致保存失败"
+          // 保存前把定时时间归一成 HH:MM（关键：必须改**请求体 payload** 里那份，
+          // 因为 buildPayload() 已生成快照，只改 config.value 不会影响 payload ✗）
           try {
-            if (typeof payload !== "undefined" && payload && payload.schedule_time) {
-              payload.schedule_time = _normHHMM(payload.schedule_time);
-            } else if (config.value && config.value.schedule_time) {
+            if (config.value && config.value.schedule_time) {
               config.value.schedule_time = _normHHMM(config.value.schedule_time);
+            }
+            if (payload && payload.config && payload.config.schedule_time) {
+              payload.config.schedule_time = _normHHMM(payload.config.schedule_time);
+            } else if (payload && payload.config && config.value && config.value.schedule_time) {
+              payload.config.schedule_time = config.value.schedule_time;
             }
           } catch (e) { /* 归一失败不影响保存 */ }
           await warnIfScheduleClash(
-            (typeof payload !== "undefined" && payload && payload.schedule_time) ||
+            (payload && payload.config && payload.config.schedule_time) ||
             (config.value && config.value.schedule_time) || ""
           );
           const r = await api.put('/accounts/' + currentId.value + '/config', payload);
