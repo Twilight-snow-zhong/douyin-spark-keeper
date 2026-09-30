@@ -212,7 +212,10 @@
     /* 两行网格：两行等高（minmax(auto,1fr)：行高≥内容、富余空间平分，绝不重叠） */
     .help-grid--2rows { grid-auto-rows: minmax(auto, 1fr); min-height: 360px; }
     /* ===== 手机/窄屏适配（≤768px）：侧栏改为顶部导航，内容满宽 ===== */
+    /* 只在手机（窄屏）显示的提示块 */
+    .only-mobile { display: none !important; }
     @media (max-width: 768px) {
+      .only-mobile { display: block !important; }
       .shell { flex-direction: column; }
       .sidebar {
         width: 100% !important; position: static; height: auto;
@@ -1324,6 +1327,11 @@
         </el-radio-group>
       </div>
       <div style="margin-bottom:12px; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <!-- 手机端提示：手机没法扫自己屏幕上的二维码（仅窄屏显示，桌面端不出现） -->
+        <el-alert class="only-mobile" type="warning" :closable="false" show-icon style="margin-bottom:10px;"
+          title="扫码登录建议用电脑完成"
+          description="手机没法扫自己屏幕上的二维码。手机上也行：用另一台设备扫这个码，或点下方「上传登录态」。">
+        </el-alert>
         <span class="muted">用哪个浏览器登录：</span>
         <el-select v-model="qrEngine" style="width:220px;" @change="restartQrLogin">
           <el-option v-for="o in browserOptions" :key="o.value" :label="o.label" :value="o.value"></el-option>
