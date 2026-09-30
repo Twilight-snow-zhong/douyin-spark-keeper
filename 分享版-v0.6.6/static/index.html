@@ -2480,11 +2480,47 @@
           addLineMarker(marker);
         }
 
+        // ---------- 错峰提示：同一工作区多个账号发送时间太近 → 提醒错开 ----------
+        // 理由：2GB 内存下每个账号发送都会各自启动一个 Chromium，撞一起会排队变慢
+        function _hmFromNextRun(s) {
+          const d = new Date(s);
+          if (isNaN(d.getTime())) return null;
+          return d.getHours() * 60 + d.getMinutes();
+        }
+        async function warnIfScheduleClash(timeStr) {
+          try {
+            const parts = String(timeStr || '').split(':');
+            if (parts.length < 2) return;
+            const mine = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+            if (isNaN(mine)) return;
+            const hits = [];
+            (accounts.value || []).forEach(a => {
+              if (!a || a.id === currentId.value || !a.next_run) return;
+              const t = _hmFromNextRun(a.next_run);
+              if (t === null) return;
+              if (Math.abs(t - mine) < 10) {
+                const hh = String(Math.floor(t / 60)).padStart(2, '0');
+                const mm = String(t % 60).padStart(2, '0');
+                hits.push((a.name || a.id) + '（' + hh + ':' + mm + '）');
+              }
+            });
+            if (hits.length) {
+              ElementPlus.ElMessage.warning(
+                '发送时间太近：' + hits.join('、') + ' — 2GB 内存下会排队变慢，建议错开 15 分钟以上',
+                { duration: 6000 }
+              );
+            }
+          } catch (e) { /* 提示失败不影响保存 */ }
+        }
         async function persistFriends() {
           tplExport(); // 行编辑器 → 导出 messagesText（保存前确保同步）
           const payload = buildPayload();
           payload.config.friends = (friendsList.value || []).filter((f) => f.name && f.name.trim()).map((f) => ({ ...f, name: f.name.trim() }));
           payload.config.messages = tplRows.value.map((s) => s.trim()).filter(Boolean);
+          await warnIfScheduleClash(
+            (typeof payload !== "undefined" && payload && payload.schedule_time) ||
+            (config.value && config.value.schedule_time) || ""
+          );
           const r = await api.put('/accounts/' + currentId.value + '/config', payload);
           applyConfig(r.data.config);
           await loadAccounts();
