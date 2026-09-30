@@ -561,7 +561,12 @@
       }
       .mobile-topbar .mtb-title { font-weight: 700; font-size: 15px; }
       .main { padding: 10px 12px 32px !important; }
-    }</style>
+    }    /* 弹窗内容过高时在内部滚动，避免超出屏幕下沿（体检 / 工作区 / 通知等） */
+    .el-dialog__body { max-height: 66vh; overflow-y: auto; }
+    /* 体检结果：宽屏两列、窄屏一列，避免一行太长把弹窗撑破 */
+    .ck-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 4px 16px; }
+    .ckrow { overflow-wrap: anywhere; }
+    @media (max-width: 700px) { .ck-grid { grid-template-columns: 1fr; } }</style>
 </head>
 <body>
   <!-- 首屏骨架屏：Vue/Element Plus 下载完成前就有东西可看（慢网络下不再白屏） -->
@@ -1508,14 +1513,14 @@
     </el-dialog>
 
     <!-- 🩺 体检结果 -->
-    <el-dialog v-model="checkupDialog" title="🩺 体检结果" width="680px">
+    <el-dialog v-model="checkupDialog" title="🩺 体检结果" width="min(760px, 94vw)" top="5vh">
       <div v-if="checkupLoading" style="padding:22px; text-align:center; color:var(--muted);">
         正在体检…（服务 / 浏览器 / 磁盘 / 内存 / 通知 / 各账号）
       </div>
       <template v-else-if="checkupData">
         <el-alert :type="checkupData.ok ? 'success' : 'warning'" :closable="false" show-icon
           :title="checkupData.summary + '（范围：' + (checkupData.is_admin ? '全部工作区' : '我的工作区') + '）'"></el-alert>
-        <div style="margin-top:12px;">
+        <div class="ck-grid" style="margin-top:12px;">
           <div v-for="it in checkupData.items" :key="it.name" class="ckrow">
             <span class="ckico">{{ it.level === 'ok' ? '✅' : (it.level === 'warn' ? '⚠️' : '❌') }}</span>
             <span class="ckname">{{ it.name }}</span>
