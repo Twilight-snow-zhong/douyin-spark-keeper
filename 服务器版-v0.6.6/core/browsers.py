@@ -67,11 +67,27 @@ def detect_playwright_engines() -> dict[str, bool]:
     同时检查：程序自带 browsers\\ 目录（PLAYWRIGHT_BROWSERS_PATH）和系统默认 ms-playwright。
     """
     def _bases() -> list[Path]:
+        """浏览器可能存放的位置（顺序：自定义 → Windows → Linux → macOS）。
+
+        曾经只查 Windows 的 LOCALAPPDATA 与自带的 browsers\，导致 **Linux 服务器上
+        永远显示"全部未安装"**（其实 Chromium 装好且能用）——这里补上 Linux/macOS 默认路径。
+        """
         out: list[Path] = []
         env = os.environ.get("PLAYWRIGHT_BROWSERS_PATH", "").strip()
         if env:
             out.append(Path(env))
-        out.append(Path(os.environ.get("LOCALAPPDATA", "")) / "ms-playwright")
+        local_appdata = os.environ.get("LOCALAPPDATA", "").strip()
+        if local_appdata:
+            out.append(Path(local_appdata) / "ms-playwright")
+        home = os.environ.get("HOME", "").strip()
+        if not home:
+            try:
+                home = str(Path.home())
+            except Exception:
+                home = ""
+        if home:
+            out.append(Path(home) / ".cache" / "ms-playwright")            # Linux 默认
+            out.append(Path(home) / "Library" / "Caches" / "ms-playwright")  # macOS 默认
         return out
 
     bases = _bases()

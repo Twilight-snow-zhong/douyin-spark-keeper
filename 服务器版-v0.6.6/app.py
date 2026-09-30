@@ -424,7 +424,23 @@ async def lifespan(_app: FastAPI):
     scheduler.shutdown()
 
 
+from fastapi.middleware.gzip import GZipMiddleware   # 静态资源 gzip：1.6MB 界面文件压到约 1/4
+
 app = FastAPI(title="火花助手 (Spark Assistant)", lifespan=lifespan)
+# 手机上慢网络最痛的是首屏 1.6MB：开 gzip 后约 300~400KB，加载快 3~4 倍
+app.add_middleware(GZipMiddleware, minimum_size=1024)
+
+
+@app.middleware("http")
+async def _static_cache_headers(request: Request, call_next):
+    """静态资源缓存策略：vendor 长缓存（手机第二次秒开）、index.html 不缓存（更新后立刻生效）。"""
+    resp = await call_next(request)
+    path = request.url.path
+    if path.startswith("/static/vendor/"):
+        resp.headers.setdefault("Cache-Control", "public, max-age=604800")
+    elif path in ("/", "/index.html", "/static/index.html"):
+        resp.headers.setdefault("Cache-Control", "no-cache")
+    return resp
 app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
 

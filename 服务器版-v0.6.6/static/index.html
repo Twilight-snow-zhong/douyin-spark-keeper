@@ -494,6 +494,37 @@
   </style>
 </head>
 <body>
+  <!-- 首屏骨架屏：Vue/Element Plus 下载完成前就有东西可看（慢网络下不再白屏） -->
+  <div id="boot-splash">
+    <div class="bs-logo">🔥</div>
+    <div class="bs-title">火花助手</div>
+    <div class="bs-tip" id="boot-splash-tip">正在加载界面…</div>
+    <div class="bs-bar"><i></i></div>
+    <div class="bs-note">首次打开需下载约 1.6MB 界面文件，网络较慢时请稍等</div>
+  </div>
+  <style>
+    #boot-splash{position:fixed; inset:0; z-index:9990; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px;
+      background:#f6f7fb; color:#4b5563; font:14px/1.7 -apple-system,'Segoe UI','Microsoft YaHei',system-ui,sans-serif; text-align:center; padding:24px;}
+    #boot-splash .bs-logo{font-size:44px;}
+    #boot-splash .bs-title{font-size:17px; font-weight:700; color:#1f2430;}
+    #boot-splash .bs-bar{width:170px; height:4px; background:#e5e7f0; border-radius:4px; overflow:hidden; margin-top:2px;}
+    #boot-splash .bs-bar i{display:block; width:40%; height:100%; background:#4f6ef7; border-radius:4px; animation:bs-slide 1.1s ease-in-out infinite;}
+    #boot-splash .bs-note{font-size:12px; color:#9aa3b2; max-width:280px;}
+    @keyframes bs-slide{0%{transform:translateX(-100%)}100%{transform:translateX(250%)}}
+    body.dark #boot-splash{background:#171a23; color:#c6cbe0;}
+    body.dark #boot-splash .bs-title{color:#eef1f8;}
+    body.dark #boot-splash .bs-bar{background:#2a3040;}
+  </style>
+  <script>
+    // 15 秒仍未挂载完成 → 给一句"网络较慢"的提示，别让人对着白屏干等
+    setTimeout(function () {
+      var tip = document.getElementById('boot-splash-tip');
+      if (tip && document.getElementById('boot-splash')) {
+        tip.textContent = '还在加载…网络可能较慢，请稍等（或下拉刷新）';
+        tip.style.color = '#e6a23c';
+      }
+    }, 15000);
+  </script>
   <div id="fatal-error" style="display:none; position:fixed; top:0; left:0; right:0; z-index:99999; background:#f56c6c; color:#fff; padding:14px 16px; font-size:13px; line-height:1.6; white-space:pre-wrap; box-shadow:0 2px 8px rgba(0,0,0,.3);"></div>
   <script>
     // 报错安全网：任何 JS/模板错误都显示红条，而不是白屏
@@ -529,9 +560,9 @@
       <div class="token-gate-card">
         <div class="token-gate-logo">🔥</div>
         <h2>火花助手</h2>
-        <p class="muted">输入访问令牌后进入管理页面</p>
+        <p class="muted">粘贴访问令牌即可进入管理页面</p>
         <el-input v-model="tokenInput" placeholder="访问令牌" show-password size="large" @keyup.enter="enterToken"></el-input>
-        <el-button type="primary" size="large" style="width:100%; margin-top:12px;" :loading="tokenChecking" @click="enterToken">进入</el-button>
+        <el-button type="primary" size="large" style="width:100%; margin-top:12px;" :loading="tokenChecking" @click="enterToken">{{ tokenChecking ? '正在验证…' : '进入' }}</el-button>
         <p v-if="tokenError" style="color:var(--el-color-danger); font-size:12px; margin-top:8px;">{{ tokenError }}</p>
         <p class="muted" style="margin-top:14px; font-size:12px; line-height:1.7;">本机首次使用可直接设置新令牌；服务器 / 局域网部署请输入 <code>.env</code> 文件里的现有令牌（<code>AUTH_TOKEN=...</code>）</p>
       </div>
@@ -1579,17 +1610,26 @@ systemctl stop douyin-spark       # 停止</div>
         const needsToken = computed(() => !token.value);
         async function enterToken() {
           const t = tokenInput.value.trim();
-          if (t.length < 8) { tokenError.value = '令牌至少 8 位'; return; }
+          if (t.length < 8) { tokenError.value = '访问令牌至少 8 位，建议直接粘贴'; return; }
           tokenChecking.value = true;
           tokenError.value = '';
           try {
             let ok = false;
-            try { await api.get('/accounts', { headers: { 'X-Auth-Token': t } }); ok = true; } catch (e) { /* 校验失败 → 尝试设为新令牌 */ }
+            let netFail = false;
+            try {
+              await api.get('/accounts', { headers: { 'X-Auth-Token': t }, timeout: 15000 });
+              ok = true;
+            } catch (e) {
+              // 区分「网络不通/超时」和「令牌不对」：以前一律提示 .env，网络慢时会让人误解
+              if (!e || !e.response) netFail = true;
+            }
             if (!ok) {
               try { await api.put('/token', { token: t }); ok = true; } catch (e2) { /* 非本机来源需现有令牌 */ }
             }
             if (!ok) {
-              tokenError.value = '无法使用该令牌：服务器/局域网部署需输入 .env 里的现有令牌';
+              tokenError.value = netFail
+                ? '连不上服务器（网络较慢或已断开）。请检查网络后点「进入」重试。'
+                : '访问令牌不正确。请确认已完整复制（不要带空格或换行）。';
               return;
             }
             token.value = t;
@@ -2999,6 +3039,8 @@ systemctl stop douyin-spark       # 停止</div>
           window.addEventListener('resize', onLogPaneResize);
           document.addEventListener('click', onLogToolClick);
           tickTimer = setInterval(() => tick.value++, 1000);
+        // 界面挂载完成 → 移除首屏骨架屏
+        try { var _bs = document.getElementById('boot-splash'); if (_bs) _bs.remove(); } catch (e) {}
           if (token.value) {   // 没有令牌就别去请求接口（否则控制台刷 5 条 401）
             await loadAll();
             loadEmojis();
