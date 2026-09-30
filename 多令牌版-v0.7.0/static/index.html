@@ -1968,8 +1968,6 @@ systemctl stop douyin-spark       # 停止</div>
           if (!m) return { pre: '', rest: s, preIcons: [] };
           const pre = m[0];
           return {
-          wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
-          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, pre: pre, rest: s.slice(pre.length), preIcons: templateIcons(pre) };
         }
         function rowRestText(i) { return splitLeadingMarkers(tplRows.value[i] || '').rest; }
@@ -2207,8 +2205,6 @@ systemctl stop douyin-spark       # 停止</div>
         }
         function browserName(b) {
           return {
-          wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
-          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, chromium: 'Chromium', firefox: 'Firefox', webkit: 'WebKit' }[b] || b || '—';
         }
         function statusClass(a) {
@@ -2217,14 +2213,10 @@ systemctl stop douyin-spark       # 停止</div>
         }
         function sessionText(s) {
           return {
-          wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
-          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, ok: '登录正常', expired: '登录态已过期', partial: '部分成功', failed: '发送失败', unknown: '状态未知' }[s] || s;
         }
         function sessionTagType(s) {
           return {
-          wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
-          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, ok: 'success', expired: 'danger', partial: 'warning', failed: 'danger', unknown: 'info' }[s] || 'info';
         }
         function markDirty() { dirty.value = true; }
@@ -2334,8 +2326,6 @@ systemctl stop douyin-spark       # 停止</div>
             if (!el) return null;
             const cs = getComputedStyle(el);
             return {
-          wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
-          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, el, cs };
           } catch (e) { return null; }
         }
@@ -2700,10 +2690,7 @@ systemctl stop douyin-spark       # 停止</div>
           }
         }
         function buildPayload() {
-          return {
-          wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
-          wsAllTokens, showWsTokens, copyWsAll,
-          openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, config: { ...settingsForm } };
+          return { config: { ...settingsForm } };
         }
         // ---------- 🖼 表情与图片 ----------
         function emojiSrc(name) {
@@ -3573,8 +3560,6 @@ systemctl stop douyin-spark       # 停止</div>
           }
         }
         return {
-          wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
-          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint,
           tab, theme, toggleTheme, navs, wallAccounts, accounts, version, currentId, currentAccount, status, config, settingsForm, friendsList, messagesText, dirty,
           sidebarCollapsed, toggleSidebar, wallRef, wallAtStart, wallAtEnd, wallScroll, historyFilter, friendEnabledCount, filteredHistory, countdown, runAllAccounts, downloadBackup, onRestoreChange, contactSearch, filteredContacts, selectAllFriends, deselectAllFriends, templateLines, templateCount, randomPreview, tplRows, tplAddRow, tplDelRow, tplRowEdited, splitLeadingMarkers, rowRestText, setRowRest, pasteDialogVisible, pasteText, doPasteTpl, addFriendRow, moveFriend, syncAccName, syncElapsedText, renderedLog, fetchPhaseText, shortPhaseText,
