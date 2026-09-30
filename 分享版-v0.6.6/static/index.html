@@ -529,7 +529,39 @@
     .native-emoji-btn.sticker-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 13px; padding: 8px 2px; color: var(--text); }
     .sti-ico { width: 34px; height: 34px; object-fit: contain; border-radius: 6px; background: #fff; }
     body.dark .sti-ico { background: #1e2333; }
-  </style>
+      /* 手机端：侧栏改为「左侧抽屉」（☰ 打开 / 点遮罩关闭），不再堆到顶部 */
+    .mobile-topbar { display: none; }
+    .mobile-mask { display: none; }
+    @media (max-width: 768px) {
+      .sidebar {
+        position: fixed !important; left: 0; top: 0; bottom: 0;
+        width: 264px !important; max-width: 82vw; height: 100vh;
+        transform: translateX(-102%); transition: transform .22s ease;
+        z-index: 60; overflow-y: auto; border-right: 1px solid var(--border);
+        box-shadow: 2px 0 18px rgba(0,0,0,.18);
+      }
+      .sidebar.mobile-open { transform: translateX(0); }
+      .sidebar.collapsed { width: 264px !important; }
+      .sidebar.collapsed .acc-name, .sidebar.collapsed .acc-running,
+      .sidebar.collapsed .acc-off, .sidebar.collapsed .nav-item span:not(.nav-ico),
+      .sidebar.collapsed .brand span:not(.brand-icon), .sidebar.collapsed .brand .ver,
+      .sidebar.collapsed .bt-txt { display: inline !important; }
+      .sidebar.collapsed .acc-item, .sidebar.collapsed .nav-item { justify-content: flex-start !important; padding: 8px 10px !important; }
+      .sidebar.collapsed .brand { justify-content: flex-start !important; }
+      .sidebar .collapse-btn { display: none !important; }
+      .mobile-mask { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.42); z-index: 55; }
+      .mobile-topbar {
+        display: flex; align-items: center; gap: 10px;
+        padding: 8px 10px; margin: 0 0 10px; border-radius: 12px;
+        background: var(--surface); border: 1px solid var(--border);
+      }
+      .mobile-topbar .mtb-btn {
+        font-size: 18px; line-height: 1; padding: 6px 12px; border-radius: 10px;
+        border: 1px solid var(--border); background: transparent; color: var(--text); cursor: pointer;
+      }
+      .mobile-topbar .mtb-title { font-weight: 700; font-size: 15px; }
+      .main { padding: 10px 12px 32px !important; }
+    }</style>
 </head>
 <body>
   <!-- 首屏骨架屏：Vue/Element Plus 下载完成前就有东西可看（慢网络下不再白屏） -->
@@ -606,7 +638,13 @@
       </div>
     </div>
     <div class="shell">
-      <aside class="sidebar" :class="{ collapsed: sidebarCollapsed }">
+    <!-- 手机端顶栏：☰ 打开左侧抽屉 -->
+    <div class="mobile-topbar" v-if="!needsToken">
+      <button class="mtb-btn" @click="toggleMobileNav">☰</button>
+      <span class="mtb-title">{{ mobileTabTitle }}</span>
+    </div>
+    <div class="mobile-mask" v-if="mobileNavOpen" @click="mobileNavOpen = false"></div>
+      <aside class="sidebar" :class="{ collapsed: sidebarCollapsed, 'mobile-open': mobileNavOpen }">
         <div class="brand">
           <span class="brand-icon">🔥</span>
           <span class="brand-title">火花助手</span>
@@ -629,7 +667,7 @@
         </div>
 
         <div class="side-title">导航</div>
-        <div class="side-nav">
+        <div class="side-nav" @click="mobileNavOpen = false">
           <div v-for="n in navs" :key="n.key" class="nav-item" :class="{ active: tab === n.key }" @click="switchTab(n.key)">
             <span class="nav-ico">{{ n.ico }}</span>
             <span>{{ n.label }}</span>
@@ -2594,6 +2632,20 @@
             };
           } catch (e) { return null; }
         });
+        // ---------- 手机端：左侧抽屉 ----------
+        const mobileNavOpen = ref(false);
+        function toggleMobileNav() {
+          mobileNavOpen.value = !mobileNavOpen.value;
+          if (mobileNavOpen.value && sidebarCollapsed.value) sidebarCollapsed.value = false;
+        }
+        const mobileTabTitle = computed(() => {
+          try {
+            const list = (navs && navs.value) ? navs.value : (navs || []);
+            const hit = (list || []).find(n => n && n.key === tab.value);
+            if (hit && hit.label) return hit.label;
+          } catch (e) { /* 忽略 */ }
+          return '火花助手';
+        });
         async function warnIfScheduleClash(timeStr) {
           try {
             const parts = String(timeStr || '').split(':');
@@ -3096,6 +3148,7 @@
           notifyDialog, notifyForm, addAccountDialog, newAccountName, renameDialog, renameId, renameName,
           qrWaitSec, qrWaitText,
           checkupDialog, checkupLoading, checkupData, runCheckup,
+          mobileNavOpen, toggleMobileNav, mobileTabTitle,
           monthStat,
         sendOneDialog, sendOneNames, sendOneDry, enabledFriends, qrDialog, qrImg, qrMsg, qrNote, qrEngine, qrMode,
           qrSessionActive, qrNeedVerify, qrVerifyType, resendVerifyCode, switchToWindowVerify, manualMode, manualText, qrText, dragState, toggleManualMode, toggleDragMode, onQrClick, manualDoType, manualScroll, doDrag, copyQrDiagnosis, saveQrShot, platform, browserOptions, detectedBrowsers, engines, customPath,
