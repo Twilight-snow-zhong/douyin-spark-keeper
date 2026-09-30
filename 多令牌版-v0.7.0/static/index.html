@@ -686,7 +686,7 @@
           <div class="foot-btns">
             <el-button size="small" @click="loadAll" title="刷新数据"><span class="bt-ico">🔄</span><span class="bt-txt">刷新</span></el-button>
             <el-button size="small" @click="openNotifyDialog" title="通知设置"><span class="bt-ico">🔔</span><span class="bt-txt">通知</span></el-button>
-            <el-button size="small" @click="openWsDialog" title="工作区管理"><span class="bt-ico">🗂</span><span class="bt-txt">工作区</span></el-button>
+            <el-button size="small" @click="openWsDialog" title="工作区管理" v-if="isOwner"><span class="bt-ico">🗂</span><span class="bt-txt">工作区</span></el-button>
             <el-button size="small" @click="showTokenDialog" title="访问令牌"><span class="bt-ico">🔑</span><span class="bt-txt">令牌</span></el-button>
             <el-button size="small" @click="runCheckup" title="体检：服务/浏览器/磁盘/通知/各账号"><span class="bt-ico">🩺</span><span class="bt-txt">体检</span></el-button>
           </div>
@@ -1815,10 +1815,12 @@ systemctl stop douyin-spark       # 停止</div>
               return;
             }
             token.value = t;
+            loadMe();
             localStorage.setItem('ds_token', t);
             tokenDialog.value = false;
             await loadAll();
             loadEmojis();
+            loadMe();   // 判定是否主令牌（决定要不要显示工作区按钮）
             ElementPlus.ElMessage.success('欢迎回来');
           } finally {
             tokenChecking.value = false;
@@ -2910,6 +2912,14 @@ systemctl stop douyin-spark       # 停止</div>
           try { localStorage.removeItem('ds_token_input'); } catch (e3) { /* 忽略 */ }
           location.reload();
         }
+        // ---------- 只有主令牌才需要（也才能）管理工作区 ----------
+        const isOwner = ref(true);          // 默认 true：老版本没有 /api/me 时不影响
+        async function loadMe() {
+          try {
+            const r = await api.get('/me');
+            isOwner.value = !!(r.data && r.data.is_default);
+          } catch (e) { /* 0.6.6 及更早没有 /api/me → 保持 true，不影响 */ }
+        }
         async function warnIfScheduleClash(timeStr) {
           try {
             const parts = String(timeStr || '').split(':');
@@ -3020,6 +3030,7 @@ systemctl stop douyin-spark       # 停止</div>
           try {
             await api.put('/token', { token: t });
             token.value = t;
+            loadMe();
             localStorage.setItem('ds_token', t);
             tokenDialog.value = false;
             ElementPlus.ElMessage.success('令牌已更新，请牢记新令牌');
@@ -3371,6 +3382,7 @@ systemctl stop douyin-spark       # 停止</div>
         }
 
         onMounted(async () => {
+          loadMe();   // 老用户（令牌已存在浏览器）直接打开时，也要判断是否主令牌
           applyTheme(theme.value);
           updateSidebar();
           window.addEventListener('resize', updateSidebar);
@@ -3547,6 +3559,7 @@ systemctl stop douyin-spark       # 停止</div>
           notifyDialog, notifyForm, deployTutorialDialog, notifyGuideDialog, autostartSupported, addAccountDialog, newAccountName, renameDialog, renameId, renameName,
           qrWaitSec, qrWaitText,
           checkupDialog, checkupLoading, checkupData, runCheckup,
+          isOwner,
           logout,
           mobileNavOpen, toggleMobileNav, mobileTabTitle,
           monthStat,
@@ -3570,3 +3583,4 @@ systemctl stop douyin-spark       # 停止</div>
   </script>
 </body>
 </html>
+
