@@ -1302,6 +1302,171 @@ def api_token_change(
     return {"ok": True, "token": new_token}
 
 
+# ---------- 🩺 体检（服务 / 浏览器 / 磁盘 / 内存 / 通知 / 每个账号） ----------
+
+_START_TS = datetime.now()
+
+
+def _human_uptime() -> str:
+    s = int((datetime.now() - _START_TS).total_seconds())
+    if s < 3600:
+        return "%d 分钟" % (s // 60)
+    if s < 86400:
+        return "%d 小时 %d 分" % (s // 3600, (s % 3600) // 60)
+    return "%d 天 %d 小时" % (s // 86400, (s % 86400) // 3600)
+
+
+@app.get("/api/checkup")
+def api_checkup(token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    """🩺 体检：一眼看出"到底哪不对"。
+
+    权限：**主令牌**体检全部工作区；**普通令牌**只看自己的工作区。
+    """
+    import shutil as _shutil
+
+    ws_now = _check_auth(token) or "default"
+    try:
+        is_admin = ws_now == workspace.DEFAULT_WS
+        scope = [w["ws"] for w in workspace.list_workspaces()] if is_admin else [ws_now]
+    except Exception:
+        is_admin, scope = True, ["default"]
+
+    items: list = []
+
+    def add(level: str, name: str, detail: str, advice: str = "") -> None:
+        items.append({"level": level, "name": name, "detail": detail, "advice": advice})
+
+    add("ok", "服务", "火花助手 v%s 运行中，已运行 %s" % (APP_VERSION, _human_uptime()))
+
+    try:
+        eng = browsers.detect_playwright_engines()
+        ok_eng = [k for k, v in eng.items() if v]
+        if ok_eng:
+            add("ok", "浏览器引擎", "可用：" + "、".join(ok_eng))
+        else:
+            add("error", "浏览器引擎", "没有检测到可用引擎",
+                "在服务器执行 python -m playwright install chromium")
+    except Exception as e:
+        add("warn", "浏览器引擎", "检测失败：" + str(e)[:60])
+
+    try:
+        du = _shutil.disk_usage(str(data_dir()))
+        free_gb = du.free / 1024 ** 3
+        add("ok" if free_gb > 1 else "warn", "磁盘",
+            "数据分区剩余 %.1fGB（共 %.1fGB）" % (free_gb, du.total / 1024 ** 3),
+            "" if free_gb > 1 else "剩余空间偏少，建议清理旧备份与截图")
+    except Exception as e:
+        add("warn", "磁盘", "读取失败：" + str(e)[:50])
+
+    try:
+        mem = {}
+        with open("/proc/meminfo", encoding="utf-8") as f:
+            for line in f:
+                k, _, v = line.partition(":")
+                mem[k.strip()] = int(v.split()[0])
+        total = mem.get("MemTotal", 0) / 1024.0
+        avail = mem.get("MemAvailable", 0) / 1024.0
+        if total:
+            add("ok" if avail > 300 else "warn", "内存",
+                "可用 %.0fMB / 共 %.0fMB" % (avail, total),
+                "" if avail > 300 else "内存紧张：发送时只会跑一个任务，请把各账号定时时间错开")
+    except Exception:
+        pass
+
+    try:
+        nf = (load_global_config() or {}).get("notify") or {}
+        chans = []
+        if nf.get("webhook_enabled"):
+            chans.append(str(nf.get("webhook_type") or "webhook"))
+        if nf.get("desktop"):
+            chans.append("桌面通知")
+        if chans:
+            add("ok", "通知", "已启用：" + "、".join(chans))
+        else:
+            add("warn", "通知", "没有启用任何通知渠道",
+                "去「🔔 通知」配置 PushPlus / Server酱 / ntfy，失败时手机才能收到提醒")
+    except Exception as e:
+        add("warn", "通知", "读取配置失败：" + str(e)[:50])
+
+    accounts_out: list = []
+    for w in scope:
+        _cv = None
+        try:
+            _cv = ctx.set_root(workspace.ws_paths(w)["root"])
+        except Exception:
+            _cv = None
+        try:
+            for a in accounts.list_accounts():
+                acc_dir = accounts.account_dir(a["id"])
+                rt = {}
+                try:
+                    rt = load_runtime(acc_dir)
+                except Exception:
+                    rt = {}
+                contacts = rt.get("contacts")
+                n_contacts = len(contacts) if isinstance(contacts, list) else None
+                hist = rt.get("history") if isinstance(rt.get("history"), list) else []
+                last = hist[0] if hist else {}
+                probs = []
+                if not a.get("state_exists"):
+                    probs.append("还没有登录态（需要扫码登录）")
+                if a.get("session_status") == "failed":
+                    probs.append("会话状态异常")
+                if not a.get("enabled"):
+                    probs.append("未参与每日发送")
+                elif not a.get("next_run"):
+                    probs.append("没有排上定时任务")
+                if n_contacts == 0:
+                    probs.append("好友名单是空的（去「好友与消息」刷新）")
+                level = "ok"
+                if not a.get("state_exists"):
+                    level = "error"
+                elif probs:
+                    level = "warn"
+                accounts_out.append({
+                    "ws": w,
+                    "name": a.get("name"),
+                    "id": a.get("id"),
+                    "level": level,
+                    "state_exists": bool(a.get("state_exists")),
+                    "session": a.get("session_status"),
+                    "enabled": bool(a.get("enabled")),
+                    "contacts": n_contacts,
+                    "next_run": a.get("next_run"),
+                    "last": ("成功 %d 人 / 失败 %d 人"
+                             % (len(last.get("ok") or []), len(last.get("failed") or []))) if last else "还没有发送记录",
+                    "problems": probs,
+                })
+        except Exception as e:
+            accounts_out.append({"ws": w, "name": w, "level": "error",
+                                 "problems": ["体检失败：" + str(e)[:60]]})
+        finally:
+            if _cv is not None:
+                try:
+                    ctx.reset_root(_cv)
+                except Exception:
+                    pass
+
+    n_err = sum(1 for i in items if i["level"] == "error") + sum(1 for a in accounts_out if a.get("level") == "error")
+    n_warn = sum(1 for i in items if i["level"] == "warn") + sum(1 for a in accounts_out if a.get("level") == "warn")
+    if n_err:
+        summary = "发现 %d 个问题、%d 个提醒" % (n_err, n_warn)
+    elif n_warn:
+        summary = "一切正常，但有 %d 个提醒" % n_warn
+    else:
+        summary = "全部正常"
+    logger.info("体检完成：%s（范围 %s）", summary, ",".join(scope))
+    return {
+        "ok": n_err == 0,
+        "summary": summary,
+        "is_admin": is_admin,
+        "ws": ws_now,
+        "scope": scope,
+        "items": items,
+        "accounts": accounts_out,
+    }
+
+
 if __name__ == "__main__":
     host = os.environ.get("HOST", "127.0.0.1")
     port = int(os.environ.get("PORT", "8000"))
