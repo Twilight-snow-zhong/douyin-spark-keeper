@@ -566,7 +566,9 @@
     /* 体检结果：宽屏两列、窄屏一列，避免一行太长把弹窗撑破 */
     .ck-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 4px 16px; }
     .ckrow { overflow-wrap: anywhere; }
-    @media (max-width: 700px) { .ck-grid { grid-template-columns: 1fr; } }</style>
+    @media (max-width: 700px) { .ck-grid { grid-template-columns: 1fr; } }    /* 底部按钮多了会溢出 → 自动换行（3+2 两行） */
+    .foot-btns { flex-wrap: wrap; }
+    .foot-btns .el-button { flex: 1 1 calc(33.333% - 6px); min-width: 0; font-size: 12px; padding-left: 0; padding-right: 0; }</style>
 </head>
 <body>
   <!-- 首屏骨架屏：Vue/Element Plus 下载完成前就有东西可看（慢网络下不再白屏） -->

@@ -566,7 +566,9 @@
     /* 体检结果：宽屏两列、窄屏一列，避免一行太长把弹窗撑破 */
     .ck-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 4px 16px; }
     .ckrow { overflow-wrap: anywhere; }
-    @media (max-width: 700px) { .ck-grid { grid-template-columns: 1fr; } }</style>
+    @media (max-width: 700px) { .ck-grid { grid-template-columns: 1fr; } }    /* 底部按钮多了会溢出 → 自动换行（3+2 两行） */
+    .foot-btns { flex-wrap: wrap; }
+    .foot-btns .el-button { flex: 1 1 calc(33.333% - 6px); min-width: 0; font-size: 12px; padding-left: 0; padding-right: 0; }</style>
 </head>
 <body>
   <!-- 首屏骨架屏：Vue/Element Plus 下载完成前就有东西可看（慢网络下不再白屏） -->
@@ -1529,12 +1531,17 @@ journalctl -u douyin-spark -f     # 实时日志</div>
         <el-input v-model="wsNewName" placeholder="新工作区名称，如：老王" style="width:220px;"></el-input>
         <el-button type="primary" :loading="wsBusy" @click="createWs">➕ 新建工作区</el-button>
         <el-button @click="loadWorkspaces">🔄 刷新</el-button>
+        <el-button @click="showWsTokens">👁 显示全部令牌</el-button>
       </div>
       <el-alert v-if="wsCreated" type="success" :closable="false" style="margin-top:10px;"
         :title="'新令牌（只显示这一次，请立刻复制给对方）：' + wsCreated.token"></el-alert>
       <div v-if="wsCreated" style="margin-top:8px;">
         <el-button size="small" @click="copyWsToken">📋 复制令牌</el-button>
         <span class="muted" style="margin-left:8px;">对方在登录页粘贴这把令牌，之后只能看到自己的工作区</span>
+      </div>
+      <div v-if="wsAllTokens" style="margin-top:10px;">
+        <pre style="white-space:pre-wrap; word-break:break-all; font-size:12px; margin:0; background:rgba(127,127,127,.08); border:1px solid var(--border); border-radius:8px; padding:8px 10px;">{{ wsAllTokens }}</pre>
+        <el-button size="small" style="margin-top:6px;" @click="copyWsAll">📋 复制全部令牌</el-button>
       </div>
       <el-alert v-if="wsMsg" :type="wsMsgType" :closable="false" style="margin-top:10px;" :title="wsMsg"></el-alert>
       <template #footer>
@@ -1959,6 +1966,7 @@ systemctl stop douyin-spark       # 停止</div>
           const pre = m[0];
           return {
           wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
+          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, pre: pre, rest: s.slice(pre.length), preIcons: templateIcons(pre) };
         }
         function rowRestText(i) { return splitLeadingMarkers(tplRows.value[i] || '').rest; }
@@ -2197,6 +2205,7 @@ systemctl stop douyin-spark       # 停止</div>
         function browserName(b) {
           return {
           wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
+          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, chromium: 'Chromium', firefox: 'Firefox', webkit: 'WebKit' }[b] || b || '—';
         }
         function statusClass(a) {
@@ -2206,11 +2215,13 @@ systemctl stop douyin-spark       # 停止</div>
         function sessionText(s) {
           return {
           wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
+          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, ok: '登录正常', expired: '登录态已过期', partial: '部分成功', failed: '发送失败', unknown: '状态未知' }[s] || s;
         }
         function sessionTagType(s) {
           return {
           wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
+          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, ok: 'success', expired: 'danger', partial: 'warning', failed: 'danger', unknown: 'info' }[s] || 'info';
         }
         function markDirty() { dirty.value = true; }
@@ -2321,6 +2332,7 @@ systemctl stop douyin-spark       # 停止</div>
             const cs = getComputedStyle(el);
             return {
           wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
+          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, el, cs };
           } catch (e) { return null; }
         }
@@ -2687,6 +2699,7 @@ systemctl stop douyin-spark       # 停止</div>
         function buildPayload() {
           return {
           wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
+          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint, config: { ...settingsForm } };
         }
         // ---------- 🖼 表情与图片 ----------
@@ -3381,6 +3394,23 @@ systemctl stop douyin-spark       # 停止</div>
         });
 
         // ---------- 工作区管理（多令牌） ----------
+        const wsAllTokens = ref('');
+        async function showWsTokens() {
+          try {
+            const r = await api.get('/workspaces/tokens');
+            wsAllTokens.value = (r.data.tokens || []).map(t => (t.name || t.ws) + '：' + t.token).join('\n');
+            if (!wsAllTokens.value) wsAllTokens.value = '（还没有其他工作区）';
+          } catch (e) {
+            wsAllTokens.value = '';
+            wsMsgType.value = 'error';
+            wsMsg.value = (e.response && e.response.data && e.response.data.detail) || '读取令牌失败（仅主令牌可用）';
+          }
+        }
+        async function copyWsAll() {
+          if (!wsAllTokens.value) return;
+          try { await navigator.clipboard.writeText(wsAllTokens.value); ElementPlus.ElMessage.success('已复制全部令牌'); }
+          catch (e) { ElementPlus.ElMessage.warning('复制失败，请手动选中文本'); }
+        }
         const wsDialog = ref(false);
         const wsList = ref([]);
         const wsTokens = ref([]);
@@ -3495,6 +3525,7 @@ systemctl stop douyin-spark       # 停止</div>
         }
         return {
           wsDialog, wsList, wsTokens, wsNewName, wsCreated, wsBusy, wsMsg, wsMsgType,
+          wsAllTokens, showWsTokens, copyWsAll,
           openWsDialog, loadWorkspaces, createWs, copyWsToken, rotateWs, renameWs, deleteWs, wsTokenHint,
           tab, theme, toggleTheme, navs, wallAccounts, accounts, version, currentId, currentAccount, status, config, settingsForm, friendsList, messagesText, dirty,
           sidebarCollapsed, toggleSidebar, wallRef, wallAtStart, wallAtEnd, wallScroll, historyFilter, friendEnabledCount, filteredHistory, countdown, runAllAccounts, downloadBackup, onRestoreChange, contactSearch, filteredContacts, selectAllFriends, deselectAllFriends, templateLines, templateCount, randomPreview, tplRows, tplAddRow, tplDelRow, tplRowEdited, splitLeadingMarkers, rowRestText, setRowRest, pasteDialogVisible, pasteText, doPasteTpl, addFriendRow, moveFriend, syncAccName, syncElapsedText, renderedLog, fetchPhaseText, shortPhaseText,

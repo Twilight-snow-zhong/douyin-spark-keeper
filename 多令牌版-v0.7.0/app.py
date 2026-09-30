@@ -1381,6 +1381,15 @@ def api_me(token: str = Header(default="", alias="X-Auth-Token")) -> dict:
     return info
 
 
+@app.get("/api/workspaces/tokens")
+def api_ws_tokens(request: Request, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
+    """返回各工作区的**完整令牌**（仅主令牌可用）。
+
+    列表接口只给尾号（避免误传/截图泄露）；需要把令牌重新发给朋友时用这个。
+    """
+    _require_ws_admin(request, token)
+    return {"tokens": workspace.list_tokens()}
+
 @app.get("/api/workspaces")
 def api_workspaces(request: Request, token: str = Header(default="", alias="X-Auth-Token")) -> dict:
     """工作区列表（含各工作区的令牌提示，但不返回完整令牌）。"""
