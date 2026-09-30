@@ -501,6 +501,20 @@
       .el-dialog .el-form-item__content { margin-left: 0 !important; }
     }
     /* 扫码等待面板：让"正在启动"看起来是活的 */
+    /* 体检结果行 */
+    /* 本月成功率小条 */
+    .month-stat { display: flex; gap: 10px; flex-wrap: wrap; margin: 4px 0 14px; }
+    .ms-item { flex: 1 1 90px; min-width: 90px; background: var(--surface); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 12px; text-align: center; }
+    .ms-num { font-size: 20px; font-weight: 700; color: var(--primary); line-height: 1.3; }
+    .ms-num.ms-bad { color: #f56c6c; }
+    .ms-label { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+    .ckrow { padding: 7px 0; border-bottom: 1px dashed var(--border); font-size: 13px; line-height: 1.7; }
+    .ckrow:last-child { border-bottom: none; }
+    .ckico { margin-right: 6px; }
+    .ckname { font-weight: 600; margin-right: 8px; }
+    .ckdetail { color: var(--text-2, #606266); }
+    .ckadvice { color: #e6a23c; font-size: 12.5px; margin-left: 22px; }
     .qr-waiting { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; padding: 34px 16px; }
     .qr-spin { width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--el-border-color, #dcdfe6); border-top-color: var(--el-color-primary, #409eff); animation: qr-spin 0.9s linear infinite; }
     @keyframes qr-spin { to { transform: rotate(360deg); } }
@@ -628,6 +642,7 @@
             <el-button size="small" @click="loadAll" title="刷新数据"><span class="bt-ico">🔄</span><span class="bt-txt">刷新</span></el-button>
             <el-button size="small" @click="openNotifyDialog" title="通知设置"><span class="bt-ico">🔔</span><span class="bt-txt">通知</span></el-button>
             <el-button size="small" @click="showTokenDialog" title="访问令牌"><span class="bt-ico">🔑</span><span class="bt-txt">令牌</span></el-button>
+            <el-button size="small" @click="runCheckup" title="体检：服务/浏览器/磁盘/通知/各账号"><span class="bt-ico">🩺</span><span class="bt-txt">体检</span></el-button>
           </div>
         </div>
       </aside>
@@ -1020,7 +1035,14 @@
         <section v-show="tab === 'history'" class="pane">
           <el-card shadow="never">
             <div class="section-title"><span>📜 历史记录</span></div>
-            <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
+
+        <!-- 本月成功率（从 status.history 现算，不新增后端接口） -->
+        <div class="month-stat" v-if="monthStat">
+          <div class="ms-item"><div class="ms-num">{{ monthStat.rate }}%</div><div class="ms-label">{{ monthStat.label }}</div></div>
+          <div class="ms-item"><div class="ms-num">{{ monthStat.days }}</div><div class="ms-label">发送天数</div></div>
+          <div class="ms-item"><div class="ms-num">{{ monthStat.ok }}</div><div class="ms-label">成功人次</div></div>
+          <div class="ms-item"><div class="ms-num" :class="{ 'ms-bad': monthStat.failed > 0 }">{{ monthStat.failed }}</div><div class="ms-label">失败人次</div></div>
+        </div>            <div style="display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap;">
               <el-select v-model="historyFilter" style="width:150px;">
                 <el-option label="全部记录" value="all"></el-option>
                 <el-option label="干跑测试" value="dry"></el-option>
@@ -1610,6 +1632,36 @@ systemctl stop douyin-spark       # 停止</div>
       </div>
       <template #footer>
         <el-button type="primary" :disabled="!sendOneNames.length" @click="doSendOne">发送</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 🩺 体检结果 -->
+    <el-dialog v-model="checkupDialog" title="🩺 体检结果" width="680px">
+      <div v-if="checkupLoading" style="padding:22px; text-align:center; color:var(--muted);">
+        正在体检…（服务 / 浏览器 / 磁盘 / 内存 / 通知 / 各账号）
+      </div>
+      <template v-else-if="checkupData">
+        <el-alert :type="checkupData.ok ? 'success' : 'warning'" :closable="false" show-icon
+          :title="checkupData.summary + '（范围：' + (checkupData.is_admin ? '全部工作区' : '我的工作区') + '）'"></el-alert>
+        <div style="margin-top:12px;">
+          <div v-for="it in checkupData.items" :key="it.name" class="ckrow">
+            <span class="ckico">{{ it.level === 'ok' ? '✅' : (it.level === 'warn' ? '⚠️' : '❌') }}</span>
+            <span class="ckname">{{ it.name }}</span>
+            <span class="ckdetail">{{ it.detail }}</span>
+            <div v-if="it.advice" class="ckadvice">→ {{ it.advice }}</div>
+          </div>
+        </div>
+        <div class="side-title" style="margin:14px 0 4px; padding:0;">账号（{{ checkupData.accounts.length }}）</div>
+        <div v-for="a in checkupData.accounts" :key="a.ws + '-' + a.id" class="ckrow">
+          <span class="ckico">{{ a.level === 'ok' ? '✅' : (a.level === 'warn' ? '⚠️' : '❌') }}</span>
+          <span class="ckname">{{ a.name }}</span>
+          <span class="ckdetail">登录态 {{ a.state_exists ? '已上传' : '未上传' }} ｜ 下次 {{ a.next_run || '未排上' }} ｜ {{ a.last }}</span>
+          <div v-if="a.problems && a.problems.length" class="ckadvice">→ {{ a.problems.join('；') }}</div>
+        </div>
+      </template>
+      <template #footer>
+        <el-button @click="runCheckup">🔄 重新体检</el-button>
+        <el-button @click="checkupDialog = false">关闭</el-button>
       </template>
     </el-dialog>
   </div>
@@ -2664,6 +2716,61 @@ systemctl stop douyin-spark       # 停止</div>
           if (isNaN(d.getTime())) return null;
           return d.getHours() * 60 + d.getMinutes();
         }
+        // ---------- 🩺 体检 ----------
+        const checkupDialog = ref(false);
+        const checkupLoading = ref(false);
+        const checkupData = ref(null);
+        async function runCheckup() {
+          checkupDialog.value = true;
+          checkupLoading.value = true;
+          try {
+            const r = await api.get('/checkup');
+            checkupData.value = r.data;
+          } catch (e) {
+            checkupData.value = {
+              ok: false,
+              summary: (e.response && e.response.data && e.response.data.detail) || '体检失败（网络或权限问题）',
+              is_admin: false, items: [], accounts: [],
+            };
+          } finally {
+            checkupLoading.value = false;
+          }
+        }
+        // ---------- 本月成功率（读 status.history 现算） ----------
+        function _histTime(h) {
+          const cand = [h && h.time, h && h.date, h && h.at, h && h.ts, h && h.finished_at];
+          for (let i = 0; i < cand.length; i++) {
+            if (typeof cand[i] === 'string' && cand[i].length >= 10) return cand[i];
+          }
+          return '';
+        }
+        const monthStat = computed(() => {
+          try {
+            const hist = (status.value && status.value.history) || [];
+            if (!hist.length) return null;
+            const now = new Date();
+            const ym = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
+            const dated = hist.filter(h => _histTime(h));
+            const useMonth = dated.length > 0;
+            const rows = useMonth ? dated.filter(h => _histTime(h).startsWith(ym)) : hist;
+            const days = new Set();
+            let ok = 0;
+            let failed = 0;
+            rows.forEach(h => {
+              const t = _histTime(h);
+              if (t) days.add(t.slice(0, 10));
+              ok += ((h && h.ok) || []).length;
+              failed += ((h && h.failed) || []).length;
+            });
+            const total = ok + failed;
+            if (!total) return null;
+            return {
+              label: useMonth ? '本月成功率' : '近期成功率',
+              total: total, ok: ok, failed: failed, days: days.size,
+              rate: Math.round(ok * 100 / total),
+            };
+          } catch (e) { return null; }
+        });
         async function warnIfScheduleClash(timeStr) {
           try {
             const parts = String(timeStr || '').split(':');
@@ -3167,6 +3274,8 @@ systemctl stop douyin-spark       # 停止</div>
           selectedContacts, brokenAvatars, isContactChecked, toggleContact, avatarSrc, selectAllContacts, clearAllContacts, logs, logScope, autoRefresh, autoStart, autoStartMinimized, uploadFile, token, needsToken, enterToken, tokenChecking, tokenError, tokenDialog, tokenInput,
           notifyDialog, notifyForm, deployTutorialDialog, notifyGuideDialog, autostartSupported, addAccountDialog, newAccountName, renameDialog, renameId, renameName,
           qrWaitSec, qrWaitText,
+          checkupDialog, checkupLoading, checkupData, runCheckup,
+          monthStat,
         sendOneDialog, sendOneNames, sendOneDry, enabledFriends, qrDialog, qrImg, qrMsg, qrNote, qrEngine, qrMode,
           qrSessionActive, qrNeedVerify, qrVerifyType, resendVerifyCode, switchToWindowVerify, manualMode, manualText, qrText, dragState, toggleManualMode, toggleDragMode, onQrClick, manualDoType, manualScroll, doDrag, copyQrDiagnosis, saveQrShot, platform, browserOptions, detectedBrowsers, engines, customPath,
           enabledFriendCount, totalFriendCount, jitterMinutes,
