@@ -182,26 +182,38 @@ def _start_run(
     extra: dict | None = None,
 ) -> None:
     lock = _run_lock()
-    # 定时/补发撞车 → **排队等待**（避免静默丢掉一次发送）；手动点发送 → 立即提示（不用干等）
+    # 定时/补发撞车 → 排队等待（避免静默丢掉一次发送）；手动点发送 → 立即提示（不用干等）
     if bool((extra or {}).get("queued")):
         if not lock.acquire(timeout=900):
             raise HTTPException(status_code=409, detail="排队等待超时（前面的任务一直没结束）")
         logger.info("【%s】已进入发送队列（同一工作区内串行，等待前一个任务结束）", acc_id)
-    else:
-        # 全量发送（定时/手动发全部好友）本来就覆盖所有好友 → 先取消还挂着的补发，
-    # 避免"补发刚补成功、紧接着全量又发一遍"造成重复发送。
-    if (not dry) and only_names is None:
-        try:
-            scheduler.cancel_retry(acc_id)
-        except Exception:
-            pass
     elif not lock.acquire(blocking=False):
         raise HTTPException(
             status_code=409,
             detail="已有任务在运行（同一工作区内串行执行，等它结束再试）",
         )
 
+    # 全量发送（定时/手动发全部好友）本来就覆盖所有好友 → 取消还挂着的补发，避免重复发送
+    if (not dry) and only_names is None:
+        try:
+            scheduler.cancel_retry(acc_id)
+        except Exception:
+            pass
+
+    # threading.Thread 不继承 contextvars：先在调用线程记下"当前工作区"，
+    # 进线程后再恢复；否则非默认工作区的发送会误操作默认工作区的数据（严重）。
+    try:
+        _ws = workspace.current_ws()
+    except Exception:
+        _ws = None
+
     def worker() -> None:
+        _cv = None
+        try:
+            if _ws:
+                _cv = ctx.set_root(workspace.ws_paths(_ws)["root"])
+        except Exception:
+            _cv = None
         acc_dir = None
         try:
             acc_dir = _get_account(acc_id)
@@ -262,6 +274,11 @@ def _start_run(
             logger.warning("【%s】任务启动失败: %s", acc_id, e.detail)
         finally:
             set_log_account(None)
+            if _cv is not None:
+                try:
+                    ctx.reset_root(_cv)
+                except Exception:
+                    pass
             lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
