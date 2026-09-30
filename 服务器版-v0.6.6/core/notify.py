@@ -110,13 +110,28 @@ def _json_or_empty(body: str) -> dict:
 
 
 def _send_ntfy(url: str, title: str, content: str) -> None:
-    req = urllib.request.Request(url, data=content.encode("utf-8"), method="POST")
-    req.add_header("Title", title)
-    req.add_header("Content-Type", "text/plain; charset=utf-8")
+    """用 ntfy 的 JSON 发布接口发送。
+
+    注意：不要用 `Title` 请求头发标题 —— HTTP 头只能是 latin-1，
+    中文标题（如「🔥 火花助手：测试通知」）会在 urllib 里直接报
+    `'latin-1' codec can't encode characters` 而发送失败（实测踩过）。
+    """
+    parsed = urllib.parse.urlparse(url)
+    topic = parsed.path.strip("/")
+    root = urllib.parse.urlunparse((parsed.scheme, parsed.netloc, "/", "", "", ""))
+    if not topic:
+        raise RuntimeError("ntfy 地址里缺少话题名（应形如 https://ntfy.sh/你的话题名）")
+    payload = json.dumps({"topic": topic, "title": title, "message": content}).encode("utf-8")
+    req = urllib.request.Request(root, data=payload, method="POST")
+    req.add_header("Content-Type", "application/json")
     with urllib.request.urlopen(req, timeout=10) as r:
         body = r.read().decode("utf-8", "replace")
     if r.status >= 400:
         raise RuntimeError(f"HTTP {r.status} {body[:80]}")
+    info = _json_or_empty(body)
+    # ntfy 正常情况下回 {"id": "...", ...}；没有 id 也没有 code 时提示一下，便于排查
+    if not info.get("id") and not info.get("code"):
+        raise RuntimeError(f"响应异常：{body[:80]}")
 
 
 def _send_serverchan(sendkey: str, title: str, content: str) -> None:
@@ -174,6 +189,7 @@ def send_notification(cfg: dict, title: str, content: str) -> list[str]:
     notify = (cfg or {}).get("notify") or {}
     results: list[str] = []
     desktop = _truthy(notify.get("desktop", True))
+    webhook_on = _truthy(notify.get("webhook_enabled", False))
     if _IS_WIN:
         if desktop:
             ok, err = _windows_toast(title, content)
@@ -183,9 +199,10 @@ def send_notification(cfg: dict, title: str, content: str) -> list[str]:
                 results.append(f"Windows 桌面通知 ✗（{err or '发送失败'}）")
         else:
             results.append("桌面通知未开启")
-    elif desktop:
-        results.append("桌面通知不可用（服务器无桌面，请配置 webhook 通知）")
-    if _truthy(notify.get("webhook_enabled", False)):
+    elif desktop and not webhook_on:
+        # 服务器没有桌面：只有在"也没配 webhook"时才提示，免得配好之后还刷这句噪音
+        results.append("桌面通知不可用（服务器无桌面，请在下面配置 webhook 推送）")
+    if webhook_on:
         results.append(_send_webhook(notify, title, content))
     if not results:
         # 一条渠道都没走成：以前返回空列表，前端会把它显示成绿色的"成功"，

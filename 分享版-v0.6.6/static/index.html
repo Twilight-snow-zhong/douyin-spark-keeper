@@ -1248,7 +1248,8 @@
       <div style="text-align:center;">
         <img v-if="qrImg" :src="qrImg" :style="qrSessionActive ? 'width:100%;max-width:460px;height:auto;border:1px solid var(--el-border-color);border-radius:8px;cursor:crosshair;' : 'width:230px;height:230px;border:1px solid var(--el-border-color);border-radius:8px;'" @click="onQrClick" title="手动操作模式下点击画面可控制页面" />
         <el-empty v-else :description="qrSessionActive ? '二维码加载中…' : '选择浏览器后点「开始扫码登录」'" :image-size="60"></el-empty>
-        <p class="muted" style="margin-top:10px;">{{ qrMsg }}</p>
+        <!-- 未开始时不再重复空状态里已写的那句话 -->
+          <p v-if="qrMsg && (qrSessionActive || qrMsg.indexOf('请选择浏览器') < 0)" class="muted" style="margin-top:10px;">{{ qrMsg }}</p>
         <p v-if="qrNote" class="muted" style="font-size:11px;">{{ qrNote }}</p>
         <p v-if="qrSessionActive && qrMode === 'window'" class="muted">已弹出真实浏览器窗口：请直接在该窗口里用手机抖音 App 扫码（如果窗口里没自动出现二维码，手动点页面右上角「登录」）。下方为实时画面预览，登录完成前不要关闭那个窗口。</p>
         <p v-else-if="qrSessionActive" class="muted">用手机抖音 App 右上角「扫一扫」扫码，确认登录后自动关联到当前账号</p>
@@ -2237,7 +2238,10 @@
         function emojiSrc(name) {
           return '/api/emojis/file?name=' + encodeURIComponent(name) + '&token=' + encodeURIComponent(token.value);
         }
+        // 1×1 透明占位图：登录前还没有令牌，直接返回它，避免带着空 token 去请求图标（那会刷一堆 401）
+        const BLANK_ICON = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
         function stickerIconSrc(name) {
+          if (!token.value) return BLANK_ICON;
           return '/api/sticker-icons/file?name=' + encodeURIComponent(name + '.png') + '&token=' + encodeURIComponent(token.value);
         }
         function hideStickerIcon(ev) { ev.target.style.display = 'none'; }
