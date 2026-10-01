@@ -174,6 +174,35 @@ def _notify_run(acc_id: str, acc_name: str, result: dict, with_reasons: bool = F
     except Exception as e:
         logger.warning("发送通知异常: %s", str(e)[:100])
 
+def _ws_wrapped(fn):
+    """包一层：让后台线程也能拿到"当前工作区"。
+
+    threading.Thread **不继承 contextvars** ✗ —— 不包的话，非默认工作区的后台任务
+    （抓取聊天列表、同步火花、表情探测、登录会话、备份…）会误用默认工作区的数据，
+    表现为"子工作区里点了没反应/报账号不存在"。
+    """
+    try:
+        _ws = workspace.current_ws()
+    except Exception:
+        _ws = None
+
+    def _runner(*a, **kw):
+        _cv = None
+        try:
+            if _ws:
+                _cv = ctx.set_root(workspace.ws_paths(_ws)["root"])
+        except Exception:
+            _cv = None
+        try:
+            return fn(*a, **kw)
+        finally:
+            if _cv is not None:
+                try:
+                    ctx.reset_root(_cv)
+                except Exception:
+                    pass
+    return _runner
+
 def _start_run(
     acc_id: str,
     dry: bool,
@@ -280,7 +309,7 @@ def _start_run(
                     pass
             lock.release()
 
-    threading.Thread(target=worker, daemon=True).start()
+    threading.Thread(target=_ws_wrapped(worker), daemon=True).start()
 
 
 def _start_fetch_contacts(acc_id: str) -> None:
@@ -304,7 +333,7 @@ def _start_fetch_contacts(acc_id: str) -> None:
             set_log_account(None)
             run_lock.release()
 
-    threading.Thread(target=worker, daemon=True).start()
+    threading.Thread(target=_ws_wrapped(worker), daemon=True).start()
 
 
 def _start_sync_streaks(acc_id: str) -> None:
@@ -345,7 +374,7 @@ def _start_sync_streaks(acc_id: str) -> None:
             set_log_account(None)
             run_lock.release()
 
-    threading.Thread(target=worker, daemon=True).start()
+    threading.Thread(target=_ws_wrapped(worker), daemon=True).start()
 
 
 def _start_image_diag(acc_id: str, test_target: str = "") -> None:
@@ -377,7 +406,7 @@ def _start_image_diag(acc_id: str, test_target: str = "") -> None:
             set_log_account(None)
             run_lock.release()
 
-    threading.Thread(target=worker, daemon=True).start()
+    threading.Thread(target=_ws_wrapped(worker), daemon=True).start()
 
 
 def _start_emoji_diag(acc_id: str) -> None:
@@ -410,7 +439,7 @@ def _start_emoji_diag(acc_id: str) -> None:
             set_log_account(None)
             run_lock.release()
 
-    threading.Thread(target=worker, daemon=True).start()
+    threading.Thread(target=_ws_wrapped(worker), daemon=True).start()
 
 
 def _start_emoji_probe(
@@ -447,7 +476,7 @@ def _start_emoji_probe(
             set_log_account(None)
             run_lock.release()
 
-    threading.Thread(target=worker, daemon=True).start()
+    threading.Thread(target=_ws_wrapped(worker), daemon=True).start()
 
 
 def _start_emoji_rec(acc_id: str, target: str = "") -> None:
@@ -478,7 +507,7 @@ def _start_emoji_rec(acc_id: str, target: str = "") -> None:
             set_log_account(None)
             run_lock.release()
 
-    threading.Thread(target=worker, daemon=True).start()
+    threading.Thread(target=_ws_wrapped(worker), daemon=True).start()
 
 
 @asynccontextmanager
@@ -976,7 +1005,7 @@ def api_run_all(body: RunBody, token: str = Header(default="", alias="X-Auth-Tok
             set_log_account(None)
             run_lock.release()
 
-    threading.Thread(target=worker, daemon=True).start()
+    threading.Thread(target=_ws_wrapped(worker), daemon=True).start()
     return {"ok": True, "started": True, "accounts": len(enabled)}
 
 
@@ -1484,5 +1513,5 @@ if __name__ == "__main__":
             except Exception:
                 pass
 
-        threading.Thread(target=_open_browser, daemon=True).start()
+        threading.Thread(target=_ws_wrapped(_open_browser), daemon=True).start()
     uvicorn.run(app, host=host, port=port, log_level="info")
