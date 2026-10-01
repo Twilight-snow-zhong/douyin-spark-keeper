@@ -303,7 +303,7 @@ def _start_fetch_contacts(acc_id: str) -> None:
             contacts_fetching[acc_id] = False
         finally:
             set_log_account(None)
-            lock.release()
+            run_lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -344,7 +344,7 @@ def _start_sync_streaks(acc_id: str) -> None:
             streak_syncing[acc_id] = False
         finally:
             set_log_account(None)
-            lock.release()
+            run_lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -376,7 +376,7 @@ def _start_image_diag(acc_id: str, test_target: str = "") -> None:
             image_diag_running[acc_id] = False
         finally:
             set_log_account(None)
-            lock.release()
+            run_lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -409,7 +409,7 @@ def _start_emoji_diag(acc_id: str) -> None:
             image_diag_running[acc_id] = False
         finally:
             set_log_account(None)
-            lock.release()
+            run_lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -446,7 +446,7 @@ def _start_emoji_probe(
             image_diag_running[acc_id] = False
         finally:
             set_log_account(None)
-            lock.release()
+            run_lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -477,7 +477,7 @@ def _start_emoji_rec(acc_id: str, target: str = "") -> None:
             image_diag_running[acc_id] = False
         finally:
             set_log_account(None)
-            lock.release()
+            run_lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
 
@@ -975,7 +975,7 @@ def api_run_all(body: RunBody, token: str = Header(default="", alias="X-Auth-Tok
                     set_running(acc_dir, False)
         finally:
             set_log_account(None)
-            lock.release()
+            run_lock.release()
 
     threading.Thread(target=worker, daemon=True).start()
     return {"ok": True, "started": True, "accounts": len(enabled)}
