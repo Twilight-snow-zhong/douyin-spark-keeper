@@ -1,0 +1,12 @@
+# 访问令牌与运行数据（绝不能提交）
+.env
+data/
+
+# Python 缓存
+*.pyc
+__pycache__/
+
+# 编辑器 / 临时备份
+*.bak-*
+.venv/
+node_modules/
